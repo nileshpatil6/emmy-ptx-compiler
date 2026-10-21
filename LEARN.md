@@ -383,7 +383,7 @@ with `base`, Assigns with exp, and grouped loads. No new statement kinds.
 ```
 compile.py               CLI: read argv[1], print PTX or an error on stderr
 emmyptx/loader.py        Stage 1: Graph.from_dict, buffers, meta.json -> KernelSpec
-emmyptx/analysis.py      Stage 2: read-only inputs, accumulators, fusable products
+emmyptx/analysis.py      Stage 2: read-only inputs, accumulators, fusable products, vector loads
 emmyptx/lower.py         Stage 3: one _stmt_<Kind> method per statement kind
 emmyptx/index.py           integer index expressions (normalize, fold, reuse)
 emmyptx/elementwise.py     Value, conversions, arithmetic, exp / tanh / erf ...
@@ -476,7 +476,9 @@ rounds exactly as numpy does. We only create fmas ourselves where the IR accumul
 **Q8. What optimizations did you do and how much did they help?**
 Full unrolling of loops the IR marks `unroll=True`, canonical affine index expressions (so
 addresses become register + constant and equal expressions are computed once), fusing
-`acc += a * b` into `fma`, and read-only cached loads for inputs. The 512 x 512 matmul went
+`acc += a * b` into `fma`, read-only cached loads for inputs, and merging neighbouring aligned
+loads into vector loads. Each was measured on the runner; one variant of the last (merging
+shared loads in loops that stay rolled) made a kernel slower, so it is restricted. The 512 x 512 matmul went
 from 29.3 to 15.0 microseconds. They are all generic: none depends on a specific problem.
 
 **Q9. What happens with an IR feature you do not support?**
