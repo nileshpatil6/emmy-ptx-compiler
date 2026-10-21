@@ -160,8 +160,8 @@ class Elementwise:
                 b.ins("neg.f32", r, a[0])
             case "abs":
                 b.ins("abs.f32", r, a[0])
-            case "copy" | "pad":
-                return a[0]
+            case "copy" | "pad":  # a real copy: the source may be an accumulator updated later
+                b.ins("mov.f32", r, a[0])
             case "reciprocal":
                 b.ins("rcp.rn.f32", r, a[0])
             case "sqrt":

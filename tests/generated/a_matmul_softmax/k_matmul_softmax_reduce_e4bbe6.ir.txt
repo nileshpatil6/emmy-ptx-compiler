@@ -1,0 +1,427 @@
+    Tile[a0_b, a5_b, a0_u, a5_u] (N=384)
+        Init(f32 acc4__c0_0 = 0.0)
+        Init(f32 acc4__c0_1 = 0.0)
+        Init(f32 acc4__c1_0 = 0.0)
+        Init(f32 acc4__c1_1 = 0.0)
+        Init(f32 acc4__c2_0 = 0.0)
+        Init(f32 acc4__c2_1 = 0.0)
+        Init(f32 acc4__c3_0 = 0.0)
+        Init(f32 acc4__c3_1 = 0.0)
+        Init(f32 acc4__c4_0 = 0.0)
+        Init(f32 acc4__c4_1 = 0.0)
+        Init(f32 acc4__c5_0 = 0.0)
+        Init(f32 acc4__c5_1 = 0.0)
+        Init(f32 acc4__c6_0 = 0.0)
+        Init(f32 acc4__c6_1 = 0.0)
+        Init(f32 acc4__c7_0 = 0.0)
+        Init(f32 acc4__c7_1 = 0.0)
+        Smem float _a_smem[64, 128] align=16
+        Smem float _b_smem[128, 32] align=16
+        for _ks in 0..128:128
+            cp.async[16B] _a_smem[0, 0] + lane(((((a0_u * 16) + a5_u) * 4) / 128), ((((a0_u * 16) + a5_u) * 4) % 128)) <- x[((a0_b * 64) + (((((a0_u * 16) + a5_u) * 4) / 128) + 0)), (_ks + ((((a0_u * 16) + a5_u) * 4) % 128))]
+            cp.async[16B] _a_smem[4, 0] + lane(((((a0_u * 16) + a5_u) * 4) / 128), ((((a0_u * 16) + a5_u) * 4) % 128)) <- x[((a0_b * 64) + (((((a0_u * 16) + a5_u) * 4) / 128) + 4)), (_ks + ((((a0_u * 16) + a5_u) * 4) % 128))]
+            cp.async[16B] _a_smem[8, 0] + lane(((((a0_u * 16) + a5_u) * 4) / 128), ((((a0_u * 16) + a5_u) * 4) % 128)) <- x[((a0_b * 64) + (((((a0_u * 16) + a5_u) * 4) / 128) + 8)), (_ks + ((((a0_u * 16) + a5_u) * 4) % 128))]
+            cp.async[16B] _a_smem[12, 0] + lane(((((a0_u * 16) + a5_u) * 4) / 128), ((((a0_u * 16) + a5_u) * 4) % 128)) <- x[((a0_b * 64) + (((((a0_u * 16) + a5_u) * 4) / 128) + 12)), (_ks + ((((a0_u * 16) + a5_u) * 4) % 128))]
+            cp.async[16B] _a_smem[16, 0] + lane(((((a0_u * 16) + a5_u) * 4) / 128), ((((a0_u * 16) + a5_u) * 4) % 128)) <- x[((a0_b * 64) + (((((a0_u * 16) + a5_u) * 4) / 128) + 16)), (_ks + ((((a0_u * 16) + a5_u) * 4) % 128))]
+            cp.async[16B] _a_smem[20, 0] + lane(((((a0_u * 16) + a5_u) * 4) / 128), ((((a0_u * 16) + a5_u) * 4) % 128)) <- x[((a0_b * 64) + (((((a0_u * 16) + a5_u) * 4) / 128) + 20)), (_ks + ((((a0_u * 16) + a5_u) * 4) % 128))]
+            cp.async[16B] _a_smem[24, 0] + lane(((((a0_u * 16) + a5_u) * 4) / 128), ((((a0_u * 16) + a5_u) * 4) % 128)) <- x[((a0_b * 64) + (((((a0_u * 16) + a5_u) * 4) / 128) + 24)), (_ks + ((((a0_u * 16) + a5_u) * 4) % 128))]
+            cp.async[16B] _a_smem[28, 0] + lane(((((a0_u * 16) + a5_u) * 4) / 128), ((((a0_u * 16) + a5_u) * 4) % 128)) <- x[((a0_b * 64) + (((((a0_u * 16) + a5_u) * 4) / 128) + 28)), (_ks + ((((a0_u * 16) + a5_u) * 4) % 128))]
+            cp.async[16B] _a_smem[32, 0] + lane(((((a0_u * 16) + a5_u) * 4) / 128), ((((a0_u * 16) + a5_u) * 4) % 128)) <- x[((a0_b * 64) + (((((a0_u * 16) + a5_u) * 4) / 128) + 32)), (_ks + ((((a0_u * 16) + a5_u) * 4) % 128))]
+            cp.async[16B] _a_smem[36, 0] + lane(((((a0_u * 16) + a5_u) * 4) / 128), ((((a0_u * 16) + a5_u) * 4) % 128)) <- x[((a0_b * 64) + (((((a0_u * 16) + a5_u) * 4) / 128) + 36)), (_ks + ((((a0_u * 16) + a5_u) * 4) % 128))]
+            cp.async[16B] _a_smem[40, 0] + lane(((((a0_u * 16) + a5_u) * 4) / 128), ((((a0_u * 16) + a5_u) * 4) % 128)) <- x[((a0_b * 64) + (((((a0_u * 16) + a5_u) * 4) / 128) + 40)), (_ks + ((((a0_u * 16) + a5_u) * 4) % 128))]
+            cp.async[16B] _a_smem[44, 0] + lane(((((a0_u * 16) + a5_u) * 4) / 128), ((((a0_u * 16) + a5_u) * 4) % 128)) <- x[((a0_b * 64) + (((((a0_u * 16) + a5_u) * 4) / 128) + 44)), (_ks + ((((a0_u * 16) + a5_u) * 4) % 128))]
+            cp.async[16B] _a_smem[48, 0] + lane(((((a0_u * 16) + a5_u) * 4) / 128), ((((a0_u * 16) + a5_u) * 4) % 128)) <- x[((a0_b * 64) + (((((a0_u * 16) + a5_u) * 4) / 128) + 48)), (_ks + ((((a0_u * 16) + a5_u) * 4) % 128))]
+            cp.async[16B] _a_smem[52, 0] + lane(((((a0_u * 16) + a5_u) * 4) / 128), ((((a0_u * 16) + a5_u) * 4) % 128)) <- x[((a0_b * 64) + (((((a0_u * 16) + a5_u) * 4) / 128) + 52)), (_ks + ((((a0_u * 16) + a5_u) * 4) % 128))]
+            cp.async[16B] _a_smem[56, 0] + lane(((((a0_u * 16) + a5_u) * 4) / 128), ((((a0_u * 16) + a5_u) * 4) % 128)) <- x[((a0_b * 64) + (((((a0_u * 16) + a5_u) * 4) / 128) + 56)), (_ks + ((((a0_u * 16) + a5_u) * 4) % 128))]
+            cp.async[16B] _a_smem[60, 0] + lane(((((a0_u * 16) + a5_u) * 4) / 128), ((((a0_u * 16) + a5_u) * 4) % 128)) <- x[((a0_b * 64) + (((((a0_u * 16) + a5_u) * 4) / 128) + 60)), (_ks + ((((a0_u * 16) + a5_u) * 4) % 128))]
+            cp.async[16B] _b_smem[0, 0] + lane(((((a0_u * 16) + a5_u) * 4) / 32), ((((a0_u * 16) + a5_u) * 4) % 32)) <- w[(_ks + (((((a0_u * 16) + a5_u) * 4) / 32) + 0)), ((a5_b * 32) + ((((a0_u * 16) + a5_u) * 4) % 32))]
+            cp.async[16B] _b_smem[16, 0] + lane(((((a0_u * 16) + a5_u) * 4) / 32), ((((a0_u * 16) + a5_u) * 4) % 32)) <- w[(_ks + (((((a0_u * 16) + a5_u) * 4) / 32) + 16)), ((a5_b * 32) + ((((a0_u * 16) + a5_u) * 4) % 32))]
+            cp.async[16B] _b_smem[32, 0] + lane(((((a0_u * 16) + a5_u) * 4) / 32), ((((a0_u * 16) + a5_u) * 4) % 32)) <- w[(_ks + (((((a0_u * 16) + a5_u) * 4) / 32) + 32)), ((a5_b * 32) + ((((a0_u * 16) + a5_u) * 4) % 32))]
+            cp.async[16B] _b_smem[48, 0] + lane(((((a0_u * 16) + a5_u) * 4) / 32), ((((a0_u * 16) + a5_u) * 4) % 32)) <- w[(_ks + (((((a0_u * 16) + a5_u) * 4) / 32) + 48)), ((a5_b * 32) + ((((a0_u * 16) + a5_u) * 4) % 32))]
+            cp.async[16B] _b_smem[64, 0] + lane(((((a0_u * 16) + a5_u) * 4) / 32), ((((a0_u * 16) + a5_u) * 4) % 32)) <- w[(_ks + (((((a0_u * 16) + a5_u) * 4) / 32) + 64)), ((a5_b * 32) + ((((a0_u * 16) + a5_u) * 4) % 32))]
+            cp.async[16B] _b_smem[80, 0] + lane(((((a0_u * 16) + a5_u) * 4) / 32), ((((a0_u * 16) + a5_u) * 4) % 32)) <- w[(_ks + (((((a0_u * 16) + a5_u) * 4) / 32) + 80)), ((a5_b * 32) + ((((a0_u * 16) + a5_u) * 4) % 32))]
+            cp.async[16B] _b_smem[96, 0] + lane(((((a0_u * 16) + a5_u) * 4) / 32), ((((a0_u * 16) + a5_u) * 4) % 32)) <- w[(_ks + (((((a0_u * 16) + a5_u) * 4) / 32) + 96)), ((a5_b * 32) + ((((a0_u * 16) + a5_u) * 4) % 32))]
+            cp.async[16B] _b_smem[112, 0] + lane(((((a0_u * 16) + a5_u) * 4) / 32), ((((a0_u * 16) + a5_u) * 4) % 32)) <- w[(_ks + (((((a0_u * 16) + a5_u) * 4) / 32) + 112)), ((a5_b * 32) + ((((a0_u * 16) + a5_u) * 4) % 32))]
+            cp.async.commit_group
+            cp.async.wait_group(0)
+            Sync
+            for _ki in 0..128
+                in4__c0_0 = load _b_smem[_ki, ((((a5_b * 32) + (a5_u * 2)) + 0) - (a5_b * 32))]
+                in5__c0_0 = load _a_smem[((((a0_b * 64) + (a0_u * 8)) + 0) - (a0_b * 64)), _ki]
+                f32 acc4__v__c0_0 = multiply(in4__c0_0, in5__c0_0)
+                f32 acc4__c0_0 <- add(acc4__c0_0, acc4__v__c0_0)
+                in4__c0_1 = load _b_smem[_ki, ((((a5_b * 32) + (a5_u * 2)) + 1) - (a5_b * 32))]
+                f32 acc4__v__c0_1 = multiply(in4__c0_1, in5__c0_0)
+                f32 acc4__c0_1 <- add(acc4__c0_1, acc4__v__c0_1)
+                in5__c1_0 = load _a_smem[((((a0_b * 64) + (a0_u * 8)) + 1) - (a0_b * 64)), _ki]
+                f32 acc4__v__c1_0 = multiply(in4__c0_0, in5__c1_0)
+                f32 acc4__c1_0 <- add(acc4__c1_0, acc4__v__c1_0)
+                f32 acc4__v__c1_1 = multiply(in4__c0_1, in5__c1_0)
+                f32 acc4__c1_1 <- add(acc4__c1_1, acc4__v__c1_1)
+                in5__c2_0 = load _a_smem[((((a0_b * 64) + (a0_u * 8)) + 2) - (a0_b * 64)), _ki]
+                f32 acc4__v__c2_0 = multiply(in4__c0_0, in5__c2_0)
+                f32 acc4__c2_0 <- add(acc4__c2_0, acc4__v__c2_0)
+                f32 acc4__v__c2_1 = multiply(in4__c0_1, in5__c2_0)
+                f32 acc4__c2_1 <- add(acc4__c2_1, acc4__v__c2_1)
+                in5__c3_0 = load _a_smem[((((a0_b * 64) + (a0_u * 8)) + 3) - (a0_b * 64)), _ki]
+                f32 acc4__v__c3_0 = multiply(in4__c0_0, in5__c3_0)
+                f32 acc4__c3_0 <- add(acc4__c3_0, acc4__v__c3_0)
+                f32 acc4__v__c3_1 = multiply(in4__c0_1, in5__c3_0)
+                f32 acc4__c3_1 <- add(acc4__c3_1, acc4__v__c3_1)
+                in5__c4_0 = load _a_smem[((((a0_b * 64) + (a0_u * 8)) + 4) - (a0_b * 64)), _ki]
+                f32 acc4__v__c4_0 = multiply(in4__c0_0, in5__c4_0)
+                f32 acc4__c4_0 <- add(acc4__c4_0, acc4__v__c4_0)
+                f32 acc4__v__c4_1 = multiply(in4__c0_1, in5__c4_0)
+                f32 acc4__c4_1 <- add(acc4__c4_1, acc4__v__c4_1)
+                in5__c5_0 = load _a_smem[((((a0_b * 64) + (a0_u * 8)) + 5) - (a0_b * 64)), _ki]
+                f32 acc4__v__c5_0 = multiply(in4__c0_0, in5__c5_0)
+                f32 acc4__c5_0 <- add(acc4__c5_0, acc4__v__c5_0)
+                f32 acc4__v__c5_1 = multiply(in4__c0_1, in5__c5_0)
+                f32 acc4__c5_1 <- add(acc4__c5_1, acc4__v__c5_1)
+                in5__c6_0 = load _a_smem[((((a0_b * 64) + (a0_u * 8)) + 6) - (a0_b * 64)), _ki]
+                f32 acc4__v__c6_0 = multiply(in4__c0_0, in5__c6_0)
+                f32 acc4__c6_0 <- add(acc4__c6_0, acc4__v__c6_0)
+                f32 acc4__v__c6_1 = multiply(in4__c0_1, in5__c6_0)
+                f32 acc4__c6_1 <- add(acc4__c6_1, acc4__v__c6_1)
+                in5__c7_0 = load _a_smem[((((a0_b * 64) + (a0_u * 8)) + 7) - (a0_b * 64)), _ki]
+                f32 acc4__v__c7_0 = multiply(in4__c0_0, in5__c7_0)
+                f32 acc4__c7_0 <- add(acc4__c7_0, acc4__v__c7_0)
+                f32 acc4__v__c7_1 = multiply(in4__c0_1, in5__c7_0)
+                f32 acc4__c7_1 <- add(acc4__c7_1, acc4__v__c7_1)
+            Sync
+        for a1 in 0..96
+            for a2 in 0..128
+                in1__c0_0 = load x[(((a0_b * 64) + (a0_u * 8)) + 0), a2]
+                in0__c0_0 = load w[a2, a1]
+                f32 v0__c0_0 = multiply(in0__c0_0, in1__c0_0)
+                f32 acc0__c0_0 <- add(acc0__c0_0, v0__c0_0)
+            f32 one__c0_0 = 1.0
+            f32 acc0__gn__c0_0 = maximum(acc0__c0_0, acc1__c0_0)
+            f32 acc0__dg__c0_0 = subtract(acc1__c0_0, acc0__gn__c0_0)
+            f32 acc0__alpha__c0_0 = exp(acc0__dg__c0_0)
+            f32 acc0__dg_o__c0_0 = subtract(acc0__c0_0, acc0__gn__c0_0)
+            f32 acc0__beta__c0_0 = exp(acc0__dg_o__c0_0)
+            f32 acc0__acc3_sa__c0_0 = multiply(acc0__alpha__c0_0, acc3__c0_0)
+            f32 acc0__acc3_sb__c0_0 = multiply(acc0__beta__c0_0, one__c0_0)
+            f32 acc3__c0_0 <- add(acc0__acc3_sa__c0_0, acc0__acc3_sb__c0_0)
+            f32 acc1__c0_0 <- maximum(acc1__c0_0, acc0__c0_0)
+        f32 v4__c0_0 = reciprocal(acc3__c0_0)
+        f32 v6__c0_0 = subtract(acc4__c0_0, acc1__c0_0)
+        f32 v7__c0_0 = exp(v6__c0_0)
+        f32 v8__c0_0 = multiply(v4__c0_0, v7__c0_0)
+        softmax[(((a0_b * 64) + (a0_u * 8)) + 0), (((a5_b * 32) + (a5_u * 2)) + 0)] = v8__c0_0
+        for a1 in 0..96
+            for a2 in 0..128
+                in1__c0_1 = load x[(((a0_b * 64) + (a0_u * 8)) + 0), a2]
+                in0__c0_1 = load w[a2, a1]
+                f32 v0__c0_1 = multiply(in0__c0_1, in1__c0_1)
+                f32 acc0__c0_1 <- add(acc0__c0_1, v0__c0_1)
+            f32 one__c0_1 = 1.0
+            f32 acc0__gn__c0_1 = maximum(acc0__c0_1, acc1__c0_1)
+            f32 acc0__dg__c0_1 = subtract(acc1__c0_1, acc0__gn__c0_1)
+            f32 acc0__alpha__c0_1 = exp(acc0__dg__c0_1)
+            f32 acc0__dg_o__c0_1 = subtract(acc0__c0_1, acc0__gn__c0_1)
+            f32 acc0__beta__c0_1 = exp(acc0__dg_o__c0_1)
+            f32 acc0__acc3_sa__c0_1 = multiply(acc0__alpha__c0_1, acc3__c0_1)
+            f32 acc0__acc3_sb__c0_1 = multiply(acc0__beta__c0_1, one__c0_1)
+            f32 acc3__c0_1 <- add(acc0__acc3_sa__c0_1, acc0__acc3_sb__c0_1)
+            f32 acc1__c0_1 <- maximum(acc1__c0_1, acc0__c0_1)
+        f32 v4__c0_1 = reciprocal(acc3__c0_1)
+        f32 v6__c0_1 = subtract(acc4__c0_1, acc1__c0_1)
+        f32 v7__c0_1 = exp(v6__c0_1)
+        f32 v8__c0_1 = multiply(v4__c0_1, v7__c0_1)
+        softmax[(((a0_b * 64) + (a0_u * 8)) + 0), (((a5_b * 32) + (a5_u * 2)) + 1)] = v8__c0_1
+        for a1 in 0..96
+            for a2 in 0..128
+                in1__c1_0 = load x[(((a0_b * 64) + (a0_u * 8)) + 1), a2]
+                in0__c1_0 = load w[a2, a1]
+                f32 v0__c1_0 = multiply(in0__c1_0, in1__c1_0)
+                f32 acc0__c1_0 <- add(acc0__c1_0, v0__c1_0)
+            f32 one__c1_0 = 1.0
+            f32 acc0__gn__c1_0 = maximum(acc0__c1_0, acc1__c1_0)
+            f32 acc0__dg__c1_0 = subtract(acc1__c1_0, acc0__gn__c1_0)
+            f32 acc0__alpha__c1_0 = exp(acc0__dg__c1_0)
+            f32 acc0__dg_o__c1_0 = subtract(acc0__c1_0, acc0__gn__c1_0)
+            f32 acc0__beta__c1_0 = exp(acc0__dg_o__c1_0)
+            f32 acc0__acc3_sa__c1_0 = multiply(acc0__alpha__c1_0, acc3__c1_0)
+            f32 acc0__acc3_sb__c1_0 = multiply(acc0__beta__c1_0, one__c1_0)
+            f32 acc3__c1_0 <- add(acc0__acc3_sa__c1_0, acc0__acc3_sb__c1_0)
+            f32 acc1__c1_0 <- maximum(acc1__c1_0, acc0__c1_0)
+        f32 v4__c1_0 = reciprocal(acc3__c1_0)
+        f32 v6__c1_0 = subtract(acc4__c1_0, acc1__c1_0)
+        f32 v7__c1_0 = exp(v6__c1_0)
+        f32 v8__c1_0 = multiply(v4__c1_0, v7__c1_0)
+        softmax[(((a0_b * 64) + (a0_u * 8)) + 1), (((a5_b * 32) + (a5_u * 2)) + 0)] = v8__c1_0
+        for a1 in 0..96
+            for a2 in 0..128
+                in1__c1_1 = load x[(((a0_b * 64) + (a0_u * 8)) + 1), a2]
+                in0__c1_1 = load w[a2, a1]
+                f32 v0__c1_1 = multiply(in0__c1_1, in1__c1_1)
+                f32 acc0__c1_1 <- add(acc0__c1_1, v0__c1_1)
+            f32 one__c1_1 = 1.0
+            f32 acc0__gn__c1_1 = maximum(acc0__c1_1, acc1__c1_1)
+            f32 acc0__dg__c1_1 = subtract(acc1__c1_1, acc0__gn__c1_1)
+            f32 acc0__alpha__c1_1 = exp(acc0__dg__c1_1)
+            f32 acc0__dg_o__c1_1 = subtract(acc0__c1_1, acc0__gn__c1_1)
+            f32 acc0__beta__c1_1 = exp(acc0__dg_o__c1_1)
+            f32 acc0__acc3_sa__c1_1 = multiply(acc0__alpha__c1_1, acc3__c1_1)
+            f32 acc0__acc3_sb__c1_1 = multiply(acc0__beta__c1_1, one__c1_1)
+            f32 acc3__c1_1 <- add(acc0__acc3_sa__c1_1, acc0__acc3_sb__c1_1)
+            f32 acc1__c1_1 <- maximum(acc1__c1_1, acc0__c1_1)
+        f32 v4__c1_1 = reciprocal(acc3__c1_1)
+        f32 v6__c1_1 = subtract(acc4__c1_1, acc1__c1_1)
+        f32 v7__c1_1 = exp(v6__c1_1)
+        f32 v8__c1_1 = multiply(v4__c1_1, v7__c1_1)
+        softmax[(((a0_b * 64) + (a0_u * 8)) + 1), (((a5_b * 32) + (a5_u * 2)) + 1)] = v8__c1_1
+        for a1 in 0..96
+            for a2 in 0..128
+                in1__c2_0 = load x[(((a0_b * 64) + (a0_u * 8)) + 2), a2]
+                in0__c2_0 = load w[a2, a1]
+                f32 v0__c2_0 = multiply(in0__c2_0, in1__c2_0)
+                f32 acc0__c2_0 <- add(acc0__c2_0, v0__c2_0)
+            f32 one__c2_0 = 1.0
+            f32 acc0__gn__c2_0 = maximum(acc0__c2_0, acc1__c2_0)
+            f32 acc0__dg__c2_0 = subtract(acc1__c2_0, acc0__gn__c2_0)
+            f32 acc0__alpha__c2_0 = exp(acc0__dg__c2_0)
+            f32 acc0__dg_o__c2_0 = subtract(acc0__c2_0, acc0__gn__c2_0)
+            f32 acc0__beta__c2_0 = exp(acc0__dg_o__c2_0)
+            f32 acc0__acc3_sa__c2_0 = multiply(acc0__alpha__c2_0, acc3__c2_0)
+            f32 acc0__acc3_sb__c2_0 = multiply(acc0__beta__c2_0, one__c2_0)
+            f32 acc3__c2_0 <- add(acc0__acc3_sa__c2_0, acc0__acc3_sb__c2_0)
+            f32 acc1__c2_0 <- maximum(acc1__c2_0, acc0__c2_0)
+        f32 v4__c2_0 = reciprocal(acc3__c2_0)
+        f32 v6__c2_0 = subtract(acc4__c2_0, acc1__c2_0)
+        f32 v7__c2_0 = exp(v6__c2_0)
+        f32 v8__c2_0 = multiply(v4__c2_0, v7__c2_0)
+        softmax[(((a0_b * 64) + (a0_u * 8)) + 2), (((a5_b * 32) + (a5_u * 2)) + 0)] = v8__c2_0
+        for a1 in 0..96
+            for a2 in 0..128
+                in1__c2_1 = load x[(((a0_b * 64) + (a0_u * 8)) + 2), a2]
+                in0__c2_1 = load w[a2, a1]
+                f32 v0__c2_1 = multiply(in0__c2_1, in1__c2_1)
+                f32 acc0__c2_1 <- add(acc0__c2_1, v0__c2_1)
+            f32 one__c2_1 = 1.0
+            f32 acc0__gn__c2_1 = maximum(acc0__c2_1, acc1__c2_1)
+            f32 acc0__dg__c2_1 = subtract(acc1__c2_1, acc0__gn__c2_1)
+            f32 acc0__alpha__c2_1 = exp(acc0__dg__c2_1)
+            f32 acc0__dg_o__c2_1 = subtract(acc0__c2_1, acc0__gn__c2_1)
+            f32 acc0__beta__c2_1 = exp(acc0__dg_o__c2_1)
+            f32 acc0__acc3_sa__c2_1 = multiply(acc0__alpha__c2_1, acc3__c2_1)
+            f32 acc0__acc3_sb__c2_1 = multiply(acc0__beta__c2_1, one__c2_1)
+            f32 acc3__c2_1 <- add(acc0__acc3_sa__c2_1, acc0__acc3_sb__c2_1)
+            f32 acc1__c2_1 <- maximum(acc1__c2_1, acc0__c2_1)
+        f32 v4__c2_1 = reciprocal(acc3__c2_1)
+        f32 v6__c2_1 = subtract(acc4__c2_1, acc1__c2_1)
+        f32 v7__c2_1 = exp(v6__c2_1)
+        f32 v8__c2_1 = multiply(v4__c2_1, v7__c2_1)
+        softmax[(((a0_b * 64) + (a0_u * 8)) + 2), (((a5_b * 32) + (a5_u * 2)) + 1)] = v8__c2_1
+        for a1 in 0..96
+            for a2 in 0..128
+                in1__c3_0 = load x[(((a0_b * 64) + (a0_u * 8)) + 3), a2]
+                in0__c3_0 = load w[a2, a1]
+                f32 v0__c3_0 = multiply(in0__c3_0, in1__c3_0)
+                f32 acc0__c3_0 <- add(acc0__c3_0, v0__c3_0)
+            f32 one__c3_0 = 1.0
+            f32 acc0__gn__c3_0 = maximum(acc0__c3_0, acc1__c3_0)
+            f32 acc0__dg__c3_0 = subtract(acc1__c3_0, acc0__gn__c3_0)
+            f32 acc0__alpha__c3_0 = exp(acc0__dg__c3_0)
+            f32 acc0__dg_o__c3_0 = subtract(acc0__c3_0, acc0__gn__c3_0)
+            f32 acc0__beta__c3_0 = exp(acc0__dg_o__c3_0)
+            f32 acc0__acc3_sa__c3_0 = multiply(acc0__alpha__c3_0, acc3__c3_0)
+            f32 acc0__acc3_sb__c3_0 = multiply(acc0__beta__c3_0, one__c3_0)
+            f32 acc3__c3_0 <- add(acc0__acc3_sa__c3_0, acc0__acc3_sb__c3_0)
+            f32 acc1__c3_0 <- maximum(acc1__c3_0, acc0__c3_0)
+        f32 v4__c3_0 = reciprocal(acc3__c3_0)
+        f32 v6__c3_0 = subtract(acc4__c3_0, acc1__c3_0)
+        f32 v7__c3_0 = exp(v6__c3_0)
+        f32 v8__c3_0 = multiply(v4__c3_0, v7__c3_0)
+        softmax[(((a0_b * 64) + (a0_u * 8)) + 3), (((a5_b * 32) + (a5_u * 2)) + 0)] = v8__c3_0
+        for a1 in 0..96
+            for a2 in 0..128
+                in1__c3_1 = load x[(((a0_b * 64) + (a0_u * 8)) + 3), a2]
+                in0__c3_1 = load w[a2, a1]
+                f32 v0__c3_1 = multiply(in0__c3_1, in1__c3_1)
+                f32 acc0__c3_1 <- add(acc0__c3_1, v0__c3_1)
+            f32 one__c3_1 = 1.0
+            f32 acc0__gn__c3_1 = maximum(acc0__c3_1, acc1__c3_1)
+            f32 acc0__dg__c3_1 = subtract(acc1__c3_1, acc0__gn__c3_1)
+            f32 acc0__alpha__c3_1 = exp(acc0__dg__c3_1)
+            f32 acc0__dg_o__c3_1 = subtract(acc0__c3_1, acc0__gn__c3_1)
+            f32 acc0__beta__c3_1 = exp(acc0__dg_o__c3_1)
+            f32 acc0__acc3_sa__c3_1 = multiply(acc0__alpha__c3_1, acc3__c3_1)
+            f32 acc0__acc3_sb__c3_1 = multiply(acc0__beta__c3_1, one__c3_1)
+            f32 acc3__c3_1 <- add(acc0__acc3_sa__c3_1, acc0__acc3_sb__c3_1)
+            f32 acc1__c3_1 <- maximum(acc1__c3_1, acc0__c3_1)
+        f32 v4__c3_1 = reciprocal(acc3__c3_1)
+        f32 v6__c3_1 = subtract(acc4__c3_1, acc1__c3_1)
+        f32 v7__c3_1 = exp(v6__c3_1)
+        f32 v8__c3_1 = multiply(v4__c3_1, v7__c3_1)
+        softmax[(((a0_b * 64) + (a0_u * 8)) + 3), (((a5_b * 32) + (a5_u * 2)) + 1)] = v8__c3_1
+        for a1 in 0..96
+            for a2 in 0..128
+                in1__c4_0 = load x[(((a0_b * 64) + (a0_u * 8)) + 4), a2]
+                in0__c4_0 = load w[a2, a1]
+                f32 v0__c4_0 = multiply(in0__c4_0, in1__c4_0)
+                f32 acc0__c4_0 <- add(acc0__c4_0, v0__c4_0)
+            f32 one__c4_0 = 1.0
+            f32 acc0__gn__c4_0 = maximum(acc0__c4_0, acc1__c4_0)
+            f32 acc0__dg__c4_0 = subtract(acc1__c4_0, acc0__gn__c4_0)
+            f32 acc0__alpha__c4_0 = exp(acc0__dg__c4_0)
+            f32 acc0__dg_o__c4_0 = subtract(acc0__c4_0, acc0__gn__c4_0)
+            f32 acc0__beta__c4_0 = exp(acc0__dg_o__c4_0)
+            f32 acc0__acc3_sa__c4_0 = multiply(acc0__alpha__c4_0, acc3__c4_0)
+            f32 acc0__acc3_sb__c4_0 = multiply(acc0__beta__c4_0, one__c4_0)
+            f32 acc3__c4_0 <- add(acc0__acc3_sa__c4_0, acc0__acc3_sb__c4_0)
+            f32 acc1__c4_0 <- maximum(acc1__c4_0, acc0__c4_0)
+        f32 v4__c4_0 = reciprocal(acc3__c4_0)
+        f32 v6__c4_0 = subtract(acc4__c4_0, acc1__c4_0)
+        f32 v7__c4_0 = exp(v6__c4_0)
+        f32 v8__c4_0 = multiply(v4__c4_0, v7__c4_0)
+        softmax[(((a0_b * 64) + (a0_u * 8)) + 4), (((a5_b * 32) + (a5_u * 2)) + 0)] = v8__c4_0
+        for a1 in 0..96
+            for a2 in 0..128
+                in1__c4_1 = load x[(((a0_b * 64) + (a0_u * 8)) + 4), a2]
+                in0__c4_1 = load w[a2, a1]
+                f32 v0__c4_1 = multiply(in0__c4_1, in1__c4_1)
+                f32 acc0__c4_1 <- add(acc0__c4_1, v0__c4_1)
+            f32 one__c4_1 = 1.0
+            f32 acc0__gn__c4_1 = maximum(acc0__c4_1, acc1__c4_1)
+            f32 acc0__dg__c4_1 = subtract(acc1__c4_1, acc0__gn__c4_1)
+            f32 acc0__alpha__c4_1 = exp(acc0__dg__c4_1)
+            f32 acc0__dg_o__c4_1 = subtract(acc0__c4_1, acc0__gn__c4_1)
+            f32 acc0__beta__c4_1 = exp(acc0__dg_o__c4_1)
+            f32 acc0__acc3_sa__c4_1 = multiply(acc0__alpha__c4_1, acc3__c4_1)
+            f32 acc0__acc3_sb__c4_1 = multiply(acc0__beta__c4_1, one__c4_1)
+            f32 acc3__c4_1 <- add(acc0__acc3_sa__c4_1, acc0__acc3_sb__c4_1)
+            f32 acc1__c4_1 <- maximum(acc1__c4_1, acc0__c4_1)
+        f32 v4__c4_1 = reciprocal(acc3__c4_1)
+        f32 v6__c4_1 = subtract(acc4__c4_1, acc1__c4_1)
+        f32 v7__c4_1 = exp(v6__c4_1)
+        f32 v8__c4_1 = multiply(v4__c4_1, v7__c4_1)
+        softmax[(((a0_b * 64) + (a0_u * 8)) + 4), (((a5_b * 32) + (a5_u * 2)) + 1)] = v8__c4_1
+        for a1 in 0..96
+            for a2 in 0..128
+                in1__c5_0 = load x[(((a0_b * 64) + (a0_u * 8)) + 5), a2]
+                in0__c5_0 = load w[a2, a1]
+                f32 v0__c5_0 = multiply(in0__c5_0, in1__c5_0)
+                f32 acc0__c5_0 <- add(acc0__c5_0, v0__c5_0)
+            f32 one__c5_0 = 1.0
+            f32 acc0__gn__c5_0 = maximum(acc0__c5_0, acc1__c5_0)
+            f32 acc0__dg__c5_0 = subtract(acc1__c5_0, acc0__gn__c5_0)
+            f32 acc0__alpha__c5_0 = exp(acc0__dg__c5_0)
+            f32 acc0__dg_o__c5_0 = subtract(acc0__c5_0, acc0__gn__c5_0)
+            f32 acc0__beta__c5_0 = exp(acc0__dg_o__c5_0)
+            f32 acc0__acc3_sa__c5_0 = multiply(acc0__alpha__c5_0, acc3__c5_0)
+            f32 acc0__acc3_sb__c5_0 = multiply(acc0__beta__c5_0, one__c5_0)
+            f32 acc3__c5_0 <- add(acc0__acc3_sa__c5_0, acc0__acc3_sb__c5_0)
+            f32 acc1__c5_0 <- maximum(acc1__c5_0, acc0__c5_0)
+        f32 v4__c5_0 = reciprocal(acc3__c5_0)
+        f32 v6__c5_0 = subtract(acc4__c5_0, acc1__c5_0)
+        f32 v7__c5_0 = exp(v6__c5_0)
+        f32 v8__c5_0 = multiply(v4__c5_0, v7__c5_0)
+        softmax[(((a0_b * 64) + (a0_u * 8)) + 5), (((a5_b * 32) + (a5_u * 2)) + 0)] = v8__c5_0
+        for a1 in 0..96
+            for a2 in 0..128
+                in1__c5_1 = load x[(((a0_b * 64) + (a0_u * 8)) + 5), a2]
+                in0__c5_1 = load w[a2, a1]
+                f32 v0__c5_1 = multiply(in0__c5_1, in1__c5_1)
+                f32 acc0__c5_1 <- add(acc0__c5_1, v0__c5_1)
+            f32 one__c5_1 = 1.0
+            f32 acc0__gn__c5_1 = maximum(acc0__c5_1, acc1__c5_1)
+            f32 acc0__dg__c5_1 = subtract(acc1__c5_1, acc0__gn__c5_1)
+            f32 acc0__alpha__c5_1 = exp(acc0__dg__c5_1)
+            f32 acc0__dg_o__c5_1 = subtract(acc0__c5_1, acc0__gn__c5_1)
+            f32 acc0__beta__c5_1 = exp(acc0__dg_o__c5_1)
+            f32 acc0__acc3_sa__c5_1 = multiply(acc0__alpha__c5_1, acc3__c5_1)
+            f32 acc0__acc3_sb__c5_1 = multiply(acc0__beta__c5_1, one__c5_1)
+            f32 acc3__c5_1 <- add(acc0__acc3_sa__c5_1, acc0__acc3_sb__c5_1)
+            f32 acc1__c5_1 <- maximum(acc1__c5_1, acc0__c5_1)
+        f32 v4__c5_1 = reciprocal(acc3__c5_1)
+        f32 v6__c5_1 = subtract(acc4__c5_1, acc1__c5_1)
+        f32 v7__c5_1 = exp(v6__c5_1)
+        f32 v8__c5_1 = multiply(v4__c5_1, v7__c5_1)
+        softmax[(((a0_b * 64) + (a0_u * 8)) + 5), (((a5_b * 32) + (a5_u * 2)) + 1)] = v8__c5_1
+        for a1 in 0..96
+            for a2 in 0..128
+                in1__c6_0 = load x[(((a0_b * 64) + (a0_u * 8)) + 6), a2]
+                in0__c6_0 = load w[a2, a1]
+                f32 v0__c6_0 = multiply(in0__c6_0, in1__c6_0)
+                f32 acc0__c6_0 <- add(acc0__c6_0, v0__c6_0)
+            f32 one__c6_0 = 1.0
+            f32 acc0__gn__c6_0 = maximum(acc0__c6_0, acc1__c6_0)
+            f32 acc0__dg__c6_0 = subtract(acc1__c6_0, acc0__gn__c6_0)
+            f32 acc0__alpha__c6_0 = exp(acc0__dg__c6_0)
+            f32 acc0__dg_o__c6_0 = subtract(acc0__c6_0, acc0__gn__c6_0)
+            f32 acc0__beta__c6_0 = exp(acc0__dg_o__c6_0)
+            f32 acc0__acc3_sa__c6_0 = multiply(acc0__alpha__c6_0, acc3__c6_0)
+            f32 acc0__acc3_sb__c6_0 = multiply(acc0__beta__c6_0, one__c6_0)
+            f32 acc3__c6_0 <- add(acc0__acc3_sa__c6_0, acc0__acc3_sb__c6_0)
+            f32 acc1__c6_0 <- maximum(acc1__c6_0, acc0__c6_0)
+        f32 v4__c6_0 = reciprocal(acc3__c6_0)
+        f32 v6__c6_0 = subtract(acc4__c6_0, acc1__c6_0)
+        f32 v7__c6_0 = exp(v6__c6_0)
+        f32 v8__c6_0 = multiply(v4__c6_0, v7__c6_0)
+        softmax[(((a0_b * 64) + (a0_u * 8)) + 6), (((a5_b * 32) + (a5_u * 2)) + 0)] = v8__c6_0
+        for a1 in 0..96
+            for a2 in 0..128
+                in1__c6_1 = load x[(((a0_b * 64) + (a0_u * 8)) + 6), a2]
+                in0__c6_1 = load w[a2, a1]
+                f32 v0__c6_1 = multiply(in0__c6_1, in1__c6_1)
+                f32 acc0__c6_1 <- add(acc0__c6_1, v0__c6_1)
+            f32 one__c6_1 = 1.0
+            f32 acc0__gn__c6_1 = maximum(acc0__c6_1, acc1__c6_1)
+            f32 acc0__dg__c6_1 = subtract(acc1__c6_1, acc0__gn__c6_1)
+            f32 acc0__alpha__c6_1 = exp(acc0__dg__c6_1)
+            f32 acc0__dg_o__c6_1 = subtract(acc0__c6_1, acc0__gn__c6_1)
+            f32 acc0__beta__c6_1 = exp(acc0__dg_o__c6_1)
+            f32 acc0__acc3_sa__c6_1 = multiply(acc0__alpha__c6_1, acc3__c6_1)
+            f32 acc0__acc3_sb__c6_1 = multiply(acc0__beta__c6_1, one__c6_1)
+            f32 acc3__c6_1 <- add(acc0__acc3_sa__c6_1, acc0__acc3_sb__c6_1)
+            f32 acc1__c6_1 <- maximum(acc1__c6_1, acc0__c6_1)
+        f32 v4__c6_1 = reciprocal(acc3__c6_1)
+        f32 v6__c6_1 = subtract(acc4__c6_1, acc1__c6_1)
+        f32 v7__c6_1 = exp(v6__c6_1)
+        f32 v8__c6_1 = multiply(v4__c6_1, v7__c6_1)
+        softmax[(((a0_b * 64) + (a0_u * 8)) + 6), (((a5_b * 32) + (a5_u * 2)) + 1)] = v8__c6_1
+        for a1 in 0..96
+            for a2 in 0..128
+                in1__c7_0 = load x[(((a0_b * 64) + (a0_u * 8)) + 7), a2]
+                in0__c7_0 = load w[a2, a1]
+                f32 v0__c7_0 = multiply(in0__c7_0, in1__c7_0)
+                f32 acc0__c7_0 <- add(acc0__c7_0, v0__c7_0)
+            f32 one__c7_0 = 1.0
+            f32 acc0__gn__c7_0 = maximum(acc0__c7_0, acc1__c7_0)
+            f32 acc0__dg__c7_0 = subtract(acc1__c7_0, acc0__gn__c7_0)
+            f32 acc0__alpha__c7_0 = exp(acc0__dg__c7_0)
+            f32 acc0__dg_o__c7_0 = subtract(acc0__c7_0, acc0__gn__c7_0)
+            f32 acc0__beta__c7_0 = exp(acc0__dg_o__c7_0)
+            f32 acc0__acc3_sa__c7_0 = multiply(acc0__alpha__c7_0, acc3__c7_0)
+            f32 acc0__acc3_sb__c7_0 = multiply(acc0__beta__c7_0, one__c7_0)
+            f32 acc3__c7_0 <- add(acc0__acc3_sa__c7_0, acc0__acc3_sb__c7_0)
+            f32 acc1__c7_0 <- maximum(acc1__c7_0, acc0__c7_0)
+        f32 v4__c7_0 = reciprocal(acc3__c7_0)
+        f32 v6__c7_0 = subtract(acc4__c7_0, acc1__c7_0)
+        f32 v7__c7_0 = exp(v6__c7_0)
+        f32 v8__c7_0 = multiply(v4__c7_0, v7__c7_0)
+        softmax[(((a0_b * 64) + (a0_u * 8)) + 7), (((a5_b * 32) + (a5_u * 2)) + 0)] = v8__c7_0
+        for a1 in 0..96
+            for a2 in 0..128
+                in1__c7_1 = load x[(((a0_b * 64) + (a0_u * 8)) + 7), a2]
+                in0__c7_1 = load w[a2, a1]
+                f32 v0__c7_1 = multiply(in0__c7_1, in1__c7_1)
+                f32 acc0__c7_1 <- add(acc0__c7_1, v0__c7_1)
+            f32 one__c7_1 = 1.0
+            f32 acc0__gn__c7_1 = maximum(acc0__c7_1, acc1__c7_1)
+            f32 acc0__dg__c7_1 = subtract(acc1__c7_1, acc0__gn__c7_1)
+            f32 acc0__alpha__c7_1 = exp(acc0__dg__c7_1)
+            f32 acc0__dg_o__c7_1 = subtract(acc0__c7_1, acc0__gn__c7_1)
+            f32 acc0__beta__c7_1 = exp(acc0__dg_o__c7_1)
+            f32 acc0__acc3_sa__c7_1 = multiply(acc0__alpha__c7_1, acc3__c7_1)
+            f32 acc0__acc3_sb__c7_1 = multiply(acc0__beta__c7_1, one__c7_1)
+            f32 acc3__c7_1 <- add(acc0__acc3_sa__c7_1, acc0__acc3_sb__c7_1)
+            f32 acc1__c7_1 <- maximum(acc1__c7_1, acc0__c7_1)
+        f32 v4__c7_1 = reciprocal(acc3__c7_1)
+        f32 v6__c7_1 = subtract(acc4__c7_1, acc1__c7_1)
+        f32 v7__c7_1 = exp(v6__c7_1)
+        f32 v8__c7_1 = multiply(v4__c7_1, v7__c7_1)
+        softmax[(((a0_b * 64) + (a0_u * 8)) + 7), (((a5_b * 32) + (a5_u * 2)) + 1)] = v8__c7_1

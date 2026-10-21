@@ -80,6 +80,8 @@ OPEN = [
          ref=lambda a, b: [a * b], rtol=1e-3, atol=1e-3),
     dict(id="p_f16_exp", code="torch.exp(torch.randn(1024, dtype=torch.float16))",
          ref=lambda x: [np.exp(x.astype(np.float64)).astype(np.float16)], rtol=1e-3, atol=1e-3),
+    dict(id="p_int64", code="torch.randint(0, 10, (1000,)) * 3 + torch.randint(0, 10, (1000,))", ref=lambda a, b: [a * 3 + b], **EXACT),
+    dict(id="p_int_float", code="torch.randint(0, 10, (1000,)) * torch.randn(1000)", ref=lambda a, b: [(a * b).astype(np.float32)], **EXACT),
     dict(id="p_f64_add", code="torch.randn(1000, dtype=torch.float64) + torch.randn(1000, dtype=torch.float64)",
          ref=lambda a, b: [a + b], rtol=1e-6, atol=1e-6),
     # ---- category 2: reductions --------------------------------------------------
@@ -95,6 +97,10 @@ OPEN = [
     dict(id="r_row_sum_unpinned", code="torch.randn(256, 512).sum(-1)", ref=lambda x: out32(f64(x)[0].sum(-1)), **RED),
     dict(id="r_sumsq", code="x = torch.randn(4096); (x * x).sum()", ref=lambda x: out32((f64(x)[0] ** 2).sum()), **RED, knobs=COOP),
     dict(id="r_3d_last", code="torch.randn(4, 16, 200).sum(-1)", ref=lambda x: out32(f64(x)[0].sum(-1)), **RED, knobs=COOP),
+    dict(id="r_f16_sum", code="torch.randn(4096, dtype=torch.float16).sum()", ref=lambda x: [f64(x)[0].sum().astype(np.float16)], rtol=1e-2, atol=1e-2, knobs=COOP),
+    dict(id="r_col_mean_split", code="torch.randn(1000, 33).mean(0)", ref=lambda x: out32(f64(x)[0].mean(0)), **RED),
+    dict(id="r_max_unpinned", code="torch.randn(100000).amax()", ref=lambda x: [x.max()], **EXACT),
+    dict(id="r_cumsum", code="torch.randn(64, 32).cumsum(-1)", ref=lambda x: out32(f64(x)[0].cumsum(-1)), **RED),
     dict(id="r_abs_sum", code="torch.randn(64, 256).abs().sum(-1)", ref=lambda x: out32(np.abs(f64(x)[0]).sum(-1)), **RED, knobs=COOP),
     # ---- category 3: matmul --------------------------------------------------------
     dict(id="m_square_256", code="torch.randn(256, 256) @ torch.randn(256, 256)", ref=lambda a, b: out32(f64(a)[0] @ f64(b)[0]), rtol=1e-3, atol=1e-3),
@@ -107,6 +113,7 @@ OPEN = [
          ref=lambda x, w, b: out32(f64(x)[0] @ f64(w)[0] + b), rtol=1e-3, atol=1e-3),
     dict(id="m_relu", code="torch.relu(torch.randn(128, 128) @ torch.randn(128, 128))",
          ref=lambda a, b: out32(np.maximum(f64(a)[0] @ f64(b)[0], 0)), rtol=1e-3, atol=1e-3),
+    dict(id="m_large", code="torch.randn(512, 768) @ torch.randn(768, 384)", ref=lambda a, b: out32(f64(a)[0] @ f64(b)[0]), rtol=1e-3, atol=1e-3),
     dict(id="m_batched", code="torch.randn(4, 32, 64) @ torch.randn(4, 64, 48)", ref=lambda a, b: out32(f64(a)[0] @ f64(b)[0]), rtol=1e-3, atol=1e-3),
     # ---- category 4: fused ----------------------------------------------------------
     dict(id="f_rmsnorm_512", code="x = torch.randn(32, 512); w = torch.randn(512); x / torch.sqrt((x * x).mean(-1, keepdim=True) + 1e-6) * w",
@@ -134,6 +141,10 @@ OPEN = [
          ref=lambda q, kt, v: out32(softmax((f64(q)[0] @ f64(kt)[0]) / 8.0) @ f64(v)[0]), **LOOSE),
     dict(id="a_attn_odd", code="q = torch.randn(50, 24); kt = torch.randn(24, 70); v = torch.randn(70, 40); torch.softmax(q @ kt * 0.2, dim=-1) @ v",
          ref=lambda q, kt, v: out32(softmax((f64(q)[0] @ f64(kt)[0]) * 0.2) @ f64(v)[0]), **LOOSE),
+    dict(id="a_matmul_softmax", code="x = torch.randn(64, 128); w = torch.randn(128, 96); torch.softmax(x @ w, dim=-1)",
+         ref=lambda x, w: out32(softmax(f64(x)[0] @ f64(w)[0])), **LOOSE),
+    dict(id="a_attn_512", code="q = torch.randn(512, 64); kt = torch.randn(64, 512); v = torch.randn(512, 64); torch.softmax(q @ kt / 8.0, dim=-1) @ v",
+         ref=lambda q, kt, v: out32(softmax((f64(q)[0] @ f64(kt)[0]) / 8.0) @ f64(v)[0]), **LOOSE),
     dict(id="a_attn_batched", code="q = torch.randn(2, 64, 32); kt = torch.randn(2, 32, 64); v = torch.randn(2, 64, 32); torch.softmax(q @ kt / 5.656854, dim=-1) @ v",
          ref=lambda q, kt, v: out32(softmax((f64(q)[0] @ f64(kt)[0]) / 5.656854) @ f64(v)[0]), **LOOSE),
 ]

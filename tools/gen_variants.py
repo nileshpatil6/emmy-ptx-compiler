@@ -30,7 +30,11 @@ def main() -> int:
     cmd = [sys.executable, str(generator), str(ROOT / "tests" / "variants.py"), "--out", str(ROOT / "tests" / "generated")]
     if args.only:
         cmd += ["--only", args.only]
-    return subprocess.run(cmd).returncode
+    status = subprocess.run(cmd).returncode
+    # The reference CUDA is never used by our compiler; keep the suite lean.
+    for ref in (ROOT / "tests" / "generated").glob("*/*.ref.cu"):
+        ref.unlink()
+    return status
 
 
 if __name__ == "__main__":
