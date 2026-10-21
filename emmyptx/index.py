@@ -18,6 +18,7 @@ Two small optimisations keep the generated PTX short and readable:
 
 from __future__ import annotations
 
+import math
 from collections.abc import Callable
 
 from emmy.compiler.ir.expr import BinaryExpr, Literal, TernaryExpr, Var
@@ -154,6 +155,26 @@ def split_constant(expr) -> tuple[object | None, int]:
     ``x[4*i + 2]`` share the address register of ``4*i``."""
     terms, const = linearize(expr)
     return rebuild(terms), const
+
+
+def flatten(shape: tuple[int, ...], index: tuple):
+    """Row-major flat element offset of ``index`` in a buffer of ``shape``:
+    ``x[a, b]`` with shape (64, 512) is element ``a * 512 + b``."""
+    if not index:
+        return Literal(0, "int")
+    if len(index) == 1:
+        return index[0]
+    if len(shape) != len(index):  # emmy's convention for a rank mismatch: sum the coordinates
+        flat = index[0]
+        for e in index[1:]:
+            flat = BinaryExpr("+", flat, e)
+        return flat
+    flat = None
+    for d, e in enumerate(index):
+        stride = math.prod(shape[d + 1 :])
+        term = e if stride == 1 else BinaryExpr("*", e, Literal(stride, "int"))
+        flat = term if flat is None else BinaryExpr("+", flat, term)
+    return flat
 
 
 class IndexLowerer:

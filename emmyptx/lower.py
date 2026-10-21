@@ -30,10 +30,10 @@ from emmy.compiler.ir.elementwise import reduce_canon
 from emmy.compiler.ir.expr import BinaryExpr, Literal, TernaryExpr, Var
 
 from emmyptx import dtypes
-from emmyptx.analysis import carried_names, fusable_products, read_only_buffers, statement_count
+from emmyptx.analysis import carried_names, fusable_products, read_only_buffers, statement_count, vector_load_groups
 from emmyptx.dtypes import F16, F32, I32, DType
 from emmyptx.elementwise import Elementwise, Value
-from emmyptx.index import IndexLowerer, split_constant
+from emmyptx.index import IndexLowerer, flatten, split_constant
 from emmyptx.loader import CompileError, KernelSpec
 from emmyptx.ptx import PtxBuilder, SharedArray, render_kernel
 
@@ -71,6 +71,8 @@ class KernelLowering:
         self.carried = carried_names(spec.body)
         self.fused_products = fusable_products(spec.body, self.carried)
         self.deferred: dict[str, tuple[Value, Value]] = {}
+        self.load_groups = vector_load_groups(spec, self.read_only)
+        self.merged_loads = {id(m) for g in self.load_groups.values() for m in g[1:]}
 
     # ---- driver ------------------------------------------------------------
     def run(self) -> str:
@@ -217,22 +219,7 @@ class KernelLowering:
 
     def _flatten(self, name: str, index: tuple):
         """Row-major flat element offset of ``index`` in buffer ``name``."""
-        shape = self.smem[name].shape if name in self.smem else self.spec.buffers[name].shape
-        if not index:
-            return Literal(0, "int")
-        if len(index) == 1:
-            return index[0]
-        if len(shape) != len(index):  # emmy's convention for a rank mismatch
-            flat = index[0]
-            for e in index[1:]:
-                flat = BinaryExpr("+", flat, e)
-            return flat
-        flat = None
-        for d, e in enumerate(index):
-            stride = math.prod(shape[d + 1 :])
-            term = e if stride == 1 else BinaryExpr("*", e, Literal(stride, "int"))
-            flat = term if flat is None else BinaryExpr("+", flat, term)
-        return flat
+        return flatten(self.smem[name].shape if name in self.smem else self.spec.buffers[name].shape, index)
 
     def _address(self, name: str, flat, swizzle: str = "NONE") -> str:
         """``[reg+offset]`` addressing element ``flat`` of buffer ``name``.
@@ -290,6 +277,14 @@ class KernelLowering:
         return r
 
     def _stmt_Load(self, s) -> None:
+        if id(s) in self.merged_loads:  # already loaded by its group's vector load
+            return
+        if id(s) in self.load_groups:
+            group = self.load_groups[id(s)]  # in lane order; s is the first in program order
+            values = self._load_vector(s.input, self._flatten(s.input, group[0].index), F32, len(group))
+            for load, v in zip(group, values, strict=True):
+                self.bind(load.names[0], v)
+            return
         dt = self._buffer_dtype(s.input)
         width = len(s.names)
         if width > 1 and _vector_ok(dt, width):
