@@ -395,7 +395,7 @@ A tour in the order a kernel flows through:
 
 1. **`loader.load_kernel`** returns a `KernelSpec`: kernel name, the statement list, the
    parameter order (from meta.json), every buffer's shape and dtype, and the launch geometry.
-2. **`analysis`** answers three questions before emitting anything (see the file).
+2. **`analysis`** answers four questions before emitting anything (see the file).
 3. **`lower.KernelLowering.run`** emits the prologue (load the pointer parameters, read
    `%tid.x` and friends, compute `lane` and `warp`), then calls `_body` on the statements.
    `_body` dispatches by class name: a `Load` goes to `_stmt_Load`, and so on. The
