@@ -24,7 +24,7 @@ class DType:
     reg: str  # register class (see ptx.REG_CLASSES)
     mem: str  # PTX type suffix for ld / st / cvt
     size: int  # bytes per element
-    kind: str  # "float", "int" (signed) or "uint"
+    kind: str  # "float", "int" (signed), "uint" or "bool"
 
     @property
     def is_float(self) -> bool:
@@ -45,8 +45,9 @@ U8 = DType("u8", "s32", "u8", 1, "uint")
 U16 = DType("u16", "s32", "u16", 2, "uint")
 U32 = DType("u32", "s32", "u32", 4, "uint")
 U64 = DType("u64", "s64", "u64", 8, "uint")
+BOOL = DType("bool", "s32", "u8", 1, "bool")  # 0 or 1 in a register, one byte in memory
 
-BY_NAME: dict[str, DType] = {d.name: d for d in (F16, F32, F64, I16, I32, I64, U8, U16, U32, U64)}
+BY_NAME: dict[str, DType] = {d.name: d for d in (F16, F32, F64, I16, I32, I64, U8, U16, U32, U64, BOOL)}
 
 # Shared-memory arrays name their element type in CUDA spelling.
 _SMEM_SPELLING = {
@@ -58,6 +59,7 @@ _SMEM_SPELLING = {
     "long long": I64,
     "unsigned int": U32,
     "unsigned char": U8,
+    "bool": BOOL,
 }
 
 

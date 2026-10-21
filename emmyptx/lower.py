@@ -369,6 +369,22 @@ class KernelLowering:
         v = Value(self.idx.int_(s.value), I32)
         self.bind(s.name, self.ew.convert(v, dt) if dt is not None and dt is not I32 else v)
 
+    def _stmt_Select(self, s) -> None:
+        """``name = value_i`` for the first branch whose predicate holds (the
+        last branch is the catch-all), as a chain of ``selp``."""
+        *conditional, last = s.branches
+        result = self.ew.convert(self.lookup(last.value), F32)
+        for br in reversed(conditional):
+            value = self.ew.convert(self.lookup(br.value), F32)
+            known = self.idx.const(br.select)
+            if known is not None:
+                result = value if known else result
+                continue
+            r = self.b.reg("f32")
+            self.b.ins("selp.f32", r, value.reg, result.reg, self.idx.pred(br.select))
+            result = Value(r, F32)
+        self.bind(s.name, result)
+
     def _stmt_Init(self, s) -> None:
         dt = dtypes.compute_dtype(dtypes.get(s.dtype))
         self.bind(s.name, self.ew.fresh(self.ew.constant(s.identity, dt)))

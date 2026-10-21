@@ -1,0 +1,53 @@
+{
+ "id": "p_f16_exp",
+ "code": "torch.exp(torch.randn(1024, dtype=torch.float16))",
+ "rtol": 0.001,
+ "atol": 0.001,
+ "graph_inputs": [
+  "x"
+ ],
+ "graph_outputs": [
+  "exp"
+ ],
+ "kernels": [
+  {
+   "node": "exp",
+   "entry": "k_exp_pointwise",
+   "arg_order": [
+    "x",
+    "exp"
+   ],
+   "grid": [
+    2,
+    1,
+    1
+   ],
+   "block": [
+    256,
+    1,
+    1
+   ],
+   "smem_bytes": 0,
+   "zero_outputs": [],
+   "args": [
+    {
+     "name": "x",
+     "dtype": "f16",
+     "shape": [
+      1024
+     ],
+     "seed": 0
+    },
+    {
+     "name": "exp",
+     "dtype": "f16",
+     "shape": [
+      1024
+     ],
+     "output": true
+    }
+   ],
+   "final": true
+  }
+ ]
+}

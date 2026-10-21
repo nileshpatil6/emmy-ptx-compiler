@@ -1,0 +1,64 @@
+{
+ "id": "p_sin_wide",
+ "code": "torch.sin(torch.randn(1024) * 20.0)",
+ "rtol": 1e-05,
+ "atol": 1e-05,
+ "graph_inputs": [
+  "x"
+ ],
+ "graph_outputs": [
+  "sin"
+ ],
+ "kernels": [
+  {
+   "node": "sin",
+   "entry": "k_sin_pointwise",
+   "arg_order": [
+    "mul_c1",
+    "x",
+    "sin"
+   ],
+   "grid": [
+    2,
+    1,
+    1
+   ],
+   "block": [
+    256,
+    1,
+    1
+   ],
+   "smem_bytes": 0,
+   "zero_outputs": [],
+   "args": [
+    {
+     "name": "mul_c1",
+     "dtype": "f32",
+     "shape": [
+      1
+     ],
+     "data": [
+      20.0
+     ]
+    },
+    {
+     "name": "x",
+     "dtype": "f32",
+     "shape": [
+      1024
+     ],
+     "seed": 0
+    },
+    {
+     "name": "sin",
+     "dtype": "f32",
+     "shape": [
+      1024
+     ],
+     "output": true
+    }
+   ],
+   "final": true
+  }
+ ]
+}

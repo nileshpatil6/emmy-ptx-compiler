@@ -1,0 +1,63 @@
+{
+ "id": "p_f16_mul",
+ "code": "torch.randn(1000, dtype=torch.float16) * torch.randn(1000, dtype=torch.float16)",
+ "rtol": 0.001,
+ "atol": 0.001,
+ "graph_inputs": [
+  "x0",
+  "x1"
+ ],
+ "graph_outputs": [
+  "mul"
+ ],
+ "kernels": [
+  {
+   "node": "mul",
+   "entry": "k_mul_pointwise",
+   "arg_order": [
+    "x0",
+    "x1",
+    "mul"
+   ],
+   "grid": [
+    2,
+    1,
+    1
+   ],
+   "block": [
+    256,
+    1,
+    1
+   ],
+   "smem_bytes": 0,
+   "zero_outputs": [],
+   "args": [
+    {
+     "name": "x0",
+     "dtype": "f16",
+     "shape": [
+      1000
+     ],
+     "seed": 0
+    },
+    {
+     "name": "x1",
+     "dtype": "f16",
+     "shape": [
+      1000
+     ],
+     "seed": 1
+    },
+    {
+     "name": "mul",
+     "dtype": "f16",
+     "shape": [
+      1000
+     ],
+     "output": true
+    }
+   ],
+   "final": true
+  }
+ ]
+}

@@ -1,0 +1,16 @@
+    Tile[a0] (N=512)
+        in0__u0 = load gt_c1[0]
+        in2__u0 = load x[((a0 * 2) + 0)]
+        bool v0__u0 = greater(in2__u0, in0__u0)
+        in1__u0 = load mul_c1[0]
+        in3__u0 = load y[((a0 * 2) + 0)]
+        f32 v1__u0 = multiply(in1__u0, in3__u0)
+        f32 v2__u0 = where(v0__u0, in2__u0, v1__u0)
+        in0__u1 = load gt_c1[0]
+        in2__u1 = load x[((a0 * 2) + 1)]
+        bool v0__u1 = greater(in2__u1, in0__u1)
+        in1__u1 = load mul_c1[0]
+        in3__u1 = load y[((a0 * 2) + 1)]
+        f32 v1__u1 = multiply(in1__u1, in3__u1)
+        f32 v2__u1 = where(v0__u1, in2__u1, v1__u1)
+        where[((a0 * 2) + 0)] = (v2__u0, v2__u1)

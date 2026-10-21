@@ -1,0 +1,12 @@
+    Tile[a0] (N=512)
+        in0__u0 = load x[((a0 * 2) + 0)]
+        in1__u0 = load y[((a0 * 2) + 0)]
+        f32 v0__u0 = maximum(in0__u0, in1__u0)
+        f32 v1__u0 = minimum(in0__u0, in1__u0)
+        f32 v2__u0 = subtract(v0__u0, v1__u0)
+        in0__u1 = load x[((a0 * 2) + 1)]
+        in1__u1 = load y[((a0 * 2) + 1)]
+        f32 v0__u1 = maximum(in0__u1, in1__u1)
+        f32 v1__u1 = minimum(in0__u1, in1__u1)
+        f32 v2__u1 = subtract(v0__u1, v1__u1)
+        sub[((a0 * 2) + 0)] = (v2__u0, v2__u1)

@@ -1,0 +1,10 @@
+    Tile[a0] (N=512)
+        in0__u0 = load mul_c1[0]
+        in1__u0 = load x[((a0 * 2) + 0)]
+        f32 v0__u0 = multiply(in0__u0, in1__u0)
+        f32 v1__u0 = sin(v0__u0)
+        in0__u1 = load mul_c1[0]
+        in1__u1 = load x[((a0 * 2) + 1)]
+        f32 v0__u1 = multiply(in0__u1, in1__u1)
+        f32 v1__u1 = sin(v0__u1)
+        sin[((a0 * 2) + 0)] = (v1__u0, v1__u1)

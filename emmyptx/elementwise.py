@@ -18,7 +18,7 @@ import math
 from dataclasses import dataclass
 
 from emmyptx import dtypes
-from emmyptx.dtypes import F16, F32, F64, DType
+from emmyptx.dtypes import BOOL, F16, F32, F64, DType
 from emmyptx.loader import CompileError
 from emmyptx.ptx import PtxBuilder, f32_imm
 
@@ -44,27 +44,36 @@ class Elementwise:
 
     # ---- conversions -----------------------------------------------------
     def convert(self, v: Value, to: DType) -> Value:
-        """Convert ``v`` to dtype ``to`` with C semantics (float -> int truncates)."""
+        """Convert ``v`` to dtype ``to`` with C semantics (float -> int truncates,
+        anything -> bool tests for non-zero)."""
         src = v.dtype
-        if src is to or (src.reg == to.reg and src.is_int and to.is_int and src.size <= 4 and to.size <= 4):
-            return Value(v.reg, to)
-        if src is F16 and to is not F32:
-            return self.convert(self.convert(v, F32), to)
-        if to is F16 and src is not F32:
-            return self.convert(self.convert(v, F32), to)
+        if to is BOOL and src is not BOOL:
+            return self._to_bool(v)
+        if src is to or (not src.is_float and not to.is_float and src.reg == to.reg and max(src.size, to.size) <= 4):
+            return Value(v.reg, to)  # same 32-bit register, nothing to do
+        if F16 in (src, to) and F32 not in (src, to):
+            return self.convert(self.convert(v, F32), to)  # f16 converts via f32
         r = self.b.reg(to.reg)
-        operand = v.reg
         if src.is_float and to.is_float:
-            # widening is exact; narrowing rounds to nearest
-            mode = "" if to.size > src.size else ".rn"
-            self.b.ins(f"cvt{mode}.{to.mem}.{src.mem}", r, operand)
-        elif src.is_int and to.is_float:
+            mode = "" if to.size > src.size else ".rn"  # widening is exact
+            self.b.ins(f"cvt{mode}.{to.mem}.{src.mem}", r, v.reg)
+        elif to.is_float:
             self.b.ins(f"cvt.rn.{to.mem}.{_int_cvt(src)}", r, self._reg(v))
-        elif src.is_float and to.is_int:
-            self.b.ins(f"cvt.rzi.{_int_cvt(to)}.{src.mem}", r, operand)
-        else:  # int -> int of a different register width
+        elif src.is_float:
+            self.b.ins(f"cvt.rzi.{_int_cvt(to)}.{src.mem}", r, v.reg)
+        else:  # integer -> integer of a different register width
             self.b.ins(f"cvt.{_int_cvt(to)}.{_int_cvt(src)}", r, self._reg(v))
         return Value(r, to)
+
+    def _to_bool(self, v: Value) -> Value:
+        p, r = self.b.reg("pred"), self.b.reg("s32")
+        if v.dtype.is_float:
+            v = self.convert(v, F32)
+            self.b.ins("setp.ne.f32", p, v.reg, f32_imm(0.0))
+        else:
+            self.b.ins(f"setp.ne.{_int_cvt(v.dtype)}", p, self._reg(v), "0")
+        self.b.ins("selp.u32", r, "1", "0", p)
+        return Value(r, BOOL)
 
     def _reg(self, v: Value) -> str:
         """Integer immediates must live in a register for some instructions."""
@@ -76,7 +85,7 @@ class Elementwise:
 
     def constant(self, value: float, dtype: DType) -> Value:
         """Materialize a numeric constant (an accumulator identity, a literal)."""
-        if dtype.is_int:
+        if not dtype.is_float:
             return Value(str(int(value)), dtype)
         r = self.b.reg(F32.reg)
         self.b.ins("mov.f32", r, f32_imm(value))
@@ -341,13 +350,13 @@ class Elementwise:
 
 
 def _int_cvt(dt: DType) -> str:
-    """Integer type suffix for an integer held in its register class."""
+    """Integer type suffix for an integer (or bool) held in its register class."""
     signed = dt.kind == "int"
     bits = 64 if dt.reg == "s64" else 32
     return f"{'s' if signed else 'u'}{bits}"
 
 
 def _mov_type(dt: DType) -> str:
-    if dt.is_int:
+    if not dt.is_float:
         return "b64" if dt.reg == "s64" else "b32"
     return {F16: "b16", F32: "f32", F64: "f64"}[dt]
