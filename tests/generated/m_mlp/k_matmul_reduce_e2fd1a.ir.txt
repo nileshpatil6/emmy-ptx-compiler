@@ -1,0 +1,24 @@
+    Tile[a0, a1, a2_co] (N=65536)
+        for a2 in a2_co..256:64
+            for a3 in 0..128
+                in1 = load x[a0, a3]
+                in0 = load w1[a3, a2]
+                f32 v0 = multiply(in0, in1)
+                f32 acc0 <- add(acc0, v0)
+            f32 v1 = relu(acc0)
+            in2 = load w2[a2, a1]
+            f32 v2 = multiply(in2, v1)
+            f32 acc1 <- add(acc1, v2)
+            for a3 in 0..128
+                in1__r1 = load x[a0, a3]
+                in0__r1 = load w1[a3, (a2 + 32)]
+                f32 v0__r1 = multiply(in0__r1, in1__r1)
+                f32 acc0__r1 <- add(acc0__r1, v0__r1)
+            f32 v1__r1 = relu(acc0__r1)
+            in2__r1 = load w2[(a2 + 32), a1]
+            f32 v2__r1 = multiply(in2__r1, v1__r1)
+            f32 acc1__r1 <- add(acc1__r1, v2__r1)
+        f32 acc1 <- add(acc1, acc1__r1)
+        WarpShuffle(acc1, length=32)
+        if ((a2_co == 0)):
+            matmul_1[a0, a1] = acc1

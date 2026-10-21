@@ -1,0 +1,77 @@
+{
+ "id": "m_mlp",
+ "code": "x = torch.randn(64, 128); w1 = torch.randn(128, 256); w2 = torch.randn(256, 32); torch.relu(x @ w1) @ w2",
+ "rtol": 0.001,
+ "atol": 0.001,
+ "graph_inputs": [
+  "x",
+  "w1",
+  "w2"
+ ],
+ "graph_outputs": [
+  "matmul_1"
+ ],
+ "kernels": [
+  {
+   "node": "matmul_1",
+   "entry": "k_matmul_reduce_e2fd1a",
+   "arg_order": [
+    "x",
+    "w1",
+    "w2",
+    "matmul_1"
+   ],
+   "grid": [
+    2048,
+    1,
+    1
+   ],
+   "block": [
+    32,
+    1,
+    1
+   ],
+   "smem_bytes": 0,
+   "zero_outputs": [],
+   "args": [
+    {
+     "name": "x",
+     "dtype": "f32",
+     "shape": [
+      64,
+      128
+     ],
+     "seed": 0
+    },
+    {
+     "name": "w1",
+     "dtype": "f32",
+     "shape": [
+      128,
+      256
+     ],
+     "seed": 1
+    },
+    {
+     "name": "w2",
+     "dtype": "f32",
+     "shape": [
+      256,
+      32
+     ],
+     "seed": 2
+    },
+    {
+     "name": "matmul_1",
+     "dtype": "f32",
+     "shape": [
+      64,
+      32
+     ],
+     "output": true
+    }
+   ],
+   "final": true
+  }
+ ]
+}

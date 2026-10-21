@@ -101,6 +101,9 @@ OPEN = [
     dict(id="r_col_mean_split", code="torch.randn(1000, 33).mean(0)", ref=lambda x: out32(f64(x)[0].mean(0)), **RED),
     dict(id="r_max_unpinned", code="torch.randn(100000).amax()", ref=lambda x: [x.max()], **EXACT),
     dict(id="r_cumsum", code="torch.randn(64, 32).cumsum(-1)", ref=lambda x: out32(f64(x)[0].cumsum(-1)), **RED),
+    dict(id="r_block256", code="torch.randn(64, 1000).sum(-1)", ref=lambda x: out32(f64(x)[0].sum(-1)), **RED, knobs="WORK=t256,REDUCE=coop"),
+    dict(id="r_block32", code="torch.randn(64, 1000).sum(-1)", ref=lambda x: out32(f64(x)[0].sum(-1)), **RED, knobs="WORK=t32,REDUCE=coop"),
+    dict(id="r_block64_max", code="torch.randn(64, 100).amax(-1)", ref=lambda x: [x.max(-1)], **EXACT, knobs="WORK=t64,REDUCE=coop"),
     dict(id="r_abs_sum", code="torch.randn(64, 256).abs().sum(-1)", ref=lambda x: out32(np.abs(f64(x)[0]).sum(-1)), **RED, knobs=COOP),
     # ---- category 3: matmul --------------------------------------------------------
     dict(id="m_square_256", code="torch.randn(256, 256) @ torch.randn(256, 256)", ref=lambda a, b: out32(f64(a)[0] @ f64(b)[0]), rtol=1e-3, atol=1e-3),
@@ -114,6 +117,10 @@ OPEN = [
     dict(id="m_relu", code="torch.relu(torch.randn(128, 128) @ torch.randn(128, 128))",
          ref=lambda a, b: out32(np.maximum(f64(a)[0] @ f64(b)[0], 0)), rtol=1e-3, atol=1e-3),
     dict(id="m_large", code="torch.randn(512, 768) @ torch.randn(768, 384)", ref=lambda a, b: out32(f64(a)[0] @ f64(b)[0]), rtol=1e-3, atol=1e-3),
+    dict(id="m_mlp", code="x = torch.randn(64, 128); w1 = torch.randn(128, 256); w2 = torch.randn(256, 32); torch.relu(x @ w1) @ w2",
+         ref=lambda x, w1, w2: out32(np.maximum(f64(x)[0] @ f64(w1)[0], 0) @ f64(w2)[0]), rtol=1e-3, atol=1e-3),
+    dict(id="m_matmul_rowsum", code="x = torch.randn(64, 128); w = torch.randn(128, 96); (x @ w).sum(-1)",
+         ref=lambda x, w: out32((f64(x)[0] @ f64(w)[0]).sum(-1)), rtol=1e-3, atol=1e-3),
     dict(id="m_batched", code="torch.randn(4, 32, 64) @ torch.randn(4, 64, 48)", ref=lambda a, b: out32(f64(a)[0] @ f64(b)[0]), rtol=1e-3, atol=1e-3),
     # ---- category 4: fused ----------------------------------------------------------
     dict(id="f_rmsnorm_512", code="x = torch.randn(32, 512); w = torch.randn(512); x / torch.sqrt((x * x).mean(-1, keepdim=True) + 1e-6) * w",
@@ -131,6 +138,9 @@ OPEN = [
     dict(id="f_sub_max", code="x = torch.randn(64, 200); x - x.amax(-1, keepdim=True)", ref=lambda x: [x - x.max(-1, keepdims=True)], **EXACT),
     dict(id="f_sumsq_normalize", code="x = torch.randn(64, 128); x / (x * x).sum(-1, keepdim=True)",
          ref=lambda x: out32(f64(x)[0] / (f64(x)[0] ** 2).sum(-1, keepdims=True)), **LOOSE),
+    dict(id="f_center", code="x = torch.randn(4096); x - x.mean()", ref=lambda x: out32(f64(x)[0] - f64(x)[0].mean()), **RED),
+    dict(id="f_var_row", code="x = torch.randn(64, 256); ((x - x.mean(-1, keepdim=True)) ** 2).mean(-1)",
+         ref=lambda x: out32(f64(x)[0].var(-1)), **LOOSE, knobs=COOP),  # unpinned, emmy 0.3.11 mis-splits this (see RESULTS.md)
     dict(id="f_softmax_col", code="torch.softmax(torch.randn(128, 64), dim=0)", ref=lambda x: out32(softmax(f64(x)[0], axis=0)), rtol=1e-3, atol=1e-5),
     # ---- category 5: attention-like -------------------------------------------------
     dict(id="a_attn_64x32", code="q = torch.randn(64, 32); kt = torch.randn(32, 64); v = torch.randn(64, 32); torch.softmax(q @ kt / 5.656854, dim=-1) @ v",

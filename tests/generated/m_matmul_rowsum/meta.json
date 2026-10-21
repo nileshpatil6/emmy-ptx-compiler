@@ -1,0 +1,67 @@
+{
+ "id": "m_matmul_rowsum",
+ "code": "x = torch.randn(64, 128); w = torch.randn(128, 96); (x @ w).sum(-1)",
+ "rtol": 0.001,
+ "atol": 0.001,
+ "graph_inputs": [
+  "x",
+  "w"
+ ],
+ "graph_outputs": [
+  "sum_1"
+ ],
+ "kernels": [
+  {
+   "node": "sum_1",
+   "entry": "k_sum_1",
+   "arg_order": [
+    "x",
+    "w",
+    "sum_1"
+   ],
+   "grid": [
+    1,
+    1,
+    1
+   ],
+   "block": [
+    256,
+    1,
+    1
+   ],
+   "smem_bytes": 0,
+   "zero_outputs": [
+    "sum_1"
+   ],
+   "args": [
+    {
+     "name": "x",
+     "dtype": "f32",
+     "shape": [
+      64,
+      128
+     ],
+     "seed": 0
+    },
+    {
+     "name": "w",
+     "dtype": "f32",
+     "shape": [
+      128,
+      96
+     ],
+     "seed": 1
+    },
+    {
+     "name": "sum_1",
+     "dtype": "f32",
+     "shape": [
+      64
+     ],
+     "output": true
+    }
+   ],
+   "final": true
+  }
+ ]
+}
