@@ -263,9 +263,14 @@ class KernelLowering:
         if residual is None:
             return _mem(base, const * size)
 
-        def global_addr() -> str:
-            wide, a = self.b.reg("s64"), self.b.reg("s64")
+        def byte_offset() -> str:  # shared by every buffer indexed the same way
+            wide = self.b.reg("s64")
             self.b.ins("mul.wide.s32", wide, self._reg_operand(self.idx.int_(residual)), str(size))
+            return wide
+
+        def global_addr() -> str:
+            wide = self.idx.cached(("offset", residual, size), residual.free_vars(), byte_offset)
+            a = self.b.reg("s64")
             self.b.ins("add.s64", a, base, wide)
             return a
 
