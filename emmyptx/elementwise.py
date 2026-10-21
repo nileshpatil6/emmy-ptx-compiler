@@ -38,6 +38,12 @@ _2PI_LO = 2 * math.pi - 6.28125
 _FLOAT_COMPARE = {"less": "lt", "less_equal": "le", "greater": "gt", "greater_equal": "ge", "equal": "eq", "not_equal": "neu"}
 
 
+# Integer results of these ops are computed exactly in integer registers; any
+# other op with an integer result is computed in f32 and converted, which is
+# what emmy's C does (``long long v = fmaxf(...)``).
+_EXACT_INTEGER_OPS = dtypes.INTEGER_OPS | {"maximum", "minimum", "copy"}
+
+
 class Elementwise:
     def __init__(self, b: PtxBuilder):
         self.b = b
@@ -85,8 +91,10 @@ class Elementwise:
 
     def constant(self, value: float, dtype: DType) -> Value:
         """Materialize a numeric constant (an accumulator identity, a literal)."""
-        if not dtype.is_float:
-            return Value(str(int(value)), dtype)
+        if not dtype.is_float:  # saturate like cvt.rzi (the max identity is -1e30)
+            bits = dtype.size * 8
+            lo, hi = (-(2 ** (bits - 1)), 2 ** (bits - 1) - 1) if dtype.kind == "int" else (0, 2**bits - 1)
+            return Value(str(min(max(int(value), lo), hi)), dtype)
         r = self.b.reg(F32.reg)
         self.b.ins("mov.f32", r, f32_imm(value))
         return self.convert(Value(r, F32), dtype)
@@ -113,9 +121,7 @@ class Elementwise:
             if reg != into.reg:
                 self.b.ins("mov.f32", into.reg, reg)
             return into
-        if result.is_int:
-            if op not in dtypes.INTEGER_OPS or not all(a.dtype.is_int for a in args):
-                raise CompileError(f"op {op!r} has no integer form")
+        if result.is_int and all(a.dtype.is_int for a in args) and op in _EXACT_INTEGER_OPS:
             return self._integer(op, [self.convert(a, result) for a in args], result)
         fargs = [self.convert(a, F32).reg for a in args]
         return self.convert(Value(self._f32(op, fargs), F32), result)
@@ -140,6 +146,10 @@ class Elementwise:
                 self.b.ins(f"shr.{t}", r, a[0], self.convert(args[1], dtypes.U32).reg)
             case "bitwise_and" | "bitwise_or" | "bitwise_xor":
                 self.b.ins(f"{op.removeprefix('bitwise_')}.{bits}", r, *a)
+            case "maximum" | "minimum":
+                self.b.ins(f"{op[:3]}.{t}", r, *a)
+            case "copy":
+                self.b.ins(f"mov.{bits}", r, a[0])
             case "bitwise_count":
                 c = self.b.reg("s32")
                 self.b.ins(f"popc.{bits}", c, a[0])

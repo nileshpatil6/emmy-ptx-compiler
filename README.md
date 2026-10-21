@@ -14,21 +14,21 @@ other compiler is involved. `ptxas` only ever runs on the hackathon's remote run
 
 ## Results
 
-All 15 open problems and all 95 generated variants pass on the runner's RTX 5090, across all
+All 15 open problems and all 100 generated variants pass on the runner's RTX 5090, across all
 five categories. Full table with timings: [RESULTS.md](RESULTS.md).
 
 | category | open set | generated variants |
 |---|---|---|
-| 1 pointwise | 4/4 | 35/35 |
-| 2 reductions | 4/4 | 25/25 |
+| 1 pointwise | 4/4 | 38/38 |
+| 2 reductions | 4/4 | 27/27 |
 | 3 matmul | 2/2 | 13/13 |
 | 4 fused | 3/3 | 14/14 |
 | 5 attention-like | 2/2 | 8/8 |
 
-The generated variants are our stand-in for the hidden set: 95 torch expressions with new
+The generated variants are our stand-in for the hidden set: 100 torch expressions with new
 shapes (odd sizes, sizes that do not divide the block, tiny and large), new ops (exp, log,
 tanh, sigmoid, silu, gelu, erf, sin, cos, sqrt, rsqrt, pow, where, clamp, max/min, abs),
-broadcasting, f16 / f64 / int64 data, other reduction axes and block sizes, schedules that
+broadcasting, f16 / f64 / int32 / int64 data, other reduction axes and block sizes, schedules that
 split a reduction across blocks with atomics, matmuls with odd K, MLPs, layernorm, softmax,
 variance, and attention of several shapes. They are traced and packaged by the organizers'
 own `tools/generate.py`, exactly like the hidden set.
@@ -106,7 +106,9 @@ bitwise and / or / xor, popcount).
 
 Data types: f32, f16, f64, i32, i64 (plus u8 / u16 / u32 / u64 / i16 / bool), following
 emmy's typing rules: integer arithmetic stays integer, all-f16 stays f16, everything else is
-computed in f32.
+computed in f32. Integer `//` and `%` truncate toward zero, as in the C that emmy itself
+generates (so they differ from Python's floor semantics for negative operands, exactly as
+emmy's own kernels do).
 
 Anything else (the tensor-core statements, TMA, which TASK.md says appear in no problem)
 stops with a clear `compile.py: unsupported Kernel IR statement: ...` message on stderr and a

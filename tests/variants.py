@@ -86,6 +86,11 @@ OPEN = [
     dict(id="p_transpose", code="x = torch.randn(48, 80); y = torch.randn(80, 48); x + y.transpose(0, 1)", ref=lambda x, y: [x + y.T], **EXACT),
     dict(id="p_4d_bcast", code="torch.randn(2, 3, 16, 20) * torch.randn(3, 1, 20)", ref=lambda a, b: [a * b], **EXACT),
     dict(id="p_f16_to_f32", code="torch.randn(1024, dtype=torch.float16).float() * 2.0", ref=lambda x: [x.astype(np.float32) * 2], **EXACT),
+    dict(id="p_int32", code="torch.randint(0, 100, (1000,), dtype=torch.int32) * 7 - torch.randint(0, 100, (1000,), dtype=torch.int32)",
+         ref=lambda a, b: [a * 7 - b], **EXACT),
+    dict(id="p_mask_float", code="x = torch.randn(1000); y = torch.randn(1000); (x > 0).float() * y", ref=lambda x, y: [(x > 0).astype(np.float32) * y], **EXACT),
+    dict(id="p_f16_sigmoid", code="torch.sigmoid(torch.randn(1024, dtype=torch.float16))",
+         ref=lambda x: [(1 / (1 + np.exp(-f64(x)[0]))).astype(np.float16)], rtol=1e-3, atol=1e-3),
     dict(id="p_f64_add", code="torch.randn(1000, dtype=torch.float64) + torch.randn(1000, dtype=torch.float64)",
          ref=lambda a, b: [a + b], rtol=1e-6, atol=1e-6),
     # ---- category 2: reductions --------------------------------------------------
@@ -113,6 +118,8 @@ OPEN = [
     dict(id="r_block1024_max", code="torch.randn(8, 9000).amax(-1)", ref=lambda x: [x.max(-1)], **EXACT, knobs="WORK=t1024,REDUCE=coop"),
     dict(id="r_mid_axis", code="torch.randn(8, 64, 16).sum(1)", ref=lambda x: out32(f64(x)[0].sum(1)), **RED),
     dict(id="r_sum_then_mean", code="x = torch.randn(64, 128); x.sum(-1).mean()", ref=lambda x: out32(f64(x)[0].sum(-1).mean()), **RED),
+    dict(id="r_int_row_max", code="torch.randint(0, 100, (64, 50)).amax(-1)", ref=lambda x: [x.max(-1)], **EXACT, knobs=COOP),
+    dict(id="r_int_sum", code="torch.randint(0, 100, (5000,)).sum()", ref=lambda x: [x.sum()], **EXACT, knobs=COOP),
     dict(id="r_abs_sum", code="torch.randn(64, 256).abs().sum(-1)", ref=lambda x: out32(np.abs(f64(x)[0]).sum(-1)), **RED, knobs=COOP),
     # ---- category 3: matmul --------------------------------------------------------
     dict(id="m_square_256", code="torch.randn(256, 256) @ torch.randn(256, 256)", ref=lambda a, b: out32(f64(a)[0] @ f64(b)[0]), rtol=1e-3, atol=1e-3),
