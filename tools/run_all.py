@@ -57,13 +57,20 @@ def run_problem(pdir: Path, runner: Runner, timing: bool) -> dict:
                 a["data"] = produced[a["name"]]
             args.append(a)
         need = max((math.prod(a["shape"]) for a in k["args"] if a.get("output")), default=1)
-        r = runner.run({
-            "cubin_id": c["cubin_id"], "entry": k["entry"],
-            "grid": k["grid"], "block": k["block"], "smem_bytes": k["smem_bytes"],
-            "zero_outputs": k["zero_outputs"], "args": args,
-            "warmup": 3 if timing else 0, "iters": 20 if timing else 1,
-            "max_return": max(4096, need),
-        })
+        r = runner.run(
+            {
+                "cubin_id": c["cubin_id"],
+                "entry": k["entry"],
+                "grid": k["grid"],
+                "block": k["block"],
+                "smem_bytes": k["smem_bytes"],
+                "zero_outputs": k["zero_outputs"],
+                "args": args,
+                "warmup": 3 if timing else 0,
+                "iters": 20 if timing else 1,
+                "max_return": max(4096, need),
+            }
+        )
         if not r.get("ok"):
             return {**result, "ok": False, "detail": f"launch failed ({r.get('stage')}): {r.get('stderr', '')[:300]}"}
         result["us"] += float(r.get("median_us", 0.0))

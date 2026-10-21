@@ -30,6 +30,7 @@ from emmy.compiler.ir.elementwise import reduce_canon
 from emmy.compiler.ir.expr import BinaryExpr, Literal, TernaryExpr, Var
 
 from emmyptx import dtypes
+from emmyptx.analysis import carried_names, fusable_products, read_only_buffers, statement_count
 from emmyptx.dtypes import F16, F32, I32, DType
 from emmyptx.elementwise import Elementwise, Value
 from emmyptx.index import IndexLowerer, split_constant
@@ -66,9 +67,9 @@ class KernelLowering:
         launch = spec.launch
         self.pool = SharedArray("smem_pool", 0, 16) if launch and launch.dynamic_smem > 0 else None
         self.exit = self.b.label("exit")
-        self.read_only = _read_only_buffers(spec)
-        self.carried = _carried_names(spec.body)
-        self.fused_products = _fusable_products(spec.body, self.carried)
+        self.read_only = read_only_buffers(spec)
+        self.carried = carried_names(spec.body)
+        self.fused_products = fusable_products(spec.body, self.carried)
         self.deferred: dict[str, tuple[Value, Value]] = {}
 
     # ---- driver ------------------------------------------------------------
@@ -169,7 +170,7 @@ class KernelLowering:
             b.ins("setp.ge.s32", p, gid, str(n))
             b.branch(self.exit, pred=p)  # threads past the last cell do nothing
         self.bind(GID, Value(gid, I32))
-        for axis, expr in zip(t.axes, _decode_axes(t, extents)):
+        for axis, expr in zip(t.axes, _decode_axes(t, extents), strict=True):
             self.bind(axis.name, Value(self.idx.int_(expr), I32))
         self._body(t.body)
 
@@ -193,9 +194,7 @@ class KernelLowering:
     def _check_shared_budget(self) -> None:
         if self.pool is not None:
             if self.pool.nbytes > self.spec.launch.dynamic_smem:
-                raise CompileError(
-                    f"shared memory needs {self.pool.nbytes} bytes but the launch provides {self.spec.launch.dynamic_smem}"
-                )
+                raise CompileError(f"shared memory needs {self.pool.nbytes} bytes but the launch provides {self.spec.launch.dynamic_smem}")
         elif sum(a.nbytes for a in self.static_shared) > STATIC_SMEM_LIMIT:
             raise CompileError("static shared memory above 48 KiB needs a dynamic allocation in meta.json")
 
@@ -282,7 +281,7 @@ class KernelLowering:
             values = self._load_vector(s.input, self._flatten(s.input, s.index), dt, width)
         else:
             values = [self._load_scalar(s.input, self._flatten(s.input, _lane_index(s.index, k)), dt) for k in range(width)]
-        for name, v in zip(s.names, values):
+        for name, v in zip(s.names, values, strict=True):
             self.bind(name, self.ew.convert(v, dtypes.compute_dtype(dt)))
 
     def _space(self, name: str) -> str:
@@ -348,7 +347,7 @@ class KernelLowering:
             b.ins(f"st.{space}.v{len(values)}.f32", addr, "{" + ", ".join(v.reg for v in values) + "}")
             return
         words = []
-        for lo, hi in zip(values[::2], values[1::2]):
+        for lo, hi in zip(values[::2], values[1::2], strict=True):
             w = b.reg("s32")
             b.ins("mov.b32", w, f"{{{lo.reg}, {hi.reg}}}")
             words.append(w)
@@ -433,7 +432,7 @@ class KernelLowering:
     def _stmt_Loop(self, s) -> None:
         self._seed_accumulators(s)
         trip = int(s.axis.extent.as_static())
-        if s.unroll and trip * _statement_count(s.body) <= UNROLL_BUDGET:
+        if s.unroll and trip * statement_count(s.body) <= UNROLL_BUDGET:
             # Fully unrolled: each copy sees the counter as a constant, so its
             # index arithmetic folds into immediate address offsets.
             self.b.comment(f"for {s.axis.name} in 0..{trip} (unrolled)")
@@ -497,11 +496,9 @@ class KernelLowering:
 
     def _stmt_Sync(self, s) -> None:
         if s.warp:
-            self.b.ins("bar.warp.sync", "-1")
-        elif s.barrier_id == 0:
-            self.b.ins("bar.sync", "0")
+            self.b.ins("bar.warp.sync", "0xffffffff")
         else:
-            self.b.ins("bar.sync", str(s.barrier_id), str(s.count))
+            self._barrier(s.barrier_id, s.count)
 
     # ---- cross-thread combines ---------------------------------------------
     def _merge(self, program, state: tuple[str, ...]) -> None:
@@ -521,7 +518,7 @@ class KernelLowering:
         b.ins("activemask.b32", mask)
         step = s.length // 2
         while step > 0:
-            for st, sb in zip(s.state, s.state_b):
+            for st, sb in zip(s.state, s.state_b, strict=True):
                 self.bind(sb, self._shuffle_xor(self.lookup(st), step, mask))
             self._merge(s.combine_states, s.state)
             step //= 2
@@ -578,11 +575,11 @@ class KernelLowering:
             p = self.idx.pred(BinaryExpr(">=", t, Literal(half, "int")))
             b.branch(skip, pred=p)
             self.idx.push_scope()
-            for buf, st, sb in zip(s.bufs, s.state, s.state_b):  # shadow copies of the state
+            for buf, st, sb in zip(s.bufs, s.state, s.state_b, strict=True):  # shadow copies of the state
                 self.bind(st, self.ew.convert(self._load_scalar(buf, slot(0), self._buffer_dtype(buf)), dt))
                 self.bind(sb, self.ew.convert(self._load_scalar(buf, slot(half), self._buffer_dtype(buf)), dt))
             self._merge(s.combine_states, s.state)
-            for buf, st in zip(s.bufs, s.state):
+            for buf, st in zip(s.bufs, s.state, strict=True):
                 v = self.ew.convert(self.lookup(st), self._buffer_dtype(buf))
                 self.b.ins(f"st.shared.{_ldst(v.dtype)}", self._address(buf, slot(0)), v.reg)
             self.idx.pop_scope()
@@ -592,7 +589,7 @@ class KernelLowering:
         for name, v in outer.items():  # leave the shadows; back to the carried registers
             if v is not None:
                 self.bind(name, v)
-        for buf, st in zip(s.bufs, s.state):
+        for buf, st in zip(s.bufs, s.state, strict=True):
             self._assign_in_place(st, self._load_scalar(buf, root, self._buffer_dtype(buf)))
 
     def _barrier(self, barrier_id: int, count: int | None) -> None:
@@ -702,60 +699,3 @@ def _decode_axes(t, extents: list[int]) -> list:
         b_expr = BinaryExpr("/", within, size)
     exprs[gi], exprs[oi] = a_expr, b_expr
     return exprs
-
-
-def _walk(stmts):
-    for s in stmts:
-        yield s
-        for child in s.nested():
-            yield from _walk(child)
-
-
-def _statement_count(stmts) -> int:
-    return sum(1 for _ in _walk(stmts))
-
-
-def _read_only_buffers(spec: KernelSpec) -> frozenset[str]:
-    written = {s.output for s in _walk(spec.body) if type(s).__name__ == "Write"}
-    written |= {s.dst for s in _walk(spec.body) if type(s).__name__ == "ZeroPrologue"}
-    return frozenset(n for n in spec.params if n not in written and n not in spec.outputs)
-
-
-def _carried_names(body) -> frozenset[str]:
-    """Names whose register is updated in place (accumulators, Init state)."""
-    return frozenset(s.name for s in _walk(body) if type(s).__name__ in ("Accum", "Init"))
-
-
-def _fusable_products(body, carried: frozenset[str]) -> frozenset[str]:
-    """f32 products read exactly once, as the value of an ``add`` Accum in the
-    same block: ``acc += a * b`` then becomes one ``fma`` instruction."""
-    uses: dict[str, int] = {}
-    for s in _walk(body):
-        for name in _reads(s):
-            uses[name] = uses.get(name, 0) + 1
-    fusable = set()
-    for s in _walk(body):
-        for child in s.nested():
-            products = {}
-            for c in child:
-                kind = type(c).__name__
-                if kind == "Assign" and c.op.name == "multiply" and len(c.args) == 2 and not (set(c.args) & carried):
-                    if c.dtype is None or c.dtype.name == "f32":
-                        products[c.name] = c
-                elif kind == "Accum" and c.value in products and uses.get(c.value) == 1:
-                    if reduce_canon(c.op.name) == "add" and (c.dtype is None or c.dtype.name == "f32"):
-                        fusable.add(c.value)
-    return frozenset(fusable)
-
-
-def _reads(s) -> tuple[str, ...]:
-    kind = type(s).__name__
-    if kind == "Assign":
-        return tuple(s.args)
-    if kind == "Accum":
-        return (s.value,) + ((s.base,) if s.base else ())
-    if kind == "Write":
-        return tuple(s.values)
-    if kind in ("WarpShuffle", "TreeHalve"):
-        return tuple(x for a in s.combine_states for x in a.args)
-    return ()
