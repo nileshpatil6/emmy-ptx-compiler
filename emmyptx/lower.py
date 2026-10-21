@@ -148,6 +148,16 @@ class KernelLowering:
         self.ew.move(self.lookup(name), value)
         self.idx.invalidate(name)
 
+    def _update_in_place(self, name: str, op: str, args: list[Value]) -> None:
+        """``name = op(args)`` written into ``name``'s own register (an
+        accumulator or a combine state keeps one register for its lifetime)."""
+        target = self.lookup(name)
+        if target.dtype is F32:
+            self.ew.apply(op, args, into=target)
+            self.idx.invalidate(name)
+        else:
+            self._assign_in_place(name, self.ew.apply(op, args, target.dtype))
+
     # ---- launch geometry ---------------------------------------------------
     def _stmt_Tile(self, t) -> None:
         b = self.b
@@ -409,7 +419,7 @@ class KernelLowering:
         value = self.lookup(s.value)
         if op not in ("add", "multiply", "maximum", "minimum"):
             raise CompileError(f"Accum combine {s.op.name!r} is not supported")
-        self._assign_in_place(s.name, self.ew.apply(op, [base, value], acc.dtype))
+        self._update_in_place(s.name, op, [base, value])
 
     def _seed_accumulators(self, loop) -> None:
         """Every accumulator folded directly in ``loop`` starts at its op's
@@ -480,9 +490,9 @@ class KernelLowering:
             self._block(s.body if known else s.else_body)
             return
         b = self.b
+        b.comment(f"if {s.cond.pretty()}")
         p = self.idx.pred(s.cond)
         skip = b.label("else" if s.else_body else "endif")
-        b.comment(f"if {s.cond.pretty()}")
         b.branch(skip, pred=f"!{p}")
         self._block(s.body)
         if s.else_body:
@@ -505,11 +515,11 @@ class KernelLowering:
         """Run a combine program (``Assign``s); assignments to a state name
         update that state's register in place."""
         for a in program:
-            v = self.ew.apply(a.op.name, [self.lookup(x) for x in a.args])
+            args = [self.lookup(x) for x in a.args]
             if a.name in state:
-                self._assign_in_place(a.name, v)
+                self._update_in_place(a.name, a.op.name, args)
             else:
-                self.bind(a.name, v)
+                self.bind(a.name, self.ew.apply(a.op.name, args))
 
     def _stmt_WarpShuffle(self, s) -> None:
         b = self.b

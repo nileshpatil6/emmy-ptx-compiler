@@ -87,6 +87,21 @@ def run_problem(pdir: Path, runner: Runner, timing: bool) -> dict:
     return result
 
 
+def markdown_table(results: list[dict]) -> str:
+    lines = ["| category | open set | generated variants |", "|---|---|---|"]
+    for letter, name in CATEGORIES.items():
+        cells = []
+        for suite in ("open", "generated"):
+            rs = [r for r in results if r["suite"] == suite and r["id"].startswith(letter)]
+            cells.append(f"{sum(r['ok'] for r in rs)}/{len(rs)}" if rs else "-")
+        lines.append(f"| {name} | {cells[0]} | {cells[1]} |")
+    lines += ["", "| suite | problem | result | median us | registers |", "|---|---|---|---|---|"]
+    for r in results:
+        status = "PASS" if r["ok"] else "FAIL " + r["detail"]
+        lines.append(f"| {r['suite']} | {r['id']} | {status} | {r['us']:.1f} | {r.get('registers', '')} |")
+    return "\n".join(lines) + "\n"
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("suites", nargs="*", type=Path, help="folders of problems (default: tests/open tests/generated)")
@@ -94,6 +109,7 @@ def main() -> int:
     ap.add_argument("--timing", action="store_true", help="20 timed launches per kernel (median reported)")
     ap.add_argument("--no-cache", action="store_true", help="ignore cached runner answers")
     ap.add_argument("--json", type=Path, help="write per-problem results here")
+    ap.add_argument("--markdown", type=Path, help="write a results table (RESULTS.md style) here")
     args = ap.parse_args()
 
     runner = Runner(use_cache=not args.no_cache)
@@ -122,6 +138,8 @@ def main() -> int:
         print(f"{name:<13} " + "  ".join(f"{c:>10}" for c in cells))
     if args.json:
         args.json.write_text(json.dumps(results, indent=1))
+    if args.markdown:
+        args.markdown.write_text(markdown_table(results))
     return 0 if all(r["ok"] for r in results) else 1
 
 

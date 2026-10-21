@@ -103,9 +103,16 @@ class Elementwise:
         self.b.ins(f"mov.{_mov_type(dst.dtype)}", dst.reg, src.reg)
 
     # ---- one elementwise op ----------------------------------------------
-    def apply(self, op: str, args: list[Value], result: DType | None = None) -> Value:
-        """``result = op(args)``; ``result`` defaults to emmy's promotion rule."""
+    def apply(self, op: str, args: list[Value], result: DType | None = None, into: Value | None = None) -> Value:
+        """``result = op(args)``; ``result`` defaults to emmy's promotion rule.
+        With ``into`` (an existing f32 register, e.g. an accumulator) a
+        single-instruction op writes its result there directly."""
         result = result or dtypes.promote(op, [a.dtype for a in args])
+        if into is not None and into.dtype is F32 and result is F32:
+            reg = self._f32(op, [self.convert(a, F32).reg for a in args], out=into.reg)
+            if reg != into.reg:
+                self.b.ins("mov.f32", into.reg, reg)
+            return into
         if result.is_int:
             if op not in dtypes.INTEGER_OPS or not all(a.dtype.is_int for a in args):
                 raise CompileError(f"op {op!r} has no integer form")
@@ -141,9 +148,9 @@ class Elementwise:
                 raise CompileError(f"integer op {op!r} is not supported")
         return Value(r, dt)
 
-    def _f32(self, op: str, a: list[str]) -> str:
+    def _f32(self, op: str, a: list[str], out: str | None = None) -> str:
         b = self.b
-        r = b.reg("f32")
+        r = out or b.reg("f32")
         match op:
             case "add" | "subtract" | "multiply" | "divide":
                 # .rn: correctly rounded, and never contracted into an fma, so
