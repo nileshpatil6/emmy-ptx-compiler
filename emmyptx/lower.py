@@ -38,6 +38,7 @@ from emmyptx.ptx import PtxBuilder, SharedArray, render_kernel
 
 STATIC_SMEM_LIMIT = 48 * 1024  # larger footprints must use dynamic shared memory
 GID = "__gid"  # internal name of the flat cell id (not an IR name)
+UNROLL_BUDGET = 4096  # statements a fully unrolled loop may expand to
 
 
 @dataclass(frozen=True)
@@ -225,11 +226,16 @@ class KernelLowering:
         return flat
 
     def _address(self, name: str, flat, swizzle: str = "NONE") -> str:
-        """``[reg+offset]`` addressing element ``flat`` of buffer ``name``."""
+        """``[reg+offset]`` addressing element ``flat`` of buffer ``name``.
+        The constant part of the index becomes the immediate offset, so
+        neighbouring accesses share one address register."""
         size = self._buffer_dtype(name).size
+        flat = self.idx.specialize(flat)
         if swizzle != "NONE":
             flat = _swizzle(flat, swizzle)
         residual, const = split_constant(flat)
+        if residual is not None and (c := self.idx.const(residual)) is not None:
+            residual, const = None, const + c
         if name in self.smem:
             buf = self.smem[name]
             offset = buf.offset + const * size
@@ -285,6 +291,8 @@ class KernelLowering:
         return "global.nc" if name in self.read_only else "global"
 
     def _load_scalar(self, name: str, flat, dt: DType) -> Value:
+        flat = self.idx.specialize(flat)
+
         def load() -> str:
             r = self.b.reg(dt.reg)
             self.b.ins(f"ld.{self._space(name)}.{_ldst(dt)}", r, self._address(name, flat))
@@ -424,9 +432,19 @@ class KernelLowering:
     # ---- control flow ------------------------------------------------------
     def _stmt_Loop(self, s) -> None:
         self._seed_accumulators(s)
-        extent = str(int(s.axis.extent.as_static()))
-        self.b.comment(f"for {s.axis.name} in 0..{extent}")
-        self._counted_loop(s.axis.name, "0", extent, "1", s.body)
+        trip = int(s.axis.extent.as_static())
+        if s.unroll and trip * _statement_count(s.body) <= UNROLL_BUDGET:
+            # Fully unrolled: each copy sees the counter as a constant, so its
+            # index arithmetic folds into immediate address offsets.
+            self.b.comment(f"for {s.axis.name} in 0..{trip} (unrolled)")
+            self.idx.push_scope()
+            for k in range(trip):  # one straight-line block: copies share values
+                self.bind(s.axis.name, Value(str(k), I32))
+                self._body(s.body)
+            self.idx.pop_scope()
+            return
+        self.b.comment(f"for {s.axis.name} in 0..{trip}")
+        self._counted_loop(s.axis.name, "0", str(trip), "1", s.body)
 
     def _stmt_StridedLoop(self, s) -> None:
         self._seed_accumulators(s)
@@ -691,6 +709,10 @@ def _walk(stmts):
         yield s
         for child in s.nested():
             yield from _walk(child)
+
+
+def _statement_count(stmts) -> int:
+    return sum(1 for _ in _walk(stmts))
 
 
 def _read_only_buffers(spec: KernelSpec) -> frozenset[str]:

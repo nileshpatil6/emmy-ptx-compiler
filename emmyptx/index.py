@@ -94,33 +94,66 @@ def _fold(op: str, a: int, b: int) -> int | None:
     return None
 
 
-def split_constant(expr) -> tuple[object | None, int]:
-    """Split an affine expression into ``(residual, constant)`` so that
-    ``expr == residual + constant``. ``x[(a0 * 4) + 3]`` then addresses as
-    ``[base_of(a0 * 4) + 12]`` and the four unrolled loads share one register."""
+def linearize(expr) -> tuple[dict, int]:
+    """Write an integer expression as ``sum(coeff * atom) + constant``.
+
+    Atoms are variables and the non-linear sub-expressions (``x / 64``,
+    ``x % 3``, comparisons, ternaries), whose own operands are normalized
+    recursively. Reordering +, - and * is exact in s32 arithmetic (it is
+    arithmetic modulo 2^32), so the canonical form is always safe to use."""
     if isinstance(expr, Literal) and isinstance(expr.value, int):
-        return None, int(expr.value)
+        return {}, int(expr.value)
+    if isinstance(expr, Var):
+        return {expr: 1}, 0
     if isinstance(expr, BinaryExpr) and expr.op in ("+", "-"):
-        left, cl = split_constant(expr.left)
-        right, cr = split_constant(expr.right)
-        if expr.op == "+":
-            return _join("+", left, right), cl + cr
-        return _join("-", left, right), cl - cr
+        lt, lc = linearize(expr.left)
+        rt, rc = linearize(expr.right)
+        sign = 1 if expr.op == "+" else -1
+        terms = dict(lt)
+        for atom, k in rt.items():
+            terms[atom] = terms.get(atom, 0) + sign * k
+        return {a: k for a, k in terms.items() if k}, lc + sign * rc
     if isinstance(expr, BinaryExpr) and expr.op == "*":
-        for lit, other in ((expr.left, expr.right), (expr.right, expr.left)):
-            if isinstance(lit, Literal) and isinstance(lit.value, int):
-                rest, c = split_constant(other)
-                k = int(lit.value)
-                return (None if rest is None else BinaryExpr("*", rest, Literal(k, "int"))), c * k
-    return expr, 0
+        lt, lc = linearize(expr.left)
+        rt, rc = linearize(expr.right)
+        if not lt or not rt:  # one side is a constant: scale the other
+            terms, c, k = (rt, rc, lc) if not lt else (lt, lc, rc)
+            return ({a: v * k for a, v in terms.items()} if k else {}), c * k
+    if isinstance(expr, BinaryExpr):
+        atom = BinaryExpr(expr.op, normalize(expr.left), normalize(expr.right))
+    elif isinstance(expr, TernaryExpr):
+        atom = TernaryExpr(normalize(expr.cond), normalize(expr.if_true), normalize(expr.if_false))
+    else:
+        atom = expr
+    return {atom: 1}, 0
 
 
-def _join(op: str, left, right):
-    if right is None:
-        return left
-    if left is None:
-        return right if op == "+" else BinaryExpr("-", Literal(0, "int"), right)
-    return BinaryExpr(op, left, right)
+def rebuild(terms: dict, const: int = 0):
+    """The canonical expression for ``sum(coeff * atom) + const`` (None if 0)."""
+    out = None
+    for atom, k in sorted(terms.items(), key=lambda t: repr(t[0])):
+        term = atom if abs(k) == 1 else BinaryExpr("*", atom, Literal(abs(k), "int"))
+        if out is None:
+            out = term if k > 0 else BinaryExpr("-", Literal(0, "int"), term)
+        else:
+            out = BinaryExpr("+" if k > 0 else "-", out, term)
+    if const:
+        out = Literal(const, "int") if out is None else BinaryExpr("+", out, Literal(const, "int"))
+    return out
+
+
+def normalize(expr):
+    terms, const = linearize(expr)
+    out = rebuild(terms, const)
+    return Literal(0, "int") if out is None else out
+
+
+def split_constant(expr) -> tuple[object | None, int]:
+    """``(residual, constant)`` with ``expr == residual + constant``: the
+    constant becomes an immediate address offset, so ``x[4*i + 1]`` and
+    ``x[4*i + 2]`` share the address register of ``4*i``."""
+    terms, const = linearize(expr)
+    return rebuild(terms), const
 
 
 class IndexLowerer:
@@ -153,8 +186,21 @@ class IndexLowerer:
         return value
 
     # ---- integer values --------------------------------------------------
+    def specialize(self, expr):
+        """Replace names currently bound to constants (the counter of an
+        unrolled loop) by literals, so constant folding can see them."""
+        consts = {}
+        for name in expr.free_vars():
+            operand = self.resolve(name)
+            if is_imm(operand):
+                consts[name] = Literal(int(operand), "int")
+        return expr.substitute(consts) if consts else expr
+
     def const(self, expr) -> int | None:
         """The compile-time value of ``expr``, or None."""
+        if isinstance(expr, Var):
+            operand = self.resolve(expr.name)
+            return int(operand) if is_imm(operand) else None
         if isinstance(expr, Literal):
             return int(expr.value) if isinstance(expr.value, (int, bool)) else None
         if isinstance(expr, BinaryExpr):
@@ -171,6 +217,9 @@ class IndexLowerer:
         c = self.const(expr)
         if c is not None:
             return str(c)
+        if isinstance(expr, Var):
+            return self.resolve(expr.name)
+        expr = normalize(expr)
         if isinstance(expr, Var):
             return self.resolve(expr.name)
         return self.cached(("int", expr), expr.free_vars(), lambda: self._int_uncached(expr))
@@ -191,6 +240,8 @@ class IndexLowerer:
         if expr.op not in _ARITH:
             raise CompileError(f"unsupported index operator {expr.op!r}")
         a, b = self.int_(expr.left), self.int_(expr.right)
+        if is_imm(a) and is_imm(b) and (folded := _fold(expr.op, int(a), int(b))) is not None:
+            return str(folded)
         simplified = _simplify(expr.op, a, b)
         if simplified is not None:
             return simplified
