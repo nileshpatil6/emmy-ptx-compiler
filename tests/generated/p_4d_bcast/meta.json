@@ -1,0 +1,71 @@
+{
+ "id": "p_4d_bcast",
+ "code": "torch.randn(2, 3, 16, 20) * torch.randn(3, 1, 20)",
+ "rtol": 0,
+ "atol": 0,
+ "graph_inputs": [
+  "x0",
+  "x1"
+ ],
+ "graph_outputs": [
+  "mul"
+ ],
+ "kernels": [
+  {
+   "node": "mul",
+   "entry": "k_mul_pointwise",
+   "arg_order": [
+    "x1",
+    "x0",
+    "mul"
+   ],
+   "grid": [
+    2,
+    1,
+    1
+   ],
+   "block": [
+    256,
+    1,
+    1
+   ],
+   "smem_bytes": 0,
+   "zero_outputs": [],
+   "args": [
+    {
+     "name": "x1",
+     "dtype": "f32",
+     "shape": [
+      3,
+      1,
+      20
+     ],
+     "seed": 1
+    },
+    {
+     "name": "x0",
+     "dtype": "f32",
+     "shape": [
+      2,
+      3,
+      16,
+      20
+     ],
+     "seed": 0
+    },
+    {
+     "name": "mul",
+     "dtype": "f32",
+     "shape": [
+      2,
+      3,
+      16,
+      20
+     ],
+     "output": true
+    }
+   ],
+   "final": true
+  }
+ ]
+}

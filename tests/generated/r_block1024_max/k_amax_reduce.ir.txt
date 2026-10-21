@@ -1,0 +1,5 @@
+    Tile[a0] (N=8)
+        for a1 in 0..9000
+            in0 = load x[a0, a1]
+            f32 acc0 <- maximum(acc0, in0)
+        amax[a0] = acc0

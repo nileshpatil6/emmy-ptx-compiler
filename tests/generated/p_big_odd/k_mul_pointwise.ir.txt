@@ -1,0 +1,5 @@
+    Tile[a0] (N=100003)
+        in0 = load x0[a0]
+        in1 = load x1[a0]
+        f32 v0 = multiply(in0, in1)
+        mul[a0] = v0

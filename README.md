@@ -14,18 +14,18 @@ other compiler is involved. `ptxas` only ever runs on the hackathon's remote run
 
 ## Results
 
-All 15 open problems and all 82 generated variants pass on the runner's RTX 5090, across all
+All 15 open problems and all 95 generated variants pass on the runner's RTX 5090, across all
 five categories. Full table with timings: [RESULTS.md](RESULTS.md).
 
 | category | open set | generated variants |
 |---|---|---|
-| 1 pointwise | 4/4 | 31/31 |
-| 2 reductions | 4/4 | 20/20 |
-| 3 matmul | 2/2 | 12/12 |
-| 4 fused | 3/3 | 12/12 |
-| 5 attention-like | 2/2 | 7/7 |
+| 1 pointwise | 4/4 | 35/35 |
+| 2 reductions | 4/4 | 25/25 |
+| 3 matmul | 2/2 | 13/13 |
+| 4 fused | 3/3 | 14/14 |
+| 5 attention-like | 2/2 | 8/8 |
 
-The generated variants are our stand-in for the hidden set: 82 torch expressions with new
+The generated variants are our stand-in for the hidden set: 95 torch expressions with new
 shapes (odd sizes, sizes that do not divide the block, tiny and large), new ops (exp, log,
 tanh, sigmoid, silu, gelu, erf, sin, cos, sqrt, rsqrt, pow, where, clamp, max/min, abs),
 broadcasting, f16 / f64 / int64 data, other reduction axes and block sizes, schedules that

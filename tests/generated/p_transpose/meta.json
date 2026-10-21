@@ -1,0 +1,66 @@
+{
+ "id": "p_transpose",
+ "code": "x = torch.randn(48, 80); y = torch.randn(80, 48); x + y.transpose(0, 1)",
+ "rtol": 0,
+ "atol": 0,
+ "graph_inputs": [
+  "x",
+  "y"
+ ],
+ "graph_outputs": [
+  "add"
+ ],
+ "kernels": [
+  {
+   "node": "add",
+   "entry": "k_transpose_870fdd",
+   "arg_order": [
+    "y",
+    "x",
+    "add"
+   ],
+   "grid": [
+    4,
+    1,
+    1
+   ],
+   "block": [
+    256,
+    1,
+    1
+   ],
+   "smem_bytes": 0,
+   "zero_outputs": [],
+   "args": [
+    {
+     "name": "y",
+     "dtype": "f32",
+     "shape": [
+      80,
+      48
+     ],
+     "seed": 1
+    },
+    {
+     "name": "x",
+     "dtype": "f32",
+     "shape": [
+      48,
+      80
+     ],
+     "seed": 0
+    },
+    {
+     "name": "add",
+     "dtype": "f32",
+     "shape": [
+      48,
+      80
+     ],
+     "output": true
+    }
+   ],
+   "final": true
+  }
+ ]
+}
