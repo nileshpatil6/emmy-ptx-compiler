@@ -298,7 +298,9 @@ class KernelLowering(MemoryLowering, CombineLowering):
         self.b.comment(f"for {var} in {s.start.pretty()}..{end}:{step}")
         innermost = not any(type(c).__name__ in ("Loop", "StridedLoop") for c in s.body)
         unroll = min(STRIDED_UNROLL_MAX, STRIDED_UNROLL_BUDGET // statement_count(s.body))
-        if innermost and is_imm(step) and unroll > 1:
+        if is_imm(step) and int(step) > 0:  # no thread runs more trips than extent / step
+            unroll = min(unroll, -(-int(s.axis.extent.as_static()) // int(step)))
+        if innermost and is_imm(step) and unroll >= 4:
             start = self._unrolled_prefix(var, start, end, int(step), s.body, unroll)
         self._counted_loop(var, start, end, step, s.body)
 
