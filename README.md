@@ -8,30 +8,34 @@ pip install emmy-ml==0.3.11 numpy
 python compile.py path/to/kernel.ir.json > out.ptx
 ```
 
-The IR to PTX lowering is entirely our own Python (about 1,900 lines in `emmyptx/`). Emmy is
+The IR to PTX lowering is entirely our own Python (about 2,200 lines in `emmyptx/`). Emmy is
 used only to deserialize the IR (`Graph.from_dict`); no emmy renderer, nvcc, NVRTC, LLVM or
 other compiler is involved. `ptxas` only ever runs on the hackathon's remote runner.
 
 ## Results
 
-All 15 open problems and all 100 generated variants pass on the runner's RTX 5090, across all
-five categories. Full table with timings: [RESULTS.md](RESULTS.md).
+All 166 test problems pass on the runner's RTX 5090, across all five categories: the 15 open
+problems, 145 generated variants and 6 synthetic IRs. Full table with timings, optimization
+history and measured precision: [RESULTS.md](RESULTS.md).
 
-| category | open set | generated variants |
-|---|---|---|
-| 1 pointwise | 4/4 | 38/38 |
-| 2 reductions | 4/4 | 27/27 |
-| 3 matmul | 2/2 | 13/13 |
-| 4 fused | 3/3 | 14/14 |
-| 5 attention-like | 2/2 | 8/8 |
+| category | open set | generated variants | synthetic IR |
+|---|---|---|---|
+| 1 pointwise | 4/4 | 51/51 | 4/4 |
+| 2 reductions | 4/4 | 34/34 | 2/2 |
+| 3 matmul | 2/2 | 23/23 | - |
+| 4 fused | 3/3 | 24/24 | - |
+| 5 attention-like | 2/2 | 13/13 | - |
 
-The generated variants are our stand-in for the hidden set: 100 torch expressions with new
+The generated variants are our stand-in for the hidden set: 145 torch expressions with new
 shapes (odd sizes, sizes that do not divide the block, tiny and large), new ops (exp, log,
 tanh, sigmoid, silu, gelu, erf, sin, cos, sqrt, rsqrt, pow, where, clamp, max/min, abs),
 broadcasting, f16 / f64 / int32 / int64 data, other reduction axes and block sizes, schedules that
 split a reduction across blocks with atomics, matmuls with odd K, MLPs, layernorm, softmax,
-variance, and attention of several shapes. They are traced and packaged by the organizers'
-own `tools/generate.py`, exactly like the hidden set.
+variance, and attention of several shapes and head sizes. They are traced and packaged by the
+organizers' own `tools/generate.py`, exactly like the hidden set. The synthetic IRs
+(`tests/synthetic.py`) are built from emmy's statement classes for forms the generator never
+produced in our runs (Cond with else, segmented TreeHalve, aux threads, 4/8-byte cp.async, ...),
+so every statement kind in the compiler has run on the GPU at least once.
 
 ## How to run
 
@@ -50,7 +54,8 @@ are never resent, and backs off when the runner is busy. In a sandbox that only 
 CONNECT, set `RUNNER_PROXY=host:port`.
 
 To regenerate the variants (needs torch as well):
-`python tools/gen_variants.py --hackathon ../emmy-hackathon-2026`.
+`python tools/gen_variants.py --hackathon ../emmy-hackathon-2026`. The synthetic IRs are
+rebuilt with `python tests/synthetic.py`.
 
 ## Architecture
 
@@ -127,21 +132,29 @@ non-zero exit, never with wrong PTX.
   guard is needed (`grid * block != N`) and dynamic shared memory are all read from it.
 * **Exact where the reference is exact.** Arithmetic uses `.rn` instructions, which are
   correctly rounded and are never contracted into fma, so pointwise results match numpy bit for
-  bit (several problems use `rtol = atol = 0`). Transcendentals use the hardware approximations
-  with care at the edges (range reduction for sin / cos, Taylor series near zero for tanh and
-  erf); measured errors are around 1e-7 relative.
+  bit (several problems use `rtol = atol = 0`). Transcendentals are built like libm: exp with
+  Cody-Waite reduction and an exact 2^n, sin / cos with quadrant reduction and polynomials,
+  tanh and erf with Taylor series near zero. Measured on the GPU they are within 1e-7 to 2e-7
+  relative (table in RESULTS.md).
 * **Index math is normalized, not just emitted.** Every integer index becomes
   `sum(coeff * atom) + constant`. The constant turns into an immediate address offset
   (`[%rd10+12]`), terms like `(a + b) - a` cancel, and equal expressions are computed once.
   Reordering is exact because s32 arithmetic is arithmetic modulo 2^32.
-* **Four optimizations, each small and explainable:** loops the IR marks `unroll=True` are
+* **Optimizations, each small, generic and measured:** loops the IR marks `unroll=True` are
   fully unrolled (the counter becomes a constant, so the matmul inner loop is pure loads and
-  fmas with immediate offsets); `acc += a * b` becomes one `fma`; inputs the kernel never
-  writes are loaded through the read-only cache (`ld.global.nc`) and each element is loaded
-  once; neighbouring aligned f32 loads are merged into one `v2` / `v4` vector load (alignment
-  is proved from the coefficients of the normalized index). Unrolling and fma fusion halved the
-  512x512 matmul (29.3 us to 15.0 us); every step was A/B measured on the runner and kept only
-  where it helped (see RESULTS.md).
+  fmas with immediate offsets); other innermost constant-trip loops are unrolled by 4; a
+  thread's strided loop runs blocks of up to 16 in-range iterations so many loads are in flight
+  (same order, so sums are bit-identical); `acc += a * b` becomes one `fma`; inputs the kernel
+  never writes use the read-only cache (`ld.global.nc`) and each element is loaded once;
+  neighbouring aligned f32 loads become one `v2` / `v4` load. Every step was A/B measured on the
+  runner and kept only where it helped; rejected variants are listed in RESULTS.md. Examples:
+  512x512 matmul 29.3 -> 15.0 us, single-block sums about 2x faster, several attention kernels
+  1.6 to 5x faster.
+* **Robust by construction.** `cp.async` needs aligned addresses; the compiler proves alignment
+  with a divisibility analysis of the normalized index and loop strides, and where it cannot,
+  emits a run-time check with an element-wise fallback, so it never produces a faulting copy.
+  Integer identities saturate like `cvt`, integer max / min are exact, and any unsupported
+  construct stops with a clear error.
 * **Tested like the hidden set.** Variants are generated by the organizers' generator, run on
   real hardware, and compared with float64 numpy references.
 
@@ -156,7 +169,7 @@ tests/generated/      the generated variants (IR, meta.json, expected.npz)
 tests/synthetic.py    hand-built IR for forms emmy rarely emits
 tests/synthetic/      those problems (IR, meta.json, expected.npz)
 tests/test_compiler.py offline checks (pytest)
-tools/run_all.py      run everything on the remote runner
+tools/run_all.py      run every suite on the remote runner
 tools/runner.py       runner client with a response cache
 tools/gen_variants.py regenerate tests/generated/
 LEARN.md              how the compiler works, from zero GPU knowledge

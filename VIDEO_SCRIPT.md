@@ -13,7 +13,7 @@ recording: open a terminal in the repo, `emmyptx/lower.py` in an editor, and run
 * "This is emmyptx, a compiler from Emmy's Kernel IR straight to NVIDIA PTX, skipping CUDA
   C++ and nvcc. It is about 1,900 lines of Python and every PTX instruction comes from our
   own code; emmy is only used to load the IR."
-* "It passes all 15 open problems in all five categories, and 100 extra problems I generated
+* "It passes all 15 open problems in all five categories, and 151 extra problems I generated or hand-built
   to imitate the hidden set."
 
 ## 0:30 to 1:15  The input and the output
@@ -61,6 +61,9 @@ recording: open a terminal in the repo, `emmyptx/lower.py` in an editor, and run
 * "The inner loop is marked unroll, so I unroll it: the counter becomes a constant, the
   addresses become register plus immediate, and multiply-then-accumulate becomes one fma.
   That halved this kernel, 29 to 15 microseconds."
+* "Every optimization was A/B timed on the GPU and kept only if nothing got slower; RESULTS.md
+  even lists the ones I rejected." Mention the reduction unrolling: 16 loads in flight, same
+  summation order, about 2x faster sums.
 
 ## 4:00 to 4:45  Testing and results
 
@@ -74,5 +77,5 @@ recording: open a terminal in the repo, `emmyptx/lower.py` in an editor, and run
 
 ## 4:45 to 5:00  Close
 
-* "One clean pass per statement kind, exact numerics, four generic optimizations, and
-  tested on 115 problems on real hardware. Thanks for watching."
+* "One clean pass per statement kind, exact numerics, generic optimizations, each measured before it was kept, and
+  tested on 166 problems on real hardware. Thanks for watching."

@@ -57,6 +57,10 @@ class Runner:
                 raise RunnerError(f"cannot reach the runner: {exc}") from exc
             finally:
                 conn.close()
+            if resp.status in (502, 503, 504):  # a gateway hiccup: wait and retry like "busy"
+                time.sleep(delay)
+                delay = min(delay * 1.5, 20.0)
+                continue
             if resp.status != 200:
                 raise RunnerError(f"HTTP {resp.status}: {data[:500]!r}")
             out = json.loads(data)
