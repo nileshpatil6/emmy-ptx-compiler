@@ -23,7 +23,7 @@ from collections.abc import Callable
 
 from emmy.compiler.ir.expr import BinaryExpr, Literal, TernaryExpr, Var
 
-from emmyptx.loader import CompileError
+from emmyptx.errors import CompileError
 from emmyptx.ptx import PtxBuilder
 
 _CMP = {"<": "lt", "<=": "le", ">": "gt", ">=": "ge", "==": "eq", "!=": "ne"}

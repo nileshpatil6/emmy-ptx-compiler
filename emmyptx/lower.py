@@ -34,8 +34,9 @@ from emmyptx.analysis import carried_names, fusable_products, read_only_buffers,
 from emmyptx.combine import CombineLowering
 from emmyptx.dtypes import F32, I32
 from emmyptx.elementwise import Elementwise, Value
+from emmyptx.errors import CompileError
 from emmyptx.index import IndexLowerer, is_imm
-from emmyptx.loader import CompileError, KernelSpec
+from emmyptx.loader import KernelSpec
 from emmyptx.memory import MemoryLowering, SharedBuffer
 from emmyptx.ptx import PtxBuilder, SharedArray, render_kernel
 

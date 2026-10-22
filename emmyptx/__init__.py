@@ -7,7 +7,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from emmyptx.loader import CompileError, load_kernel
+from emmyptx.errors import CompileError
+from emmyptx.loader import load_kernel
 from emmyptx.lower import lower_kernel
 
 __all__ = ["CompileError", "compile_ir"]

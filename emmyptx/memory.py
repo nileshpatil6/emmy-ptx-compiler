@@ -17,8 +17,8 @@ from emmy.compiler.ir.expr import BinaryExpr, Literal
 from emmyptx import dtypes
 from emmyptx.dtypes import F16, F32, DType
 from emmyptx.elementwise import Value
+from emmyptx.errors import CompileError
 from emmyptx.index import flatten, known_multiple, normalize, split_constant
-from emmyptx.loader import CompileError
 from emmyptx.ptx import SharedArray
 
 STATIC_SMEM_LIMIT = 48 * 1024  # larger footprints must use dynamic shared memory
@@ -303,7 +303,10 @@ def _ldst(dt: DType) -> str:
 
 
 def _atomic_type(dt: DType) -> str:
-    return {"f32": "f32", "f64": "f64", "f16": "noftz.f16", "i32": "s32", "u32": "u32", "i64": "u64", "u64": "u64"}[dt.name]
+    types = {"f32": "f32", "f64": "f64", "f16": "noftz.f16", "i32": "s32", "u32": "u32", "i64": "u64", "u64": "u64"}
+    if dt.name not in types:
+        raise CompileError(f"atomic add on {dt.name} is not supported")
+    return types[dt.name]
 
 
 def _swizzle(flat, mode: str):

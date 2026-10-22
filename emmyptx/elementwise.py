@@ -20,7 +20,7 @@ from dataclasses import dataclass
 
 from emmyptx import dtypes
 from emmyptx.dtypes import BOOL, F16, F32, F64, DType
-from emmyptx.loader import CompileError
+from emmyptx.errors import CompileError
 from emmyptx.ptx import PtxBuilder, f32_imm
 
 

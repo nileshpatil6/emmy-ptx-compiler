@@ -17,6 +17,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from emmyptx.errors import CompileError
+
 
 @dataclass(frozen=True)
 class DType:
@@ -74,7 +76,7 @@ def get(dtype) -> DType:
         return BY_NAME[name]
     if name in _SMEM_SPELLING:
         return _SMEM_SPELLING[name]
-    raise NotImplementedError(f"dtype {name!r} is not supported")
+    raise CompileError(f"dtype {name!r} is not supported")
 
 
 def compute_dtype(storage: DType) -> DType:

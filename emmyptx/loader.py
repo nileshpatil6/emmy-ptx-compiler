@@ -20,10 +20,7 @@ from emmy.compiler.graph import Graph
 
 from emmyptx import dtypes
 from emmyptx.dtypes import DType
-
-
-class CompileError(Exception):
-    """The IR uses something this compiler does not support (or is malformed)."""
+from emmyptx.errors import CompileError
 
 
 @dataclass(frozen=True)
