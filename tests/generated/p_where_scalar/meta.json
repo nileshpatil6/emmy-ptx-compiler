@@ -1,0 +1,75 @@
+{
+ "id": "p_where_scalar",
+ "code": "x = torch.randn(3000); torch.where(x < -0.5, x * 2.0, torch.sqrt(x.abs()))",
+ "rtol": 1e-06,
+ "atol": 1e-06,
+ "graph_inputs": [
+  "x"
+ ],
+ "graph_outputs": [
+  "where"
+ ],
+ "kernels": [
+  {
+   "node": "where",
+   "entry": "k_where_pointwise",
+   "arg_order": [
+    "mul_c1",
+    "lt_c1",
+    "x",
+    "where"
+   ],
+   "grid": [
+    3,
+    1,
+    1
+   ],
+   "block": [
+    256,
+    1,
+    1
+   ],
+   "smem_bytes": 0,
+   "zero_outputs": [],
+   "args": [
+    {
+     "name": "mul_c1",
+     "dtype": "f32",
+     "shape": [
+      1
+     ],
+     "data": [
+      2.0
+     ]
+    },
+    {
+     "name": "lt_c1",
+     "dtype": "f32",
+     "shape": [
+      1
+     ],
+     "data": [
+      -0.5
+     ]
+    },
+    {
+     "name": "x",
+     "dtype": "f32",
+     "shape": [
+      3000
+     ],
+     "seed": 0
+    },
+    {
+     "name": "where",
+     "dtype": "f32",
+     "shape": [
+      3000
+     ],
+     "output": true
+    }
+   ],
+   "final": true
+  }
+ ]
+}

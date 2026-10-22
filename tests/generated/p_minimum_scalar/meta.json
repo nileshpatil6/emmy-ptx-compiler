@@ -1,0 +1,63 @@
+{
+ "id": "p_minimum_scalar",
+ "code": "torch.minimum(torch.randn(5000), torch.tensor(0.3))",
+ "rtol": 0,
+ "atol": 0,
+ "graph_inputs": [
+  "x0",
+  "x1"
+ ],
+ "graph_outputs": [
+  "minimum"
+ ],
+ "kernels": [
+  {
+   "node": "minimum",
+   "entry": "k_minimum_pointwise",
+   "arg_order": [
+    "x1",
+    "x0",
+    "minimum"
+   ],
+   "grid": [
+    5,
+    1,
+    1
+   ],
+   "block": [
+    256,
+    1,
+    1
+   ],
+   "smem_bytes": 0,
+   "zero_outputs": [],
+   "args": [
+    {
+     "name": "x1",
+     "dtype": "f32",
+     "shape": [
+      1
+     ],
+     "seed": 1
+    },
+    {
+     "name": "x0",
+     "dtype": "f32",
+     "shape": [
+      5000
+     ],
+     "seed": 0
+    },
+    {
+     "name": "minimum",
+     "dtype": "f32",
+     "shape": [
+      5000
+     ],
+     "output": true
+    }
+   ],
+   "final": true
+  }
+ ]
+}

@@ -1,0 +1,77 @@
+{
+ "id": "m_silu_epi",
+ "code": "x = torch.randn(64, 128); w = torch.randn(128, 96); torch.nn.functional.silu(x @ w)",
+ "rtol": 0.001,
+ "atol": 0.001,
+ "graph_inputs": [
+  "x",
+  "w"
+ ],
+ "graph_outputs": [
+  "silu"
+ ],
+ "kernels": [
+  {
+   "node": "silu",
+   "entry": "k_matmul_67e6b5",
+   "arg_order": [
+    "silu_one",
+    "x",
+    "w",
+    "silu"
+   ],
+   "grid": [
+    12,
+    1,
+    1
+   ],
+   "block": [
+    128,
+    1,
+    1
+   ],
+   "smem_bytes": 0,
+   "zero_outputs": [],
+   "args": [
+    {
+     "name": "silu_one",
+     "dtype": "f32",
+     "shape": [
+      1
+     ],
+     "data": [
+      1.0
+     ]
+    },
+    {
+     "name": "x",
+     "dtype": "f32",
+     "shape": [
+      64,
+      128
+     ],
+     "seed": 0
+    },
+    {
+     "name": "w",
+     "dtype": "f32",
+     "shape": [
+      128,
+      96
+     ],
+     "seed": 1
+    },
+    {
+     "name": "silu",
+     "dtype": "f32",
+     "shape": [
+      64,
+      96
+     ],
+     "output": true
+    }
+   ],
+   "final": true
+  }
+ ]
+}

@@ -1,0 +1,7 @@
+    Tile[a0] (N=500)
+        in0__u0 = load x[((a0 * 2) + 0)]
+        f64 v0__u0 = exp(in0__u0)
+        in0__u1 = load x[((a0 * 2) + 1)]
+        f64 v0__u1 = exp(in0__u1)
+        exp[((a0 * 2) + 0)] = v0__u0
+        exp[((a0 * 2) + 1)] = v0__u1

@@ -11,7 +11,7 @@ importing emmy.
 Three suites:
 
 * **open**: the 15 problems of the hackathon repo.
-* **generated**: 145 problems built from `tests/variants.py` by the organizers' own generator
+* **generated**: 172 problems built from `tests/variants.py` by the organizers' own generator
   (see README), our stand-in for the hidden set.
 * **synthetic**: 6 hand-built IRs (`tests/synthetic.py`) for statement forms emmy rarely
   emits: Cond with else, Select chains, integer Let, eight-wide f16 vectors, producer (aux)

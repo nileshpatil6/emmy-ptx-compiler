@@ -1,0 +1,66 @@
+{
+  "inputs": [
+    "w",
+    "x"
+  ],
+  "outputs": [
+    "add"
+  ],
+  "nodes": {
+    "w": {
+      "op": "InputOp",
+      "op_fields": {},
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "w",
+          "shape": [
+            128,
+            128
+          ],
+          "dtype": "f32"
+        }
+      ]
+    },
+    "x": {
+      "op": "InputOp",
+      "op_fields": {},
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "x",
+          "shape": [
+            128,
+            128
+          ],
+          "dtype": "f32"
+        }
+      ]
+    },
+    "add": {
+      "op": "KernelOp",
+      "op_fields": {
+        "body": [
+          "Tile(axes=(Axis(name='a0_b', extent=Dim(8), window=Window(parent=Axis(name='a0', extent=Dim(128), window=None), base=None, bound=None, partition=False)), Axis(name='a1_b', extent=Dim(2), window=Window(parent=Axis(name='a1', extent=Dim(128), window=None), base=None, bound=None, partition=False)), Axis(name='a0_u', extent=Dim(16), window=None), Axis(name='a1_u', extent=Dim(64), window=None)), body=(Init(name='acc0__c0_0', identity=0.0, dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Smem(name='_a_smem', extents=(16, 128), dtype='float', align=16), Smem(name='_b_smem', extents=(128, 64), dtype='float', align=16), StridedLoop(axis=Axis(name='_ks', extent=Dim(128), window=None), start=Literal(value=0, dtype='int'), step=Literal(value=128, dtype='int'), body=(StridedLoop(axis=Axis(name='_fa', extent=Dim(512), window=None), start=BinaryExpr(op='+', left=BinaryExpr(op='*', left=Var(name='a0_u'), right=Literal(value=64, dtype='int')), right=Var(name='a1_u')), step=Literal(value=1024, dtype='int'), body=(CpAsyncCopy(smem='_a_smem', smem_index=(BinaryExpr(op='/', left=BinaryExpr(op='*', left=Var(name='_fa'), right=Literal(value=4, dtype='int')), right=Literal(value=128, dtype='int')), BinaryExpr(op='%', left=BinaryExpr(op='*', left=Var(name='_fa'), right=Literal(value=4, dtype='int')), right=Literal(value=128, dtype='int'))), src='x', src_index=(BinaryExpr(op='+', left=BinaryExpr(op='*', left=Var(name='a0_b'), right=Literal(value=16, dtype='int')), right=BinaryExpr(op='/', left=BinaryExpr(op='*', left=Var(name='_fa'), right=Literal(value=4, dtype='int')), right=Literal(value=128, dtype='int'))), BinaryExpr(op='+', left=Var(name='_ks'), right=BinaryExpr(op='%', left=BinaryExpr(op='*', left=Var(name='_fa'), right=Literal(value=4, dtype='int')), right=Literal(value=128, dtype='int')))), nbytes=16, swizzle='NONE', lane_index=None, lane_rows=0),), unroll=False, end=None, seed=True), CpAsyncCopy(smem='_b_smem', smem_index=(Literal(value=0, dtype='int'), Literal(value=0, dtype='int')), src='w', src_index=(BinaryExpr(op='+', left=Var(name='_ks'), right=BinaryExpr(op='+', left=BinaryExpr(op='/', left=BinaryExpr(op='*', left=BinaryExpr(op='+', left=BinaryExpr(op='*', left=Var(name='a0_u'), right=Literal(value=64, dtype='int')), right=Var(name='a1_u')), right=Literal(value=4, dtype='int')), right=Literal(value=64, dtype='int')), right=Literal(value=0, dtype='int'))), BinaryExpr(op='+', left=BinaryExpr(op='*', left=Var(name='a1_b'), right=Literal(value=64, dtype='int')), right=BinaryExpr(op='%', left=BinaryExpr(op='*', left=BinaryExpr(op='+', left=BinaryExpr(op='*', left=Var(name='a0_u'), right=Literal(value=64, dtype='int')), right=Var(name='a1_u')), right=Literal(value=4, dtype='int')), right=Literal(value=64, dtype='int')))), nbytes=16, swizzle='NONE', lane_index=(BinaryExpr(op='/', left=BinaryExpr(op='*', left=BinaryExpr(op='+', left=BinaryExpr(op='*', left=Var(name='a0_u'), right=Literal(value=64, dtype='int')), right=Var(name='a1_u')), right=Literal(value=4, dtype='int')), right=Literal(value=64, dtype='int')), BinaryExpr(op='%', left=BinaryExpr(op='*', left=BinaryExpr(op='+', left=BinaryExpr(op='*', left=Var(name='a0_u'), right=Literal(value=64, dtype='int')), right=Var(name='a1_u')), right=Literal(value=4, dtype='int')), right=Literal(value=64, dtype='int'))), lane_rows=64), CpAsyncCopy(smem='_b_smem', smem_index=(Literal(value=64, dtype='int'), Literal(value=0, dtype='int')), src='w', src_index=(BinaryExpr(op='+', left=Var(name='_ks'), right=BinaryExpr(op='+', left=BinaryExpr(op='/', left=BinaryExpr(op='*', left=BinaryExpr(op='+', left=BinaryExpr(op='*', left=Var(name='a0_u'), right=Literal(value=64, dtype='int')), right=Var(name='a1_u')), right=Literal(value=4, dtype='int')), right=Literal(value=64, dtype='int')), right=Literal(value=64, dtype='int'))), BinaryExpr(op='+', left=BinaryExpr(op='*', left=Var(name='a1_b'), right=Literal(value=64, dtype='int')), right=BinaryExpr(op='%', left=BinaryExpr(op='*', left=BinaryExpr(op='+', left=BinaryExpr(op='*', left=Var(name='a0_u'), right=Literal(value=64, dtype='int')), right=Var(name='a1_u')), right=Literal(value=4, dtype='int')), right=Literal(value=64, dtype='int')))), nbytes=16, swizzle='NONE', lane_index=(BinaryExpr(op='/', left=BinaryExpr(op='*', left=BinaryExpr(op='+', left=BinaryExpr(op='*', left=Var(name='a0_u'), right=Literal(value=64, dtype='int')), right=Var(name='a1_u')), right=Literal(value=4, dtype='int')), right=Literal(value=64, dtype='int')), BinaryExpr(op='%', left=BinaryExpr(op='*', left=BinaryExpr(op='+', left=BinaryExpr(op='*', left=Var(name='a0_u'), right=Literal(value=64, dtype='int')), right=Var(name='a1_u')), right=Literal(value=4, dtype='int')), right=Literal(value=64, dtype='int'))), lane_rows=64), CpAsyncCommit(), CpAsyncWait(group=0), Sync(barrier_id=0, count=None, warp=False), Loop(axis=Axis(name='_ki', extent=Dim(128), window=None), body=(Load(names=('in0__c0_0',), input='_b_smem', index=(Var(name='_ki'), BinaryExpr(op='-', left=BinaryExpr(op='+', left=BinaryExpr(op='+', left=BinaryExpr(op='*', left=Var(name='a1_b'), right=Literal(value=64, dtype='int')), right=BinaryExpr(op='*', left=Var(name='a1_u'), right=Literal(value=1, dtype='int'))), right=Literal(value=0, dtype='int')), right=BinaryExpr(op='*', left=Var(name='a1_b'), right=Literal(value=64, dtype='int')))), dtype=None), Load(names=('in1__c0_0',), input='_a_smem', index=(BinaryExpr(op='-', left=BinaryExpr(op='+', left=BinaryExpr(op='+', left=BinaryExpr(op='*', left=Var(name='a0_b'), right=Literal(value=16, dtype='int')), right=BinaryExpr(op='*', left=Var(name='a0_u'), right=Literal(value=1, dtype='int'))), right=Literal(value=0, dtype='int')), right=BinaryExpr(op='*', left=Var(name='a0_b'), right=Literal(value=16, dtype='int'))), Var(name='_ki')), dtype=None), Assign(name='acc0__v__c0_0', op=ElementwiseImpl('multiply'), args=('in0__c0_0', 'in1__c0_0'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Accum(name='acc0__c0_0', value='acc0__v__c0_0', op=ElementwiseImpl('add'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), axes=('_ki',), base=None)), unroll=False, seed=False), Sync(barrier_id=0, count=None, warp=False)), unroll=False, end=None, seed=True), Load(names=('in2__c0_0',), input='x', index=(BinaryExpr(op='+', left=BinaryExpr(op='+', left=BinaryExpr(op='*', left=Var(name='a0_b'), right=Literal(value=16, dtype='int')), right=BinaryExpr(op='*', left=Var(name='a0_u'), right=Literal(value=1, dtype='int'))), right=Literal(value=0, dtype='int')), BinaryExpr(op='+', left=BinaryExpr(op='+', left=BinaryExpr(op='*', left=Var(name='a1_b'), right=Literal(value=64, dtype='int')), right=BinaryExpr(op='*', left=Var(name='a1_u'), right=Literal(value=1, dtype='int'))), right=Literal(value=0, dtype='int'))), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v1__c0_0', op=ElementwiseImpl('add'), args=('acc0__c0_0', 'in2__c0_0'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Write(output='add', index=(BinaryExpr(op='+', left=BinaryExpr(op='+', left=BinaryExpr(op='*', left=Var(name='a0_b'), right=Literal(value=16, dtype='int')), right=BinaryExpr(op='*', left=Var(name='a0_u'), right=Literal(value=1, dtype='int'))), right=Literal(value=0, dtype='int')), BinaryExpr(op='+', left=BinaryExpr(op='+', left=BinaryExpr(op='*', left=Var(name='a1_b'), right=Literal(value=64, dtype='int')), right=BinaryExpr(op='*', left=Var(name='a1_u'), right=Literal(value=1, dtype='int'))), right=Literal(value=0, dtype='int'))), values=('v1__c0_0',), value_dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), atomic=False, swizzle='NONE')), block_threads=1024, aux_threads=0, raster_axes=('a0_b', 'a1_b'), raster_group=None, raster_orient='m')"
+        ],
+        "name": "k_matmul_4ac04a",
+        "zero_delegated": [],
+        "serial": []
+      },
+      "inputs": [
+        "x",
+        "w"
+      ],
+      "outputs": [
+        {
+          "name": "add",
+          "shape": [
+            128,
+            128
+          ],
+          "dtype": "f32"
+        }
+      ]
+    }
+  }
+}

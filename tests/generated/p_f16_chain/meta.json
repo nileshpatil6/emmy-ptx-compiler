@@ -1,0 +1,63 @@
+{
+ "id": "p_f16_chain",
+ "code": "x = torch.randn(2048, dtype=torch.float16); y = torch.randn(2048, dtype=torch.float16); torch.tanh(x) * y + x",
+ "rtol": 0.01,
+ "atol": 0.01,
+ "graph_inputs": [
+  "x",
+  "y"
+ ],
+ "graph_outputs": [
+  "add"
+ ],
+ "kernels": [
+  {
+   "node": "add",
+   "entry": "k_add_pointwise",
+   "arg_order": [
+    "x",
+    "y",
+    "add"
+   ],
+   "grid": [
+    2,
+    1,
+    1
+   ],
+   "block": [
+    256,
+    1,
+    1
+   ],
+   "smem_bytes": 0,
+   "zero_outputs": [],
+   "args": [
+    {
+     "name": "x",
+     "dtype": "f16",
+     "shape": [
+      2048
+     ],
+     "seed": 0
+    },
+    {
+     "name": "y",
+     "dtype": "f16",
+     "shape": [
+      2048
+     ],
+     "seed": 1
+    },
+    {
+     "name": "add",
+     "dtype": "f16",
+     "shape": [
+      2048
+     ],
+     "output": true
+    }
+   ],
+   "final": true
+  }
+ ]
+}

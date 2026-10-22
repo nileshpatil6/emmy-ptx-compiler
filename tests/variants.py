@@ -640,3 +640,131 @@ OPEN += [
     dict(id="p_add3", code="torch.randn(5000) + torch.randn(5000) + torch.randn(5000)", ref=lambda a, b, c: [(a + b) + c], rtol=0, atol=0),
     dict(id="p_bcast_scalar_tensor", code="torch.randn(64, 64) * torch.randn(1)", ref=lambda a, b: [a * b], rtol=0, atol=0),
 ]
+
+
+# ---- round 4: f16 fused ops, other reduction axes, matmul epilogues, attention variants ----
+def _h(x):
+    return [np.asarray(x).astype(np.float16)]
+
+
+_H = dict(rtol=1e-2, atol=1e-2)
+
+OPEN += [
+    dict(
+        id="f_layernorm_f16",
+        code="x = torch.randn(64, 256, dtype=torch.float16); torch.nn.functional.layer_norm(x, (256,))",
+        ref=lambda x: _h((_f(x) - _f(x).mean(-1, keepdims=True)) / np.sqrt(_f(x).var(-1, keepdims=True) + 1e-5)),
+        **_H,
+    ),
+    dict(
+        id="f_rmsnorm_f16",
+        code="x = torch.randn(32, 512, dtype=torch.float16); w = torch.randn(512, dtype=torch.float16); x * torch.rsqrt((x * x).mean(-1, keepdim=True) + 1e-6) * w",
+        ref=lambda x, w: _h(_f(x) / np.sqrt((_f(x) ** 2).mean(-1, keepdims=True) + 1e-6) * _f(w)),
+        **_H,
+    ),
+    dict(id="r_sum_f16_rows", code="torch.randn(64, 300, dtype=torch.float16).sum(-1)", ref=lambda x: _h(_f(x).sum(-1)), **_H),
+    dict(id="r_amax_dim0", code="torch.randn(500, 40).amax(0)", ref=lambda x: [x.max(0)], rtol=0, atol=0),
+    dict(id="r_sum_mid", code="torch.randn(16, 200, 8).sum(1)", ref=lambda x: _o(_f(x).sum(1)), rtol=1e-4, atol=1e-4),
+    dict(id="r_mean_last_3d", code="torch.randn(8, 16, 333).mean(-1)", ref=lambda x: _o(_f(x).mean(-1)), rtol=1e-4, atol=1e-4),
+    dict(id="f_softmax_mid", code="torch.softmax(torch.randn(8, 50, 16), dim=1)", ref=lambda x: _o(_sm(_f(x), 1)), rtol=1e-3, atol=1e-5),
+    dict(
+        id="f_norm_dim0",
+        code="x = torch.randn(300, 32); x / torch.sqrt((x * x).sum(0, keepdim=True))",
+        ref=lambda x: _o(_f(x) / np.sqrt((_f(x) ** 2).sum(0, keepdims=True))),
+        **_L,
+    ),
+    dict(
+        id="f_bias_softmax",
+        code="x = torch.randn(32, 128); b = torch.randn(128); torch.softmax(x + b, dim=-1)",
+        ref=lambda x, b: _o(_sm(_f(x) + _f(b))),
+        rtol=1e-3,
+        atol=1e-5,
+    ),
+    dict(
+        id="f_sigmoid_mean",
+        code="x = torch.randn(64, 256); torch.sigmoid(x) - torch.sigmoid(x).mean(-1, keepdim=True)",
+        ref=lambda x: _o((lambda s: s - s.mean(-1, keepdims=True))(1 / (1 + np.exp(-_f(x))))),
+        **_L,
+    ),
+    dict(
+        id="f_std_row",
+        code="x = torch.randn(64, 256); torch.sqrt(((x - x.mean(-1, keepdim=True)) ** 2).mean(-1))",
+        ref=lambda x: _o(_f(x).std(-1)),
+        **_L,
+        knobs="WORK=t128,REDUCE=coop",
+    ),
+    dict(
+        id="m_silu_epi",
+        code="x = torch.randn(64, 128); w = torch.randn(128, 96); torch.nn.functional.silu(x @ w)",
+        ref=lambda x, w: _o((lambda y: y / (1 + np.exp(-y)))(_f(x) @ _f(w))),
+        **_M,
+    ),
+    dict(id="m_tanh_epi", code="torch.tanh(torch.randn(96, 64) @ torch.randn(64, 80))", ref=lambda a, b: _o(np.tanh(_f(a) @ _f(b))), **_M),
+    dict(
+        id="m_residual",
+        code="x = torch.randn(128, 128); w = torch.randn(128, 128); x @ w + x",
+        ref=lambda x, w: _o(_f(x) @ _f(w) + _f(x)),
+        **_M,
+    ),
+    dict(id="m_bmm_odd", code="torch.randn(3, 45, 70) @ torch.randn(3, 70, 33)", ref=lambda a, b: _o(_f(a) @ _f(b)), **_M),
+    dict(id="m_2048x64", code="torch.randn(2048, 64) @ torch.randn(64, 64)", ref=lambda a, b: _o(_f(a) @ _f(b)), **_M),
+    dict(
+        id="m_xt",
+        code="x = torch.randn(64, 256); w = torch.randn(96, 256); x @ w.transpose(0, 1)",
+        ref=lambda x, w: _o(_f(x) @ _f(w).T),
+        **_M,
+    ),
+    dict(
+        id="a_attn_bias",
+        code="q = torch.randn(64, 32); kt = torch.randn(32, 64); v = torch.randn(64, 32); b = torch.randn(64, 64); torch.softmax(q @ kt / 5.656854 + b, dim=-1) @ v",
+        ref=lambda q, k, b, v: _o(_sm(_f(q) @ _f(k) / 5.656854 + _f(b)) @ _f(v)),
+        **_L,
+    ),
+    dict(
+        id="a_attn_seq48",
+        code="q = torch.randn(48, 40); kt = torch.randn(40, 48); v = torch.randn(48, 40); torch.softmax(q @ kt * 0.158, dim=-1) @ v",
+        ref=lambda q, k, v: _o(_sm(_f(q) @ _f(k) * 0.158) @ _f(v)),
+        **_L,
+    ),
+    dict(
+        id="a_attn_heads8_d16",
+        code="q = torch.randn(8, 64, 16); kt = torch.randn(8, 16, 64); v = torch.randn(8, 64, 16); torch.softmax(q @ kt / 4.0, dim=-1) @ v",
+        ref=lambda q, k, v: _o(_sm(_f(q) @ _f(k) / 4) @ _f(v)),
+        **_L,
+    ),
+    dict(
+        id="a_softmax_matmul",
+        code="p = torch.randn(64, 128); v = torch.randn(128, 32); torch.softmax(p, dim=-1) @ v",
+        ref=lambda p, v: _o(_sm(_f(p)) @ _f(v)),
+        **_L,
+    ),
+    dict(
+        id="p_f16_chain",
+        code="x = torch.randn(2048, dtype=torch.float16); y = torch.randn(2048, dtype=torch.float16); torch.tanh(x) * y + x",
+        ref=lambda x, y: _h(np.tanh(_f(x)) * _f(y) + _f(x)),
+        **_H,
+    ),
+    dict(id="p_f64_exp", code="torch.exp(torch.randn(1000, dtype=torch.float64))", ref=lambda x: [np.exp(x)], rtol=1e-5, atol=1e-6),
+    dict(
+        id="p_where_scalar",
+        code="x = torch.randn(3000); torch.where(x < -0.5, x * 2.0, torch.sqrt(x.abs()))",
+        ref=lambda x: [np.where(x < -0.5, x * np.float32(2), np.sqrt(np.abs(x)))],
+        rtol=1e-6,
+        atol=1e-6,
+    ),
+    dict(id="p_bcast_both", code="torch.randn(64, 1) + torch.randn(1, 96)", ref=lambda a, b: [a + b], rtol=0, atol=0),
+    dict(
+        id="p_minimum_scalar",
+        code="torch.minimum(torch.randn(5000), torch.tensor(0.3))",
+        ref=lambda x, c: [np.minimum(x, c)],
+        rtol=0,
+        atol=0,
+    ),
+    dict(
+        id="p_long_chain",
+        code="x = torch.randn(4096); torch.sigmoid(torch.exp(-x * x) - torch.tanh(x) * 0.5) * torch.log(x.abs() + 1.0)",
+        ref=lambda x: _o((1 / (1 + np.exp(-(np.exp(-(_f(x) ** 2)) - np.tanh(_f(x)) * 0.5)))) * np.log(np.abs(_f(x)) + 1)),
+        rtol=1e-5,
+        atol=1e-6,
+    ),
+]

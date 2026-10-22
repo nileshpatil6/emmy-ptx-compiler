@@ -1,0 +1,75 @@
+{
+ "id": "p_long_chain",
+ "code": "x = torch.randn(4096); torch.sigmoid(torch.exp(-x * x) - torch.tanh(x) * 0.5) * torch.log(x.abs() + 1.0)",
+ "rtol": 1e-05,
+ "atol": 1e-06,
+ "graph_inputs": [
+  "x"
+ ],
+ "graph_outputs": [
+  "mul_2"
+ ],
+ "kernels": [
+  {
+   "node": "mul_2",
+   "entry": "k_mul_2_pointwise",
+   "arg_order": [
+    "mul_1_c1",
+    "add_c1",
+    "x",
+    "mul_2"
+   ],
+   "grid": [
+    4,
+    1,
+    1
+   ],
+   "block": [
+    256,
+    1,
+    1
+   ],
+   "smem_bytes": 0,
+   "zero_outputs": [],
+   "args": [
+    {
+     "name": "mul_1_c1",
+     "dtype": "f32",
+     "shape": [
+      1
+     ],
+     "data": [
+      0.5
+     ]
+    },
+    {
+     "name": "add_c1",
+     "dtype": "f32",
+     "shape": [
+      1
+     ],
+     "data": [
+      1.0
+     ]
+    },
+    {
+     "name": "x",
+     "dtype": "f32",
+     "shape": [
+      4096
+     ],
+     "seed": 0
+    },
+    {
+     "name": "mul_2",
+     "dtype": "f32",
+     "shape": [
+      4096
+     ],
+     "output": true
+    }
+   ],
+   "final": true
+  }
+ ]
+}

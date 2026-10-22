@@ -14,19 +14,19 @@ other compiler is involved. `ptxas` only ever runs on the hackathon's remote run
 
 ## Results
 
-All 166 test problems pass on the runner's RTX 5090, across all five categories: the 15 open
-problems, 145 generated variants and 6 synthetic IRs. Full table with timings, optimization
+All 193 test problems pass on the runner's RTX 5090, across all five categories: the 15 open
+problems, 172 generated variants and 6 synthetic IRs. Full table with timings, optimization
 history and measured precision: [RESULTS.md](RESULTS.md).
 
 | category | open set | generated variants | synthetic IR |
 |---|---|---|---|
-| 1 pointwise | 4/4 | 51/51 | 4/4 |
-| 2 reductions | 4/4 | 34/34 | 2/2 |
-| 3 matmul | 2/2 | 23/23 | - |
-| 4 fused | 3/3 | 24/24 | - |
-| 5 attention-like | 2/2 | 13/13 | - |
+| 1 pointwise | 4/4 | 57/57 | 4/4 |
+| 2 reductions | 4/4 | 38/38 | 2/2 |
+| 3 matmul | 2/2 | 29/29 | - |
+| 4 fused | 3/3 | 31/31 | - |
+| 5 attention-like | 2/2 | 17/17 | - |
 
-The generated variants are our stand-in for the hidden set: 145 torch expressions with new
+The generated variants are our stand-in for the hidden set: 172 torch expressions with new
 shapes (odd sizes, sizes that do not divide the block, tiny and large), new ops (exp, log,
 tanh, sigmoid, silu, gelu, erf, sin, cos, sqrt, rsqrt, pow, where, clamp, max/min, abs),
 broadcasting, f16 / f64 / int32 / int64 data, other reduction axes and block sizes, schedules that
