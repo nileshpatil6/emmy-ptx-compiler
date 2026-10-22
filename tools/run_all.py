@@ -29,7 +29,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from runner import Runner, RunnerError  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
-SUITES = [ROOT / "tests" / "open", ROOT / "tests" / "generated"]
+SUITES = [ROOT / "tests" / "open", ROOT / "tests" / "generated", ROOT / "tests" / "synthetic"]
+SUITE_NAMES = ("open", "generated", "synthetic")
 CATEGORIES = {"p": "pointwise", "r": "reductions", "m": "matmul", "f": "fused", "a": "attention"}
 
 
@@ -88,13 +89,13 @@ def run_problem(pdir: Path, runner: Runner, timing: bool) -> dict:
 
 
 def markdown_table(results: list[dict]) -> str:
-    lines = ["| category | open set | generated variants |", "|---|---|---|"]
+    lines = ["| category | open set | generated variants | synthetic IR |", "|---|---|---|---|"]
     for letter, name in CATEGORIES.items():
         cells = []
-        for suite in ("open", "generated"):
+        for suite in SUITE_NAMES:
             rs = [r for r in results if r["suite"] == suite and r["id"].startswith(letter)]
             cells.append(f"{sum(r['ok'] for r in rs)}/{len(rs)}" if rs else "-")
-        lines.append(f"| {name} | {cells[0]} | {cells[1]} |")
+        lines.append(f"| {name} | {' | '.join(cells)} |")
     lines += ["", "| suite | problem | result | median us | registers |", "|---|---|---|---|---|"]
     for r in results:
         status = "PASS" if r["ok"] else "FAIL " + r["detail"]
@@ -115,7 +116,7 @@ def main() -> int:
     runner = Runner(use_cache=not args.no_cache)
     problems = sorted(
         (p for s in (args.suites or SUITES) if s.exists() for p in s.iterdir() if (p / "meta.json").exists() and args.k in p.name),
-        key=lambda p: (p.parent.name != "open", p.name),
+        key=lambda p: (SUITE_NAMES.index(p.parent.name) if p.parent.name in SUITE_NAMES else 9, p.name),
     )
     results = []
     for p in problems:
@@ -129,10 +130,10 @@ def main() -> int:
         timing = f"{res['us']:9.1f} us" if res["ok"] else ""
         print(f"{status}  {res['suite']:<9} {res['id']:<34} {timing}  {res['detail']}", flush=True)
 
-    print("\ncategory      " + "  ".join(f"{s:>10}" for s in ("open", "generated")))
+    print("\ncategory      " + "  ".join(f"{s:>10}" for s in SUITE_NAMES))
     for letter, name in CATEGORIES.items():
         cells = []
-        for suite in ("open", "generated"):
+        for suite in SUITE_NAMES:
             rs = [r for r in results if r["suite"] == suite and r["id"].startswith(letter)]
             cells.append(f"{sum(r['ok'] for r in rs)}/{len(rs)}" if rs else "-")
         print(f"{name:<13} " + "  ".join(f"{c:>10}" for c in cells))

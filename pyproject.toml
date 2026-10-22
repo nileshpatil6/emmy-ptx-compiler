@@ -14,3 +14,4 @@ ignore = ["UP031"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/variants.py" = ["E501"]
+"tests/synthetic.py" = ["E501"]

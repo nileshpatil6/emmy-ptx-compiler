@@ -1,0 +1,47 @@
+{
+ "inputs": [
+  "x"
+ ],
+ "outputs": [
+  "out"
+ ],
+ "nodes": {
+  "x": {
+   "op": "InputOp",
+   "op_fields": {},
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "x",
+     "shape": [
+      1000
+     ],
+     "dtype": "f32"
+    }
+   ]
+  },
+  "out": {
+   "op": "KernelOp",
+   "op_fields": {
+    "body": [
+     "Tile(axes=(Axis(name='a0', extent=Dim(1000), window=None),), body=(Load(names=('v',), input='x', index=(Var(name='a0'),), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Let(name='j', value=BinaryExpr(op='-', left=Literal(value=999, dtype='int'), right=Var(name='a0')), dtype=None), Load(names=('r',), input='x', index=(Var(name='j'),), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='sq', op=ElementwiseImpl('square'), args=('v',), dtype=None), Assign(name='ng', op=ElementwiseImpl('negative'), args=('v',), dtype=None), Select(name='s', branches=(SelectBranch(value='sq', select=BinaryExpr(op='<', left=Var(name='a0'), right=Literal(value=300, dtype='int'))), SelectBranch(value='v', select=BinaryExpr(op='<', left=Var(name='a0'), right=Literal(value=600, dtype='int'))), SelectBranch(value='ng', select=Literal(value=1, dtype='int')))), Cond(cond=BinaryExpr(op='==', left=BinaryExpr(op='%', left=Var(name='a0'), right=Literal(value=2, dtype='int')), right=Literal(value=0, dtype='int')), body=(Assign(name='e', op=ElementwiseImpl('exp'), args=('s',), dtype=None), Assign(name='o1', op=ElementwiseImpl('add'), args=('e', 'r'), dtype=None), Write(output='out', index=(Var(name='a0'),), values=('o1',), value_dtype=None, atomic=False, swizzle='NONE')), else_body=(Assign(name='o2', op=ElementwiseImpl('subtract'), args=('s', 'r'), dtype=None), Write(output='out', index=(Var(name='a0'),), values=('o2',), value_dtype=None, atomic=False, swizzle='NONE')))), block_threads=None, aux_threads=0, raster_axes=None, raster_group=None, raster_orient='m')"
+    ],
+    "name": "k_syn_cond",
+    "zero_delegated": [],
+    "serial": []
+   },
+   "inputs": [
+    "x"
+   ],
+   "outputs": [
+    {
+     "name": "out",
+     "shape": [
+      1000
+     ],
+     "dtype": "f32"
+    }
+   ]
+  }
+ }
+}

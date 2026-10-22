@@ -1,0 +1,52 @@
+{
+ "id": "p_syn_aux_barriers",
+ "rtol": 0,
+ "atol": 0,
+ "graph_inputs": [
+  "x"
+ ],
+ "graph_outputs": [
+  "out"
+ ],
+ "kernels": [
+  {
+   "node": "out",
+   "entry": "k_syn_aux",
+   "arg_order": [
+    "x",
+    "out"
+   ],
+   "grid": [
+    4,
+    1,
+    1
+   ],
+   "block": [
+    160,
+    1,
+    1
+   ],
+   "smem_bytes": 0,
+   "zero_outputs": [],
+   "args": [
+    {
+     "name": "x",
+     "dtype": "f32",
+     "shape": [
+      512
+     ],
+     "seed": 0
+    },
+    {
+     "name": "out",
+     "dtype": "f32",
+     "shape": [
+      512
+     ],
+     "output": true
+    }
+   ],
+   "final": true
+  }
+ ]
+}

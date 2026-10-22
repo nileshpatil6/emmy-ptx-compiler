@@ -1,0 +1,48 @@
+{
+ "inputs": [
+  "x"
+ ],
+ "outputs": [
+  "out"
+ ],
+ "nodes": {
+  "x": {
+   "op": "InputOp",
+   "op_fields": {},
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "x",
+     "shape": [
+      64,
+      256
+     ],
+     "dtype": "f32"
+    }
+   ]
+  },
+  "out": {
+   "op": "KernelOp",
+   "op_fields": {
+    "body": [
+     "Tile(axes=(Axis(name='rb', extent=Dim(16), window=None), Axis(name='t', extent=Dim(32), window=None), Axis(name='iv', extent=Dim(4), window=None)), body=(StridedLoop(axis=Axis(name='j', extent=Dim(256), window=None), start=Var(name='t'), step=Literal(value=32, dtype='int'), body=(Load(names=('v',), input='x', index=(BinaryExpr(op='+', left=BinaryExpr(op='*', left=Var(name='rb'), right=Literal(value=4, dtype='int')), right=Var(name='iv')), Var(name='j')), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Accum(name='acc', value='v', op=ElementwiseImpl('add'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), axes=('j',), base=None)), unroll=False, end=None, seed=True), Smem(name='buf', extents=(128,), dtype='float', align=0), Write(output='buf', index=(BinaryExpr(op='+', left=BinaryExpr(op='*', left=Var(name='t'), right=Literal(value=4, dtype='int')), right=Var(name='iv')),), values=('acc',), value_dtype=None, atomic=False, swizzle='NONE'), Sync(barrier_id=0, count=None, warp=False), TreeHalve(bufs=('buf',), state=('acc',), state_b=('acc__o',), combine_states=(Assign(name='acc', op=ElementwiseImpl('add'), args=('acc', 'acc__o'), dtype=None),), length=32, tid_var='t', dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), barrier_id=0, barrier_count=None, inner=('iv', 4)), Cond(cond=BinaryExpr(op='==', left=Var(name='t'), right=Literal(value=0, dtype='int')), body=(Write(output='out', index=(BinaryExpr(op='+', left=BinaryExpr(op='*', left=Var(name='rb'), right=Literal(value=4, dtype='int')), right=Var(name='iv')),), values=('acc',), value_dtype=None, atomic=False, swizzle='NONE'),), else_body=())), block_threads=128, aux_threads=0, raster_axes=None, raster_group=None, raster_orient='m')"
+    ],
+    "name": "k_syn_tree",
+    "zero_delegated": [],
+    "serial": []
+   },
+   "inputs": [
+    "x"
+   ],
+   "outputs": [
+    {
+     "name": "out",
+     "shape": [
+      64
+     ],
+     "dtype": "f32"
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,52 @@
+{
+ "id": "p_syn_cond_else_select",
+ "rtol": 1e-05,
+ "atol": 1e-06,
+ "graph_inputs": [
+  "x"
+ ],
+ "graph_outputs": [
+  "out"
+ ],
+ "kernels": [
+  {
+   "node": "out",
+   "entry": "k_syn_cond",
+   "arg_order": [
+    "x",
+    "out"
+   ],
+   "grid": [
+    4,
+    1,
+    1
+   ],
+   "block": [
+    256,
+    1,
+    1
+   ],
+   "smem_bytes": 0,
+   "zero_outputs": [],
+   "args": [
+    {
+     "name": "x",
+     "dtype": "f32",
+     "shape": [
+      1000
+     ],
+     "seed": 0
+    },
+    {
+     "name": "out",
+     "dtype": "f32",
+     "shape": [
+      1000
+     ],
+     "output": true
+    }
+   ],
+   "final": true
+  }
+ ]
+}

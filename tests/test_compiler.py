@@ -23,7 +23,7 @@ from emmyptx.index import _fold, linearize, normalize, split_constant
 from emmyptx.ptx import f32_imm
 
 ROOT = Path(__file__).resolve().parent
-IRS = sorted(ROOT.glob("open/*/*.ir.json")) + sorted(ROOT.glob("generated/*/*.ir.json"))
+IRS = sorted(ROOT.glob("open/*/*.ir.json")) + sorted(ROOT.glob("generated/*/*.ir.json")) + sorted(ROOT.glob("synthetic/*/*.ir.json"))
 
 
 def lit(v):

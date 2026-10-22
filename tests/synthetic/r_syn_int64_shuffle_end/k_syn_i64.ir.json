@@ -1,0 +1,47 @@
+{
+ "inputs": [
+  "x"
+ ],
+ "outputs": [
+  "out"
+ ],
+ "nodes": {
+  "x": {
+   "op": "InputOp",
+   "op_fields": {},
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "x",
+     "shape": [
+      4096
+     ],
+     "dtype": "i64"
+    }
+   ]
+  },
+  "out": {
+   "op": "KernelOp",
+   "op_fields": {
+    "body": [
+     "Tile(axes=(Axis(name='t', extent=Dim(32), window=None),), body=(StridedLoop(axis=Axis(name='i', extent=Dim(4096), window=None), start=Var(name='t'), step=Literal(value=32, dtype='int'), body=(Load(names=('v',), input='x', index=(Var(name='i'),), dtype=DataType(name='i64', np=dtype('int64'), nbytes=8)), Accum(name='acc', value='v', op=ElementwiseImpl('add'), dtype=DataType(name='i64', np=dtype('int64'), nbytes=8), axes=('i',), base=None)), unroll=False, end=Literal(value=2000, dtype='int'), seed=True), WarpShuffle(state=('acc',), state_b=('acc__o',), combine_states=(Assign(name='acc', op=ElementwiseImpl('add'), args=('acc', 'acc__o'), dtype=None),), length=32, dtype=DataType(name='i64', np=dtype('int64'), nbytes=8)), Cond(cond=BinaryExpr(op='==', left=Var(name='t'), right=Literal(value=0, dtype='int')), body=(Write(output='out', index=(), values=('acc',), value_dtype=None, atomic=False, swizzle='NONE'),), else_body=())), block_threads=32, aux_threads=0, raster_axes=None, raster_group=None, raster_orient='m')"
+    ],
+    "name": "k_syn_i64",
+    "zero_delegated": [],
+    "serial": []
+   },
+   "inputs": [
+    "x"
+   ],
+   "outputs": [
+    {
+     "name": "out",
+     "shape": [
+      1
+     ],
+     "dtype": "i64"
+    }
+   ]
+  }
+ }
+}

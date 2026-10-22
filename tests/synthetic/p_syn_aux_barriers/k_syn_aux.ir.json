@@ -1,0 +1,47 @@
+{
+ "inputs": [
+  "x"
+ ],
+ "outputs": [
+  "out"
+ ],
+ "nodes": {
+  "x": {
+   "op": "InputOp",
+   "op_fields": {},
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "x",
+     "shape": [
+      512
+     ],
+     "dtype": "f32"
+    }
+   ]
+  },
+  "out": {
+   "op": "KernelOp",
+   "op_fields": {
+    "body": [
+     "Tile(axes=(Axis(name='a0', extent=Dim(512), window=None),), body=(Load(names=('v',), input='x', index=(Var(name='a0'),), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Sync(barrier_id=0, count=None, warp=True), Sync(barrier_id=1, count=160, warp=False), Assign(name='w', op=ElementwiseImpl('multiply'), args=('v', 'v'), dtype=None), Write(output='out', index=(Var(name='a0'),), values=('w',), value_dtype=None, atomic=False, swizzle='NONE')), block_threads=128, aux_threads=32, raster_axes=None, raster_group=None, raster_orient='m')"
+    ],
+    "name": "k_syn_aux",
+    "zero_delegated": [],
+    "serial": []
+   },
+   "inputs": [
+    "x"
+   ],
+   "outputs": [
+    {
+     "name": "out",
+     "shape": [
+      512
+     ],
+     "dtype": "f32"
+    }
+   ]
+  }
+ }
+}

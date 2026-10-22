@@ -1,0 +1,63 @@
+{
+ "inputs": [
+  "x",
+  "y"
+ ],
+ "outputs": [
+  "out"
+ ],
+ "nodes": {
+  "x": {
+   "op": "InputOp",
+   "op_fields": {},
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "x",
+     "shape": [
+      512
+     ],
+     "dtype": "f32"
+    }
+   ]
+  },
+  "y": {
+   "op": "InputOp",
+   "op_fields": {},
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "y",
+     "shape": [
+      256
+     ],
+     "dtype": "f32"
+    }
+   ]
+  },
+  "out": {
+   "op": "KernelOp",
+   "op_fields": {
+    "body": [
+     "Tile(axes=(Axis(name='a0', extent=Dim(256), window=None),), body=(Smem(name='s', extents=(512,), dtype='float', align=0), Smem(name='t', extents=(256,), dtype='float', align=0), CpAsyncCopy(smem='s', smem_index=(BinaryExpr(op='*', left=Var(name='a0'), right=Literal(value=2, dtype='int')),), src='x', src_index=(BinaryExpr(op='*', left=Var(name='a0'), right=Literal(value=2, dtype='int')),), nbytes=8, swizzle='NONE', lane_index=None, lane_rows=0), CpAsyncCopy(smem='t', smem_index=(Var(name='a0'),), src='y', src_index=(Var(name='a0'),), nbytes=4, swizzle='NONE', lane_index=None, lane_rows=0), CpAsyncCommit(), CpAsyncWait(group=0), Sync(barrier_id=0, count=None, warp=False), Load(names=('p',), input='s', index=(BinaryExpr(op='*', left=Var(name='a0'), right=Literal(value=2, dtype='int')),), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Load(names=('q',), input='s', index=(BinaryExpr(op='+', left=BinaryExpr(op='*', left=Var(name='a0'), right=Literal(value=2, dtype='int')), right=Literal(value=1, dtype='int')),), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Load(names=('r',), input='t', index=(BinaryExpr(op='-', left=Literal(value=255, dtype='int'), right=Var(name='a0')),), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='pq', op=ElementwiseImpl('add'), args=('p', 'q'), dtype=None), Assign(name='o', op=ElementwiseImpl('add'), args=('pq', 'r'), dtype=None), Write(output='out', index=(Var(name='a0'),), values=('o',), value_dtype=None, atomic=False, swizzle='NONE')), block_threads=None, aux_threads=0, raster_axes=None, raster_group=None, raster_orient='m')"
+    ],
+    "name": "k_syn_cpasync",
+    "zero_delegated": [],
+    "serial": []
+   },
+   "inputs": [
+    "x",
+    "y"
+   ],
+   "outputs": [
+    {
+     "name": "out",
+     "shape": [
+      256
+     ],
+     "dtype": "f32"
+    }
+   ]
+  }
+ }
+}
