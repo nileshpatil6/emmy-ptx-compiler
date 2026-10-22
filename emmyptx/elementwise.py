@@ -15,6 +15,7 @@ lose relative precision (tanh and erf near zero use their Taylor series).
 from __future__ import annotations
 
 import math
+import struct
 from dataclasses import dataclass
 
 from emmyptx import dtypes
@@ -31,9 +32,21 @@ class Value:
 
 _LOG2E = 1.4426950408889634
 _LN2 = 0.6931471805599453
-_INV_2PI = 0.15915494309189535
-_2PI_HI = 6.28125  # 2*pi split so that k * _2PI_HI is exact for moderate k
-_2PI_LO = 2 * math.pi - 6.28125
+_LN2_HI = struct.unpack("<f", struct.pack("<f", _LN2))[0]  # ln 2 rounded to f32 ...
+_LN2_LO = _LN2 - _LN2_HI  # ... and the part it misses
+
+
+def _pio2_parts() -> tuple[float, float, float]:
+    """pi/2 as a sum of three f32 values (each one the rounding of what remains)."""
+    parts, rest = [], math.pi / 2
+    for _ in range(3):
+        part = struct.unpack("<f", struct.pack("<f", rest))[0]
+        parts.append(part)
+        rest -= part
+    return tuple(parts)
+
+
+_PIO2_PARTS = _pio2_parts()
 
 _FLOAT_COMPARE = {"less": "lt", "less_equal": "le", "greater": "gt", "greater_equal": "ge", "equal": "eq", "not_equal": "neu"}
 
@@ -47,6 +60,10 @@ _EXACT_INTEGER_OPS = dtypes.INTEGER_OPS | {"maximum", "minimum", "copy"}
 class Elementwise:
     def __init__(self, b: PtxBuilder):
         self.b = b
+        # Inside loops (online softmax, attention) exp runs once per element of
+        # a reduction whose tolerance already absorbs reordered sums; there the
+        # two-instruction exp is used. Straight-line code gets the libm-grade one.
+        self.loop_depth = 0
 
     # ---- conversions -----------------------------------------------------
     def convert(self, v: Value, to: DType) -> Value:
@@ -186,7 +203,7 @@ class Elementwise:
             case "rsqrt":
                 b.ins("rsqrt.approx.f32", r, a[0])
             case "exp" | "exp_fast":
-                return self._exp(a[0])
+                return self._exp_fast(a[0]) if self.loop_depth or op == "exp_fast" else self._exp(a[0])
             case "log":
                 b.ins("lg2.approx.f32", r, a[0])
                 return self._mul_imm(r, _LN2)
@@ -250,26 +267,74 @@ class Elementwise:
             acc = nxt
         return acc
 
-    def _exp(self, x: str) -> str:
-        """exp(x) = 2^(x * log2 e): one multiply and the hardware 2^x, the same
-        sequence as CUDA's __expf (relative error ~1e-6 over the f32 range)."""
+    def _exp_fast(self, x: str) -> str:
+        """exp(x) = 2^(x * log2 e) in two instructions, CUDA's __expf sequence
+        (relative error ~2e-7 plus ~4e-8 per unit of |x|)."""
         r = self.b.reg("f32")
         self.b.ins("ex2.approx.f32", r, self._mul_imm(x, _LOG2E))
         return r
 
-    def _sincos(self, op: str, x: str) -> str:
-        """Reduce x to [-pi, pi] (two-constant Cody-Waite), then the hardware
-        approximation, which is accurate to ~1e-6 on that range."""
+    def _exp(self, x: str) -> str:
+        """exp(x) = 2^n * exp(r) with n = round(x / ln 2) and r = x - n ln 2
+        computed exactly (Cody-Waite, two fmas), so |r| <= ln(2) / 2 and the
+        hardware 2^x only sees a small argument; 2^n is an exact power of two
+        (split in two factors so n = 128 does not overflow early). Accurate to
+        a few ulp over the whole range, like libm's expf."""
         b = self.b
-        k = b.reg("f32")
-        b.ins("mul.rn.f32", k, x, f32_imm(_INV_2PI))
-        b.ins("cvt.rni.f32.f32", k, k)
-        r1 = b.reg("f32")
-        b.ins("fma.rn.f32", r1, k, f32_imm(-_2PI_HI), x)
+        xc = b.reg("f32")  # clamp: below -104 the result is 0, above 89 it is inf (NaN stays NaN)
+        b.ins("max.NaN.f32", xc, x, f32_imm(-104.0))
+        b.ins("min.NaN.f32", xc, xc, f32_imm(89.0))
+        n = b.reg("f32")
+        b.ins("mul.rn.f32", n, xc, f32_imm(_LOG2E))
+        b.ins("cvt.rni.f32.f32", n, n)
+        r = self._fma_imm(n, -_LN2_HI, xc)
+        r = self._fma_imm(n, -_LN2_LO, r)
+        p = b.reg("f32")
+        b.ins("ex2.approx.f32", p, self._mul_imm(r, _LOG2E))
+        n1 = self._mul_imm(n, 0.5)
+        b.ins("cvt.rmi.f32.f32", n1, n1)
+        n2 = b.reg("f32")
+        b.ins("sub.rn.f32", n2, n, n1)
+        for half in (n1, n2):
+            scale = b.reg("f32")
+            b.ins("ex2.approx.f32", scale, half)  # exact for an integer argument
+            nxt = b.reg("f32")
+            b.ins("mul.rn.f32", nxt, p, scale)
+            p = nxt
+        return p
+
+    def _sincos(self, op: str, x: str) -> str:
+        """Reduce x by multiples of pi/2 (three-part Cody-Waite), evaluate the
+        sin or cos polynomial on [-pi/4, pi/4], then pick the quadrant's
+        function and sign: cos(x) is sin one quadrant later."""
+        b = self.b
+        j = self._mul_imm(x, 2 / math.pi)
+        b.ins("cvt.rni.f32.f32", j, j)
+        r = x
+        for part in _PIO2_PARTS:
+            r = self._fma_imm(j, -part, r)
         r2 = b.reg("f32")
-        b.ins("fma.rn.f32", r2, k, f32_imm(-_2PI_LO), r1)
+        b.ins("mul.rn.f32", r2, r, r)
+        sin_poly = self._poly(r2, [0.0, -1.6666654611e-1, 8.3321608736e-3, -1.9515295891e-4])
+        sin_r = b.reg("f32")
+        b.ins("fma.rn.f32", sin_r, sin_poly, r, r)  # r + r * (r2 * poly)
+        cos_poly = self._poly(r2, [1.0, -0.5, 4.166664568298827e-2, -1.388731625493765e-3, 2.443315711809948e-5])
+        q = b.reg("s32")
+        b.ins("cvt.rzi.s32.f32", q, j)
+        if op == "cos":
+            b.ins("add.s32", q, q, "1")
+        odd, neg = b.reg("s32"), b.reg("s32")
+        b.ins("and.b32", odd, q, "1")
+        b.ins("and.b32", neg, q, "2")
+        p_odd, p_neg = b.reg("pred"), b.reg("pred")
+        b.ins("setp.ne.s32", p_odd, odd, "0")
+        b.ins("setp.ne.s32", p_neg, neg, "0")
+        v = b.reg("f32")
+        b.ins("selp.f32", v, cos_poly, sin_r, p_odd)
+        nv = b.reg("f32")
+        b.ins("neg.f32", nv, v)
         out = b.reg("f32")
-        b.ins(f"{op}.approx.f32", out, r2)
+        b.ins("selp.f32", out, nv, v, p_neg)
         return out
 
     def _tanh(self, x: str) -> str:
@@ -280,7 +345,7 @@ class Elementwise:
         b.ins("abs.f32", ax, x)
         x2 = b.reg("f32")
         b.ins("mul.rn.f32", x2, x, x)
-        series = self._poly(x2, [1.0, -1 / 3, 2 / 15, -17 / 315, 62 / 2835, -1382 / 155925, 21844 / 6081075])
+        series = self._poly(x2, [1.0, -1 / 3, 2 / 15, -17 / 315, 62 / 2835, -1382 / 155925, 21844 / 6081075, -929569 / 638512875])
         small = b.reg("f32")
         b.ins("mul.rn.f32", small, series, x)
         e = self._exp(self._mul_imm(ax, 2.0))

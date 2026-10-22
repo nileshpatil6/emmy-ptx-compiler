@@ -1,0 +1,65 @@
+    Tile[a0_b, a5_b, a0_u, a5_u] (N=352)
+        in0 = load mul_c1[0]
+        for a1 in 0..512
+            for a2 in 0..64
+                in2__ar0 = load q[(((a0_b * 1) + (a0_u * 1)) + 0), a2]
+                in1__ar0 = load kt[a2, a1]
+                f32 v0__ar0 = multiply(in1__ar0, in2__ar0)
+                f32 acc0__ar0 <- add(acc0__ar0, v0__ar0)
+            f32 v1__c0_0 = multiply(acc0__ar0, in0)
+            f32 one__c0_0 = 1.0
+            f32 v1__gn__c0_0 = maximum(acc1__c0_0, v1__c0_0)
+            f32 v1__dg__c0_0 = subtract(acc1__c0_0, v1__gn__c0_0)
+            f32 v1__alpha__c0_0 = exp(v1__dg__c0_0)
+            f32 v1__dg_o__c0_0 = subtract(v1__c0_0, v1__gn__c0_0)
+            f32 v1__beta__c0_0 = exp(v1__dg_o__c0_0)
+            f32 v1__acc3_sa__c0_0 = multiply(acc3__c0_0, v1__alpha__c0_0)
+            f32 v1__acc3_sb__c0_0 = multiply(one__c0_0, v1__beta__c0_0)
+            f32 acc3__c0_0 <- add(v1__acc3_sa__c0_0, v1__acc3_sb__c0_0)
+            f32 v1__acc5__sum_sa__c0_0 = multiply(acc5__sum__c0_0, v1__alpha__c0_0)
+            in7__bc0 = load v[a1, ((((a5_b * 3) + (a5_u * 3)) + 0) % 64)]
+            f32 v1__acc5__sum_sb__c0_0 = multiply(in7__bc0, v1__beta__c0_0)
+            f32 acc5__sum__c0_0 <- add(v1__acc5__sum_sa__c0_0, v1__acc5__sum_sb__c0_0)
+            f32 acc1__c0_0 <- maximum(acc1__c0_0, v1__c0_0)
+            f32 v1__c0_1 = multiply(acc0__ar0, in0)
+            f32 one__c0_1 = 1.0
+            f32 v1__gn__c0_1 = maximum(acc1__c0_1, v1__c0_1)
+            f32 v1__dg__c0_1 = subtract(acc1__c0_1, v1__gn__c0_1)
+            f32 v1__alpha__c0_1 = exp(v1__dg__c0_1)
+            f32 v1__dg_o__c0_1 = subtract(v1__c0_1, v1__gn__c0_1)
+            f32 v1__beta__c0_1 = exp(v1__dg_o__c0_1)
+            f32 v1__acc3_sa__c0_1 = multiply(acc3__c0_1, v1__alpha__c0_1)
+            f32 v1__acc3_sb__c0_1 = multiply(one__c0_1, v1__beta__c0_1)
+            f32 acc3__c0_1 <- add(v1__acc3_sa__c0_1, v1__acc3_sb__c0_1)
+            f32 v1__acc5__sum_sa__c0_1 = multiply(acc5__sum__c0_1, v1__alpha__c0_1)
+            in7__bc1 = load v[a1, ((((a5_b * 3) + (a5_u * 3)) + 1) % 64)]
+            f32 v1__acc5__sum_sb__c0_1 = multiply(in7__bc1, v1__beta__c0_1)
+            f32 acc5__sum__c0_1 <- add(v1__acc5__sum_sa__c0_1, v1__acc5__sum_sb__c0_1)
+            f32 acc1__c0_1 <- maximum(acc1__c0_1, v1__c0_1)
+            f32 v1__c0_2 = multiply(acc0__ar0, in0)
+            f32 one__c0_2 = 1.0
+            f32 v1__gn__c0_2 = maximum(acc1__c0_2, v1__c0_2)
+            f32 v1__dg__c0_2 = subtract(acc1__c0_2, v1__gn__c0_2)
+            f32 v1__alpha__c0_2 = exp(v1__dg__c0_2)
+            f32 v1__dg_o__c0_2 = subtract(v1__c0_2, v1__gn__c0_2)
+            f32 v1__beta__c0_2 = exp(v1__dg_o__c0_2)
+            f32 v1__acc3_sa__c0_2 = multiply(acc3__c0_2, v1__alpha__c0_2)
+            f32 v1__acc3_sb__c0_2 = multiply(one__c0_2, v1__beta__c0_2)
+            f32 acc3__c0_2 <- add(v1__acc3_sa__c0_2, v1__acc3_sb__c0_2)
+            f32 v1__acc5__sum_sa__c0_2 = multiply(acc5__sum__c0_2, v1__alpha__c0_2)
+            in7__bc2 = load v[a1, ((((a5_b * 3) + (a5_u * 3)) + 2) % 64)]
+            f32 v1__acc5__sum_sb__c0_2 = multiply(in7__bc2, v1__beta__c0_2)
+            f32 acc5__sum__c0_2 <- add(v1__acc5__sum_sa__c0_2, v1__acc5__sum_sb__c0_2)
+            f32 acc1__c0_2 <- maximum(acc1__c0_2, v1__c0_2)
+        f32 v6__c0_0 = reciprocal(acc3__c0_0)
+        f32 acc5__c0_0 = multiply(acc5__sum__c0_0, v6__c0_0)
+        if (((((a5_b * 3) + (a5_u * 3)) + 0) < 64)):
+            matmul_1[(((a0_b * 1) + (a0_u * 1)) + 0), ((((a5_b * 3) + (a5_u * 3)) + 0) % 64)] = acc5__c0_0
+        f32 v6__c0_1 = reciprocal(acc3__c0_1)
+        f32 acc5__c0_1 = multiply(acc5__sum__c0_1, v6__c0_1)
+        if (((((a5_b * 3) + (a5_u * 3)) + 1) < 64)):
+            matmul_1[(((a0_b * 1) + (a0_u * 1)) + 0), ((((a5_b * 3) + (a5_u * 3)) + 1) % 64)] = acc5__c0_1
+        f32 v6__c0_2 = reciprocal(acc3__c0_2)
+        f32 acc5__c0_2 = multiply(acc5__sum__c0_2, v6__c0_2)
+        if (((((a5_b * 3) + (a5_u * 3)) + 2) < 64)):
+            matmul_1[(((a0_b * 1) + (a0_u * 1)) + 0), ((((a5_b * 3) + (a5_u * 3)) + 2) % 64)] = acc5__c0_2

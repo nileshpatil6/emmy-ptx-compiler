@@ -1,0 +1,79 @@
+{
+ "id": "m_scaled",
+ "code": "(torch.randn(128, 64) @ torch.randn(64, 128)) * 0.125",
+ "rtol": 0.001,
+ "atol": 0.001,
+ "graph_inputs": [
+  "x0",
+  "x1"
+ ],
+ "graph_outputs": [
+  "mul"
+ ],
+ "kernels": [
+  {
+   "node": "mul",
+   "entry": "k_mul",
+   "arg_order": [
+    "mul_c1",
+    "x1",
+    "x0",
+    "mul"
+   ],
+   "grid": [
+    128,
+    1,
+    1
+   ],
+   "block": [
+    256,
+    1,
+    1
+   ],
+   "smem_bytes": 0,
+   "zero_outputs": [
+    "mul"
+   ],
+   "args": [
+    {
+     "name": "mul_c1",
+     "dtype": "f32",
+     "shape": [
+      1
+     ],
+     "data": [
+      0.125
+     ]
+    },
+    {
+     "name": "x1",
+     "dtype": "f32",
+     "shape": [
+      64,
+      128
+     ],
+     "seed": 1
+    },
+    {
+     "name": "x0",
+     "dtype": "f32",
+     "shape": [
+      128,
+      64
+     ],
+     "seed": 0
+    },
+    {
+     "name": "mul",
+     "dtype": "f32",
+     "shape": [
+      128,
+      128
+     ],
+     "output": true
+    }
+   ],
+   "final": true
+  }
+ ]
+}

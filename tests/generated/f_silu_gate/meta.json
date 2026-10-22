@@ -1,0 +1,77 @@
+{
+ "id": "f_silu_gate",
+ "code": "x = torch.randn(64, 256); g = torch.randn(64, 256); torch.nn.functional.silu(g) * x",
+ "rtol": 1e-05,
+ "atol": 1e-06,
+ "graph_inputs": [
+  "g",
+  "x"
+ ],
+ "graph_outputs": [
+  "mul"
+ ],
+ "kernels": [
+  {
+   "node": "mul",
+   "entry": "k_mul_pointwise",
+   "arg_order": [
+    "silu_one",
+    "g",
+    "x",
+    "mul"
+   ],
+   "grid": [
+    16,
+    1,
+    1
+   ],
+   "block": [
+    256,
+    1,
+    1
+   ],
+   "smem_bytes": 0,
+   "zero_outputs": [],
+   "args": [
+    {
+     "name": "silu_one",
+     "dtype": "f32",
+     "shape": [
+      1
+     ],
+     "data": [
+      1.0
+     ]
+    },
+    {
+     "name": "g",
+     "dtype": "f32",
+     "shape": [
+      64,
+      256
+     ],
+     "seed": 0
+    },
+    {
+     "name": "x",
+     "dtype": "f32",
+     "shape": [
+      64,
+      256
+     ],
+     "seed": 1
+    },
+    {
+     "name": "mul",
+     "dtype": "f32",
+     "shape": [
+      64,
+      256
+     ],
+     "output": true
+    }
+   ],
+   "final": true
+  }
+ ]
+}

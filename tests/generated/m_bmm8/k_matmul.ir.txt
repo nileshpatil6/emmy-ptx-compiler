@@ -1,0 +1,33 @@
+    Tile[_a3_ks, a0, a1_b, a2_b, a1_u, a2_u] (N=16384)
+        Init(f32 acc0__c0_0 = 0.0)
+        Init(f32 acc0__c1_0 = 0.0)
+        Init(f32 acc0__c2_0 = 0.0)
+        Init(f32 acc0__c3_0 = 0.0)
+        Smem float _a_smem[64, 16] align=16
+        Smem float _b_smem[16, 16] align=16
+        for _ks in 0..16:16
+            cp.async[16B] _a_smem[0, 0] + lane(((((a1_u * 16) + a2_u) * 4) / 16), ((((a1_u * 16) + a2_u) * 4) % 16)) <- x0[a0, ((a1_b * 64) + (((((a1_u * 16) + a2_u) * 4) / 16) + 0)), ((_a3_ks * 16) + (_ks + ((((a1_u * 16) + a2_u) * 4) % 16)))]
+            for _fb in ((a1_u * 16) + a2_u)..64:256
+                cp.async[16B] _b_smem[((_fb * 4) / 16), ((_fb * 4) % 16)] <- x1[a0, ((_a3_ks * 16) + (_ks + ((_fb * 4) / 16))), ((a2_b * 16) + ((_fb * 4) % 16))]
+            cp.async.commit_group
+            cp.async.wait_group(0)
+            Sync
+            for _ki in 0..16
+                in1__c0_0 = load _b_smem[_ki, ((((a2_b * 16) + (a2_u * 1)) + 0) - (a2_b * 16))]
+                in0__c0_0 = load _a_smem[((((a1_b * 64) + (a1_u * 4)) + 0) - (a1_b * 64)), _ki]
+                f32 acc0__v__c0_0 = multiply(in1__c0_0, in0__c0_0)
+                f32 acc0__c0_0 <- add(acc0__c0_0, acc0__v__c0_0)
+                in0__c1_0 = load _a_smem[((((a1_b * 64) + (a1_u * 4)) + 1) - (a1_b * 64)), _ki]
+                f32 acc0__v__c1_0 = multiply(in1__c0_0, in0__c1_0)
+                f32 acc0__c1_0 <- add(acc0__c1_0, acc0__v__c1_0)
+                in0__c2_0 = load _a_smem[((((a1_b * 64) + (a1_u * 4)) + 2) - (a1_b * 64)), _ki]
+                f32 acc0__v__c2_0 = multiply(in1__c0_0, in0__c2_0)
+                f32 acc0__c2_0 <- add(acc0__c2_0, acc0__v__c2_0)
+                in0__c3_0 = load _a_smem[((((a1_b * 64) + (a1_u * 4)) + 3) - (a1_b * 64)), _ki]
+                f32 acc0__v__c3_0 = multiply(in1__c0_0, in0__c3_0)
+                f32 acc0__c3_0 <- add(acc0__c3_0, acc0__v__c3_0)
+            Sync
+        matmul[a0, (((a1_b * 64) + (a1_u * 4)) + 0), (((a2_b * 16) + (a2_u * 1)) + 0)] += acc0__c0_0  (atomic)
+        matmul[a0, (((a1_b * 64) + (a1_u * 4)) + 1), (((a2_b * 16) + (a2_u * 1)) + 0)] += acc0__c1_0  (atomic)
+        matmul[a0, (((a1_b * 64) + (a1_u * 4)) + 2), (((a2_b * 16) + (a2_u * 1)) + 0)] += acc0__c2_0  (atomic)
+        matmul[a0, (((a1_b * 64) + (a1_u * 4)) + 3), (((a2_b * 16) + (a2_u * 1)) + 0)] += acc0__c3_0  (atomic)

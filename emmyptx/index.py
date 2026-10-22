@@ -143,6 +143,27 @@ def rebuild(terms: dict, const: int = 0):
     return out
 
 
+def known_multiple(expr, var_multiples: dict[str, int] | None = None) -> int:
+    """A number that provably divides the value of ``expr`` (0 means the value
+    is 0). Used to prove alignment: ``(x * 4) % 64`` is always a multiple of 4.
+    ``var_multiples`` gives what is known about variables (a loop counter that
+    starts at 0 and steps by 64 is a multiple of 64)."""
+    var_multiples = var_multiples or {}
+    if isinstance(expr, Literal) and isinstance(expr.value, int):
+        return abs(int(expr.value))
+    if isinstance(expr, Var):
+        return var_multiples.get(expr.name, 1)
+    if isinstance(expr, BinaryExpr):
+        a, b = known_multiple(expr.left, var_multiples), known_multiple(expr.right, var_multiples)
+        if expr.op in ("+", "-", "%"):
+            return math.gcd(a, b)
+        if expr.op == "*":
+            return a * b
+    if isinstance(expr, TernaryExpr):
+        return math.gcd(known_multiple(expr.if_true, var_multiples), known_multiple(expr.if_false, var_multiples))
+    return 1
+
+
 def normalize(expr):
     terms, const = linearize(expr)
     out = rebuild(terms, const)

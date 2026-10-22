@@ -1,0 +1,55 @@
+{
+ "id": "f_max_norm",
+ "code": "x = torch.randn(64, 300); x / x.abs().amax(-1, keepdim=True)",
+ "rtol": 1e-05,
+ "atol": 1e-06,
+ "graph_inputs": [
+  "x"
+ ],
+ "graph_outputs": [
+  "div"
+ ],
+ "kernels": [
+  {
+   "node": "div",
+   "entry": "k_div_reduce",
+   "arg_order": [
+    "x",
+    "div"
+   ],
+   "grid": [
+    64,
+    1,
+    1
+   ],
+   "block": [
+    128,
+    1,
+    1
+   ],
+   "smem_bytes": 0,
+   "zero_outputs": [],
+   "args": [
+    {
+     "name": "x",
+     "dtype": "f32",
+     "shape": [
+      64,
+      300
+     ],
+     "seed": 0
+    },
+    {
+     "name": "div",
+     "dtype": "f32",
+     "shape": [
+      64,
+      300
+     ],
+     "output": true
+    }
+   ],
+   "final": true
+  }
+ ]
+}

@@ -33,7 +33,7 @@ from emmyptx import dtypes
 from emmyptx.analysis import carried_names, fusable_products, read_only_buffers, statement_count, vector_load_groups
 from emmyptx.dtypes import F16, F32, I32, DType
 from emmyptx.elementwise import Elementwise, Value
-from emmyptx.index import IndexLowerer, flatten, split_constant
+from emmyptx.index import IndexLowerer, flatten, is_imm, known_multiple, normalize, split_constant
 from emmyptx.loader import CompileError, KernelSpec
 from emmyptx.ptx import PtxBuilder, SharedArray, render_kernel
 
@@ -61,6 +61,7 @@ class KernelLowering:
         self.ew = Elementwise(self.b)
         self.idx = IndexLowerer(self.b, self._index_operand)
         self.env: dict[str, Value] = {}
+        self.var_multiples: dict[str, int] = {}  # loop counter -> a number it is always a multiple of
         self.ptr: dict[str, str] = {}  # global buffer -> register holding its address
         self.smem: dict[str, SharedBuffer] = {}
         self.static_shared: list[SharedArray] = []
@@ -130,6 +131,7 @@ class KernelLowering:
     # ---- environment -------------------------------------------------------
     def bind(self, name: str, value: Value) -> None:
         self.env[name] = value
+        self.var_multiples.pop(name, None)
         self.idx.invalidate(name)
 
     def lookup(self, name: str) -> Value:
@@ -447,9 +449,11 @@ class KernelLowering:
             # index arithmetic folds into immediate address offsets.
             self.b.comment(f"for {s.axis.name} in 0..{trip} (unrolled)")
             self.idx.push_scope()
+            self.ew.loop_depth += 1
             for k in range(trip):  # one straight-line block: copies share values
                 self.bind(s.axis.name, Value(str(k), I32))
                 self._body(s.body)
+            self.ew.loop_depth -= 1
             self.idx.pop_scope()
             return
         self.b.comment(f"for {s.axis.name} in 0..{trip}")
@@ -473,12 +477,16 @@ class KernelLowering:
         i = b.reg("s32")
         b.ins("mov.s32", i, start)
         self.bind(var, Value(i, I32))
+        if is_imm(start) and is_imm(step):  # start, start + step, ... share their common divisor
+            self.var_multiples[var] = math.gcd(int(start), int(step))
         top, done = b.label(f"{var}_top"), b.label(f"{var}_done")
         b.place(top)
         p = b.reg("pred")
         b.ins("setp.ge.s32", p, i, end)
         b.branch(done, pred=p)
+        self.ew.loop_depth += 1
         self._block(body)
+        self.ew.loop_depth -= 1
         b.ins("add.s32", i, i, step)
         self.idx.invalidate(var)
         b.branch(top)
@@ -615,14 +623,55 @@ class KernelLowering:
             cols = self.smem[s.smem].shape[-1]
             row, col = s.lane_index
             flat = BinaryExpr("+", flat, BinaryExpr("+", BinaryExpr("*", row, Literal(cols, "int")), col))
-        dst = self._address(s.smem, flat, s.swizzle)
-        src = self._address(s.src, self._flatten(s.src, s.src_index))
-        if s.nbytes == 16:
-            self.b.ins("cp.async.cg.shared.global", dst, src, "16")
-        elif s.nbytes in (4, 8):
-            self.b.ins("cp.async.ca.shared.global", dst, src, str(s.nbytes))
-        else:
+        if s.nbytes not in (4, 8, 16):
             raise CompileError(f"cp.async of {s.nbytes} bytes is not supported")
+        src_flat = self._flatten(s.src, s.src_index)
+        dst = self._address(s.smem, flat, s.swizzle)
+        src = self._address(s.src, src_flat)
+        copy = ("cp.async.cg.shared.global", dst, src, "16") if s.nbytes == 16 else ("cp.async.ca.shared.global", dst, src, str(s.nbytes))
+        if self._aligned(s.src, src_flat, s.nbytes) and (s.swizzle != "NONE" or self._aligned(s.smem, flat, s.nbytes)):
+            self.b.ins(*copy)
+            return
+        # cp.async needs both addresses aligned to its size. When that cannot be
+        # proved, test it at run time and copy element by element otherwise
+        # (the IR's wait + barrier before the data is read cover both paths).
+        b = self.b
+        g, sh = self._address_register(src, "s64"), self._address_register(dst, "s32")
+        mg, ms = b.reg("s64"), b.reg("s32")
+        b.ins("and.b64", mg, g, str(s.nbytes - 1))
+        b.ins("and.b32", ms, sh, str(s.nbytes - 1))
+        b.ins("or.b32", ms, ms, self.ew.convert(Value(mg, dtypes.U64), dtypes.U32).reg)
+        p = b.reg("pred")
+        b.ins("setp.ne.s32", p, ms, "0")
+        slow, done = b.label("unaligned_copy"), b.label("copy_done")
+        b.branch(slow, pred=p)
+        b.ins(*copy)
+        b.branch(done)
+        b.place(slow)
+        dt = self._buffer_dtype(s.src)
+        for k in range(s.nbytes // dt.size):
+            r = b.reg(dt.reg)
+            b.ins(f"ld.global.{_ldst(dt)}", r, f"[{g}+{k * dt.size}]")
+            b.ins(f"st.shared.{_ldst(dt)}", f"[{sh}+{k * dt.size}]", r)
+        b.place(done)
+
+    def _aligned(self, name: str, flat, nbytes: int) -> bool:
+        """Is element ``flat`` of ``name`` provably ``nbytes``-aligned? Buffers
+        start 16-byte aligned, so it is enough that the byte offset is a multiple."""
+        offset = self.smem[name].offset if name in self.smem else 0
+        multiple = known_multiple(normalize(self.idx.specialize(flat)), self.var_multiples) * self._buffer_dtype(name).size
+        return offset % nbytes == 0 and (multiple % nbytes == 0)
+
+    def _address_register(self, addr: str, cls: str) -> str:
+        """The full address of a ``[base+offset]`` operand in one register."""
+        base, _, offset = addr.strip("[]").partition("+")
+        if not base.startswith("%"):  # a shared-memory symbol
+            base = self._symbol_address(base)
+        if not offset:
+            return base
+        r = self.b.reg(cls)
+        self.b.ins(f"add.{'s64' if cls == 's64' else 's32'}", r, base, offset)
+        return r
 
     def _stmt_CpAsyncCommit(self, s) -> None:
         self.b.ins("cp.async.commit_group")

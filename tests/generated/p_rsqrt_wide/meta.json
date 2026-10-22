@@ -1,0 +1,75 @@
+{
+ "id": "p_rsqrt_wide",
+ "code": "torch.rsqrt(torch.randn(4096).abs() * 100.0 + 1e-2)",
+ "rtol": 1e-05,
+ "atol": 1e-06,
+ "graph_inputs": [
+  "x"
+ ],
+ "graph_outputs": [
+  "rsqrt"
+ ],
+ "kernels": [
+  {
+   "node": "rsqrt",
+   "entry": "k_rsqrt_pointwise",
+   "arg_order": [
+    "mul_c1",
+    "add_c1",
+    "x",
+    "rsqrt"
+   ],
+   "grid": [
+    4,
+    1,
+    1
+   ],
+   "block": [
+    256,
+    1,
+    1
+   ],
+   "smem_bytes": 0,
+   "zero_outputs": [],
+   "args": [
+    {
+     "name": "mul_c1",
+     "dtype": "f32",
+     "shape": [
+      1
+     ],
+     "data": [
+      100.0
+     ]
+    },
+    {
+     "name": "add_c1",
+     "dtype": "f32",
+     "shape": [
+      1
+     ],
+     "data": [
+      0.01
+     ]
+    },
+    {
+     "name": "x",
+     "dtype": "f32",
+     "shape": [
+      4096
+     ],
+     "seed": 0
+    },
+    {
+     "name": "rsqrt",
+     "dtype": "f32",
+     "shape": [
+      4096
+     ],
+     "output": true
+    }
+   ],
+   "final": true
+  }
+ ]
+}

@@ -74,3 +74,12 @@ def test_nonlinear_atoms_are_kept():
 def test_f32_immediates():
     assert f32_imm(1.0) == "0f3F800000"
     assert f32_imm(-1e30) == "0fF149F2CA"
+
+
+def test_known_multiple_proves_alignment():
+    from emmyptx.index import known_multiple
+
+    x = Var("x")
+    assert known_multiple(BinaryExpr("%", BinaryExpr("*", x, lit(4)), lit(64))) == 4  # (x*4) % 64
+    assert known_multiple(BinaryExpr("+", x, lit(128)), {"x": 64}) == 64  # counter stepping by 64
+    assert known_multiple(BinaryExpr("/", x, lit(4))) == 1  # nothing known about a quotient

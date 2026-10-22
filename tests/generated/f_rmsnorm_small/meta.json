@@ -1,0 +1,87 @@
+{
+ "id": "f_rmsnorm_small",
+ "code": "x = torch.randn(200, 64); w = torch.randn(64); x * torch.rsqrt((x * x).mean(-1, keepdim=True) + 1e-6) * w",
+ "rtol": 0.001,
+ "atol": 0.0001,
+ "graph_inputs": [
+  "x",
+  "w"
+ ],
+ "graph_outputs": [
+  "mul_2"
+ ],
+ "kernels": [
+  {
+   "node": "mul_2",
+   "entry": "k_mean_547892",
+   "arg_order": [
+    "mean_count",
+    "add_c1",
+    "x",
+    "w",
+    "mul_2"
+   ],
+   "grid": [
+    200,
+    1,
+    1
+   ],
+   "block": [
+    128,
+    1,
+    1
+   ],
+   "smem_bytes": 0,
+   "zero_outputs": [],
+   "args": [
+    {
+     "name": "mean_count",
+     "dtype": "f32",
+     "shape": [
+      1
+     ],
+     "data": [
+      64.0
+     ]
+    },
+    {
+     "name": "add_c1",
+     "dtype": "f32",
+     "shape": [
+      1
+     ],
+     "data": [
+      1e-06
+     ]
+    },
+    {
+     "name": "x",
+     "dtype": "f32",
+     "shape": [
+      200,
+      64
+     ],
+     "seed": 0
+    },
+    {
+     "name": "w",
+     "dtype": "f32",
+     "shape": [
+      64
+     ],
+     "seed": 1
+    },
+    {
+     "name": "mul_2",
+     "dtype": "f32",
+     "shape": [
+      200,
+      64
+     ],
+     "output": true
+    }
+   ],
+   "final": true
+  }
+ ]
+}
