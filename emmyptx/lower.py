@@ -41,6 +41,11 @@ from emmyptx.ptx import PtxBuilder, SharedArray, render_kernel
 
 GID = "__gid"  # internal name of the flat cell id (not an IR name)
 UNROLL_BUDGET = 4096  # statements a fully unrolled loop may expand to
+# Other innermost loops with a constant trip count run their body 4 times per
+# trip. Measured on the runner against no unrolling and full unrolling: 10%
+# faster on average over the kernels above 15 us, up to 3x on attention,
+# never more than noise slower (RESULTS.md).
+PARTIAL_UNROLL = 4
 
 
 def lower_kernel(spec: KernelSpec) -> str:
@@ -269,7 +274,9 @@ class KernelLowering(MemoryLowering, CombineLowering):
             self.idx.pop_scope()
             return
         self.b.comment(f"for {s.axis.name} in 0..{trip}")
-        self._counted_loop(s.axis.name, "0", str(trip), "1", s.body)
+        innermost = not any(type(c).__name__ in ("Loop", "StridedLoop") for c in s.body)
+        unroll = PARTIAL_UNROLL if innermost and trip % PARTIAL_UNROLL == 0 and trip > PARTIAL_UNROLL else 1
+        self._counted_loop(s.axis.name, "0", str(trip), "1", s.body, unroll)
 
     def _stmt_StridedLoop(self, s) -> None:
         self._seed_accumulators(s)
@@ -284,7 +291,10 @@ class KernelLowering(MemoryLowering, CombineLowering):
         self.b.comment(f"for {var} in {s.start.pretty()}..{end}:{step}")
         self._counted_loop(var, start, end, step, s.body)
 
-    def _counted_loop(self, var: str, start: str, end: str, step: str, body) -> None:
+    def _counted_loop(self, var: str, start: str, end: str, step: str, body, unroll: int = 1) -> None:
+        """``for var = start; var < end; var += step``. With ``unroll`` > 1 (the
+        trip count must be a multiple) each trip runs the body ``unroll`` times,
+        with the counter rebound to ``var + k * step`` for copy ``k``."""
         b = self.b
         i = b.reg("s32")
         b.ins("mov.s32", i, start)
@@ -297,7 +307,19 @@ class KernelLowering(MemoryLowering, CombineLowering):
         b.ins("setp.ge.s32", p, i, end)
         b.branch(done, pred=p)
         self.ew.loop_depth += 1
-        self._block(body)
+        if unroll == 1:
+            self._block(body)
+        else:
+            self.idx.push_scope()  # one straight-line block: copies share values
+            for k in range(unroll):
+                if k:
+                    ik = b.reg("s32")
+                    b.ins("add.s32", ik, i, str(k * int(step)))
+                    self.bind(var, Value(ik, I32))
+                self._body(body)
+            self.idx.pop_scope()
+            self.bind(var, Value(i, I32))
+            step = str(unroll * int(step))
         self.ew.loop_depth -= 1
         b.ins("add.s32", i, i, step)
         self.idx.invalidate(var)
