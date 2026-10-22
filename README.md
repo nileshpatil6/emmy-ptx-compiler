@@ -68,9 +68,11 @@ To regenerate the variants (needs torch as well):
             |
             v
   lower.py       walk the statement tree; one _stmt_<Kind> method per IR
-     |           statement (Tile, Load, Write, Assign, Accum, Loop,
-     |           StridedLoop, Cond, Smem, Sync, WarpShuffle, TreeHalve,
-     |           CpAsync*, Select, Let, Init)
+     |           statement: Tile, Assign, Let, Select, Init, Accum, Loop,
+     |           StridedLoop, Cond, Sync
+     |-- memory.py       Smem, Load, Write, CpAsync*: addressing, vector
+     |                   accesses, alignment proofs
+     |-- combine.py      WarpShuffle and TreeHalve with their combine programs
      |-- index.py        integer index math: affine normalization,
      |                   constant folding, reuse of computed values
      |-- elementwise.py  values, dtype conversions, arithmetic and math
@@ -151,6 +153,8 @@ emmyptx/              the compiler (see Architecture)
 tests/open/           the 15 open problems (copied from the hackathon repo)
 tests/variants.py     torch expressions for the generated variants
 tests/generated/      the generated variants (IR, meta.json, expected.npz)
+tests/synthetic.py    hand-built IR for forms emmy rarely emits
+tests/synthetic/      those problems (IR, meta.json, expected.npz)
 tests/test_compiler.py offline checks (pytest)
 tools/run_all.py      run everything on the remote runner
 tools/runner.py       runner client with a response cache

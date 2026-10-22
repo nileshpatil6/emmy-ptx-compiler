@@ -385,6 +385,8 @@ compile.py               CLI: read argv[1], print PTX or an error on stderr
 emmyptx/loader.py        Stage 1: Graph.from_dict, buffers, meta.json -> KernelSpec
 emmyptx/analysis.py      Stage 2: read-only inputs, accumulators, fusable products, vector loads
 emmyptx/lower.py         Stage 3: one _stmt_<Kind> method per statement kind
+emmyptx/memory.py          Smem, Load, Write, cp.async (addresses, vectors, alignment)
+emmyptx/combine.py         WarpShuffle and TreeHalve
 emmyptx/index.py           integer index expressions (normalize, fold, reuse)
 emmyptx/elementwise.py     Value, conversions, arithmetic, exp / tanh / erf ...
 emmyptx/dtypes.py          how f32 / f16 / i64 ... live in registers and memory
