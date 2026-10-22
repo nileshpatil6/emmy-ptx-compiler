@@ -46,6 +46,12 @@ UNROLL_BUDGET = 4096  # statements a fully unrolled loop may expand to
 # faster on average over the kernels above 15 us, up to 3x on attention,
 # never more than noise slower (RESULTS.md).
 PARTIAL_UNROLL = 4
+# A thread's strided loop (the first phase of every reduction) runs blocks of
+# up to 16 iterations while they are all in range, so up to 16 independent
+# loads are in flight instead of one. Body size limits the copies to about 64
+# statements. Measured: single-block sums 2x faster, no kernel slower than noise.
+STRIDED_UNROLL_MAX = 16
+STRIDED_UNROLL_BUDGET = 64
 
 
 def lower_kernel(spec: KernelSpec) -> str:
@@ -289,7 +295,41 @@ class KernelLowering(MemoryLowering, CombineLowering):
         else:
             end = str(int(s.axis.extent.as_static()))
         self.b.comment(f"for {var} in {s.start.pretty()}..{end}:{step}")
+        innermost = not any(type(c).__name__ in ("Loop", "StridedLoop") for c in s.body)
+        unroll = min(STRIDED_UNROLL_MAX, STRIDED_UNROLL_BUDGET // statement_count(s.body))
+        if innermost and is_imm(step) and unroll > 1:
+            start = self._unrolled_prefix(var, start, end, int(step), s.body, unroll)
         self._counted_loop(var, start, end, step, s.body)
+
+    def _unrolled_prefix(self, var: str, start: str, end: str, step: int, body, unroll: int) -> str:
+        """Run ``body`` ``unroll`` iterations at a time while all of them are in
+        range; returns the register holding where the remainder loop starts.
+        Iterations keep their order, so accumulations are bit-identical."""
+        b = self.b
+        i = b.reg("s32")
+        b.ins("mov.s32", i, start)
+        top, done = b.label(f"{var}_x{unroll}_top"), b.label(f"{var}_x{unroll}_done")
+        b.place(top)
+        last, p = b.reg("s32"), b.reg("pred")
+        b.ins("add.s32", last, i, str((unroll - 1) * step))
+        b.ins("setp.ge.s32", p, last, end)
+        b.branch(done, pred=p)
+        self.ew.loop_depth += 1
+        self.idx.push_scope()
+        for k in range(unroll):
+            ik = i
+            if k:
+                ik = b.reg("s32")
+                b.ins("add.s32", ik, i, str(k * step))
+            self.bind(var, Value(ik, I32))
+            self._body(body)
+        self.idx.pop_scope()
+        self.ew.loop_depth -= 1
+        b.ins("add.s32", i, i, str(unroll * step))
+        self.idx.invalidate(var)
+        b.branch(top)
+        b.place(done)
+        return i
 
     def _counted_loop(self, var: str, start: str, end: str, step: str, body, unroll: int = 1) -> None:
         """``for var = start; var < end; var += step``. With ``unroll`` > 1 (the
