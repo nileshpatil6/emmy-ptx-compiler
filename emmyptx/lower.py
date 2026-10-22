@@ -40,7 +40,7 @@ from emmyptx.memory import MemoryLowering, SharedBuffer
 from emmyptx.ptx import PtxBuilder, SharedArray, render_kernel
 
 GID = "__gid"  # internal name of the flat cell id (not an IR name)
-UNROLL_BUDGET = 4096  # statements a fully unrolled loop may expand to
+UNROLL_BUDGET = 8192  # statements a fully unrolled loop may expand to
 # Other innermost loops with a constant trip count run their body 4 times per
 # trip. Measured on the runner against no unrolling and full unrolling: 10%
 # faster on average over the kernels above 15 us, up to 3x on attention,
