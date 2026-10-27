@@ -1,0 +1,5 @@
+numpy==2.5.4
+scipy==1.18.1
+matplotlib==3.11.2
+nvidia-cuda-nvrtc-cu12==12.8.93
+cupy-cuda12x==14.2.0
