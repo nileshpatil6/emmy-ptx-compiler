@@ -1,81 +1,89 @@
-# Video script (3 to 5 minutes)
+# Video script: 4 minutes 40 seconds
 
-An outline to speak in your own words, not to read aloud. Times are targets. Before
-recording: open a terminal in the repo, `emmyptx/lower.py` in an editor, and run
-`python tools/run_all.py` once so it answers from cache instantly on camera.
+Use Python 3.12. Open README, the light-theme benchmark plots and a terminal.
+Use recorded JSON for the large suite, and run the small demo live. Describe
+cached suite output as cached.
 
----
+## 0:00 to 0:25: What the compiler does
 
-## 0:00 to 0:30  What I built
+Screen: README and compile.py.
 
-**Screen:** README.md, top section.
+"EmmyPTX translates Emmy's scheduled Kernel IR directly to NVIDIA PTX. The lowering
+is our Python code. The submission compiler does not use CUDA C++, nvcc or NVRTC."
 
-* "This is emmyptx, a compiler from Emmy's Kernel IR straight to NVIDIA PTX, skipping CUDA
-  C++ and nvcc. It is about 2,200 lines of Python and every PTX instruction comes from our
-  own code; emmy is only used to load the IR."
-* "It passes all 15 open problems in all five categories, and 178 extra problems I generated or hand-built
-  to imitate the hidden set."
+"The original 193 GPU problems still pass. The expanded suite has 55 more problems,
+with two transformer timeouts that I have kept in the results."
 
-## 0:30 to 1:15  The input and the output
+## 0:25 to 1:05: One kernel from input to output
 
-**Screen:** `tests/open/p00_scalar_add/k_add_pointwise.ir.txt`, then run
-`python compile.py tests/open/p00_scalar_add/k_add_pointwise.ir.json`.
+Screen: the scalar-add IR, then:
 
-* Explain the IR: a Tile of 64 cells, loads, an add, one grouped write.
-* Point at the PTX: parameters loaded in meta.json's order; thread id = block id * block size
-  + thread id; the guard (256 threads launched, 64 cells, so threads 64 and up exit); loads
-  sharing one address register with +4 offsets; the `st.global.v2.f32` vector store.
-* Say why `add.rn.f32`: correctly rounded, never fused, so the result equals numpy exactly.
+```bash
+python compile.py tests/open/p00_scalar_add/k_add_pointwise.ir.json
+```
 
-## 1:15 to 2:15  Architecture
+Show the Tile, loads, add and write. Point out parameter order, thread index,
+tail guard, rounded add and vector store. Meta.json supplies the launch.
 
-**Screen:** the architecture diagram in README, then scroll `emmyptx/lower.py`.
+## 1:05 to 1:50: Architecture and one GPU idea
 
-* Four stages: loader (IR plus meta.json), analysis (read-only inputs, accumulators,
-  products that can become fma), lowering (one `_stmt_<Kind>` method per statement), PTX
-  builder (registers, labels, final text).
-* "Every IR name maps to a Value: a register and a dtype. New values get new registers and
-  ptxas does register allocation. Accumulators keep one register, updated in place; that is
-  what makes loops and reductions work."
-* Show `index.py` `linearize`: "every index becomes coefficients times atoms plus a constant.
-  The constant becomes an address offset, terms cancel, equal expressions are computed once."
+Screen: README architecture and row-sum IR.
 
-## 2:15 to 3:15  A reduction, the core GPU idea
+Explain loading, analysis, statement lowering and PTX text. Each thread sums
+a strided slice, then warp shuffles and a shared-memory tree combine partials.
+The same combine-program mechanism supports max and online softmax.
 
-**Screen:** `tests/open/r01_array_sum/k_sum_1_reduce.ir.txt`, then its PTX
-(`python compile.py tests/open/r01_array_sum/k_sum_1_reduce.ir.json | less`).
+Briefly show affine index simplification and an unrolled matmul loop. These
+are general transformations below the schedule, without problem-name checks.
 
-* Three levels: each thread sums a strided slice (coalesced reads), each warp combines 32
-  values with `shfl.sync.bfly` at distances 16, 8, 4, 2, 1, the block combines its warps through
-  shared memory with a barrier and a halving tree.
-* "The IR does not say 'add': WarpShuffle carries a small combine program. I lower that
-  program after each exchange, so sums, max and the online softmax with two coupled
-  accumulators all use the same code."
+## 1:50 to 2:30: DL coverage and limits
 
-## 3:15 to 4:00  Matmul and speed
+Screen: docs/DL_COVERAGE.md and the fresh GPU table.
 
-**Screen:** `python compile.py tests/open/m01_matmul_512/*.ir.json | grep -A 12 unrolled`.
+Show embedding, both RoPE halves, norms, SwiGLU, GELU, KV attention, pooling
+reductions and cumsum. Fixtures come from the organisers' generator, at regular
+and odd shapes. Convolution cases use prepared windows: the claim is the matmul
+stage, not a complete native convolution.
 
-* The IR tiles the matmul: cp.async copies slabs into shared memory in a 3-stage pipeline,
-  each thread computes a 2 x 2 tile.
-* "The inner loop is marked unroll, so I unroll it: the counter becomes a constant, the
-  addresses become register plus immediate, and multiply-then-accumulate becomes one fma.
-  That halved this kernel, 29 to 15 microseconds."
-* "Every optimization was A/B timed on the GPU and kept only if nothing got slower; RESULTS.md
-  even lists the ones I rejected." Mention the reduction unrolling: 16 loads in flight, same
-  summation order, about 2x faster sums.
+Show a frontend failure and transformer timeout. Distinguish tracing, packaging
+and execution failures. Mention the small integer-index cast fix and wishlist.
 
-## 4:00 to 4:45  Testing and results
+## 2:30 to 3:10: NVRTC comparison, 40 seconds
 
-**Screen:** `python tools/run_all.py` output (the category table), then `tests/variants.py`.
+Screen: docs/bench/size_sweep.png, then compile_times.png.
 
-* "I can't see the hidden set, so I built one: torch expressions with new shapes, odd sizes,
-  other ops, f16, int64, split reductions, bigger matmuls and attention. They are generated by
-  the organizers' own generator, run on the real RTX 5090, compared to float64 numpy."
-* Mention the emmy bug found (RESULTS.md): the compiler matched the IR exactly, which is how
-  I knew the IR was wrong.
+"This machine has no nvcc executable, so this baseline is Emmy's CUDA compiled
+with NVRTC 12.8. Both paths use the same scheduled IR and launch geometry. It
+is not an actual nvcc measurement."
 
-## 4:45 to 5:00  Close
+Read one faster and one slower case from the measured table. Explain the axes,
+then fresh-process and preloaded compile measurements. GPU values are medians,
+clocks are not locked, and near-equal values can be noise. Mention runner-limit
+skips. Do not claim a cause for speed differences without profiling.
 
-* "One clean pass per statement kind, exact numerics, generic optimizations, each measured before it was kept, and
-  tested on 193 problems on real hardware. Thanks for watching."
+## 3:10 to 3:50: Live model demo, 40 seconds
+
+Screen: terminal.
+
+```bash
+python bench/demo_e2e.py --backend local --reuse-generated
+```
+
+"This PyTorch MLP has widths 32, 64 and 10. Emmy traces it to Kernel IR, our
+compiler produces PTX, and two kernels share the hidden-layer buffer on this
+RTX 3050."
+
+Point at the kernel lines, logits, errors and PASS. Only the demo's loaded
+PTX target changes to sm_86; the submission still emits sm_89. Compile and
+kernel times are separate, not total model latency.
+
+## 3:50 to 4:40: Reproducibility and close
+
+Screen: RESULTS and the implementation report.
+
+Show before/after categories, test commands, raw samples, environment versions
+and failures. Read the final pytest count and GPU totals from the report.
+Do not describe the entire suite as green.
+
+"The compiler stays independent, measurements include wins and losses, and
+the remaining unsupported cases are documented for review."

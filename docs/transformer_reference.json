@@ -1,0 +1,14 @@
+[
+  {
+    "id": "a_dl_transformer_stages_3x17",
+    "backend": "Emmy + NVRTC",
+    "status": "failed",
+    "reason": "k_layer_norm_matmul_softmax_reduce_737148: execution: {'ok': False, 'stage': 'run', 'stderr': 'the launch did not finish within 20 s and was stopped. Look for a loop that never exits or a barrier that not every thread reaches.'}"
+  },
+  {
+    "id": "a_dl_transformer_stages_8x32",
+    "backend": "Emmy + NVRTC",
+    "status": "failed",
+    "reason": "k_layer_norm_matmul_softmax_reduce_8e8501: execution: {'ok': False, 'stage': 'run', 'stderr': 'the launch did not finish within 20 s and was stopped. Look for a loop that never exits or a barrier that not every thread reaches.'}"
+  }
+]

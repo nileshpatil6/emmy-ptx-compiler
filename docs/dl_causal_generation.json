@@ -1,0 +1,19 @@
+[
+  {
+    "id": "a_dl_causal_dynamic_8x32",
+    "ok": false,
+    "stage": "package",
+    "error": "no per-kernel IR dump for k_cumsum_reduce__zp256 (node cumsum)",
+    "code": "exec('class Causal(nn.Module):\\n def forward(self, q, k, v):\\n  pos = torch.cumsum(q.sum(-1)*0+1, 0)\\n  mask = (pos[:, None] < pos[None, :]).float() * -1e4\\n  return torch.softmax(q @ k / 32**0.5 + mask, -1) @ v'); Causal()(torch.randn(8, 32), torch.randn(32, 8), torch.randn(8, 32))"
+  },
+  {
+    "id": "a_dl_causal_dynamic_3x17",
+    "kernels": 3,
+    "entries": [
+      "k_cumsum_reduce",
+      "k_add_reduce",
+      "k_matmul_softmax_reduce_4e461e"
+    ],
+    "ok": true
+  }
+]

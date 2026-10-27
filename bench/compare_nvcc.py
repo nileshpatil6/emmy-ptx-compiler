@@ -92,6 +92,9 @@ def report(payload, out):
         fig.savefig(out / f"size_sweep.{suffix}", dpi=160, facecolor="white")
     plt.close(fig)
     valid = [r for r in rows if r["status"] == "pass"]
+    summary_keys = ("emmyptx_process_ms", "nvrtc_process_ms", "emmyptx_ir_ms", "emmyptx_lower_ms", "nvrtc_call_ms")
+    summary = {key: statistics.median(sum(k[key]["median"] for k in r["compile"]) for r in valid)
+               for key in summary_keys} if valid else {}
     fig, axes = plt.subplots(1, 2, figsize=(13, 5), constrained_layout=True)
     representatives = [max((r for r in valid if r["family"] == family), key=lambda r: r["size"])
                        for family in families if any(r["family"] == family for r in valid)]
@@ -103,7 +106,8 @@ def report(payload, out):
         for offset, key, label in zip((-0.2, 0.2), metrics, ("EmmyPTX", "Emmy + NVRTC"), strict=True):
             values = [sum(k[key]["median"] for k in r["compile"]) for r in representatives]
             ax.bar([p + offset for p in positions], values, width=0.4, label=label)
-        ax.set(title=title, ylabel="Sum of per-kernel compile medians (ms)", yscale="log")
+        ax.set(title=title, ylabel="Sum of per-kernel compile medians (ms)",
+               yscale="log" if metrics[0] == "emmyptx_lower_ms" else "linear")
         ax.set_xticks(positions, names, rotation=45, ha="right", fontsize=9)
         ax.legend()
     for suffix in ("png", "svg"):
@@ -133,6 +137,14 @@ def report(payload, out):
             return sum(k[key]["median"] for k in row["compile"])
         lines.append(f"| {r['id']} | {total('emmyptx_process_ms'):.3f} / {total('nvrtc_process_ms'):.3f} | "
                      f"{total('emmyptx_ir_ms'):.3f} | {total('emmyptx_lower_ms'):.3f} / {total('nvrtc_call_ms'):.3f} |")
+    if summary:
+        lines += ["", "## Compile summary", "",
+                  f"Median across the {len(valid)} validated workload medians (each sums its kernels), in ms:", "",
+                  "| Measurement | EmmyPTX | Emmy + NVRTC |", "|---|---:|---:|",
+                  f"| Fresh process, IR to PTX | {summary['emmyptx_process_ms']:.3f} | {summary['nvrtc_process_ms']:.3f} |",
+                  f"| Warm IR compilation | {summary['emmyptx_ir_ms']:.3f} | not measured separately |",
+                  f"| Preloaded lowering / NVRTC compile call | {summary['emmyptx_lower_ms']:.3f} | {summary['nvrtc_call_ms']:.3f} |",
+                  "", "The last row measures different compilation stages; it does not include startup or rendering."]
     lines += ["", "## Skips and failures", ""]
     for r in rows:
         if r["status"] != "pass":
@@ -172,14 +184,14 @@ def main():
     finally:
         conn.close()
     payload = dict(timestamp=datetime.now(UTC).isoformat(), runner=health, nvrtc=nvrtc.version,
-                   compile_repeats=args.compile_repeats, rounds=args.rounds, options=OPTIONS,
+                   compile_repeats=args.compile_repeats, rounds=args.rounds, options=list(OPTIONS),
                    versions={n: importlib.metadata.version(n) for n in ("emmy-ml", "numpy", "torch", "nvidia-cuda-nvrtc-cu12")},
                    generator_commit=subprocess.check_output(["git", "-C", str(args.hackathon), "rev-parse", "HEAD"], text=True).strip(),
                    results=[])
     checkpoint = args.out / "raw_results.json"
     if args.resume and checkpoint.exists():
         previous = json.loads(checkpoint.read_text())
-        for key in ("compile_repeats", "rounds", "versions", "generator_commit", "nvrtc"):
+        for key in ("compile_repeats", "rounds", "versions", "generator_commit", "nvrtc", "options"):
             if previous[key] != payload[key]:
                 ap.error(f"Cannot resume: {key} changed")
         payload = previous

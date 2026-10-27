@@ -14,19 +14,20 @@ other compiler is involved. `ptxas` only ever runs on the hackathon's remote run
 
 ## Results
 
-All 193 test problems pass on the runner's RTX 5090, across all five categories: the 15 open
-problems, 172 generated variants and 6 synthetic IRs. Full table with timings, optimization
-history and measured precision: [RESULTS.md](RESULTS.md).
+The original 193 problems pass on the runner's RTX 5090. The expanded suite has 248 problems:
+15 open problems, 227 generated variants and 6 synthetic IRs. Two new transformer cases
+time out and remain in the suite as failures. Fresh results and limitations are recorded in
+[RESULTS.md](RESULTS.md) and [the GPU report](docs/gpu_results.md).
 
 | category | open set | generated variants | synthetic IR |
 |---|---|---|---|
-| 1 pointwise | 4/4 | 57/57 | 4/4 |
-| 2 reductions | 4/4 | 38/38 | 2/2 |
-| 3 matmul | 2/2 | 29/29 | - |
-| 4 fused | 3/3 | 31/31 | - |
-| 5 attention-like | 2/2 | 17/17 | - |
+| 1 pointwise | 4/4 | 69/69 | 4/4 |
+| 2 reductions | 4/4 | 46/46 | 2/2 |
+| 3 matmul | 2/2 | 41/41 | - |
+| 4 fused | 3/3 | 47/47 | - |
+| 5 attention-like | 2/2 | 22/24 | - |
 
-The generated variants are our stand-in for the hidden set: 172 torch expressions with new
+The generated variants are our stand-in for the hidden set: 227 packaged torch expressions with new
 shapes (odd sizes, sizes that do not divide the block, tiny and large), new ops (exp, log,
 tanh, sigmoid, silu, gelu, erf, sin, cos, sqrt, rsqrt, pow, where, clamp, max/min, abs),
 broadcasting, f16 / f64 / int32 / int64 data, other reduction axes and block sizes, schedules that
@@ -36,6 +37,14 @@ organizers' own `tools/generate.py`, exactly like the hidden set. The synthetic 
 (`tests/synthetic.py`) are built from emmy's statement classes for forms the generator never
 produced in our runs (Cond with else, segmented TreeHalve, aux threads, 4/8-byte cp.async, ...),
 so every statement kind in the compiler has run on the GPU at least once.
+
+The DL extension probes 76 expressions at 8x32 and odd 3x17 shapes. It packages 55, including
+embedding gather, both halves of RoPE, affine norms, softmax, decomposed log-softmax, dense
+cross-entropy, SwiGLU, GELU and deeper MLPs, KV attention, pooling reductions, inference
+BatchNorm, channel affine transforms, cumsum and cosine similarity. Convolution and ViT
+patch cases start from prepared windows or patches; they test the matmul stage. The
+[coverage report](docs/DL_COVERAGE.md) lists every attempted expression, generation error
+and GPU failure. Unsupported generator cases do not count as passing tests.
 
 ## How to run
 
@@ -58,6 +67,9 @@ To regenerate the variants (needs torch as well):
 rebuilt with `python tests/synthetic.py`.
 
 ## Architecture
+
+The optional [NVRTC comparison](docs/bench/RESULTS_nvcc.md) and [local demo](#demo)
+live in `bench/` and are not imported by the submission compiler.
 
 ```
   kernel.ir.json + meta.json
@@ -176,3 +188,53 @@ LEARN.md              how the compiler works, from zero GPU knowledge
 VIDEO_SCRIPT.md       outline for the walkthrough video
 RESULTS.md            the pass table and timings
 ```
+
+## Comparison with nvcc
+
+This machine has no nvcc executable. The comparison uses **Emmy + NVRTC 12.8**, compiling
+Emmy's CUDA for the same scheduled IR to `compute_89` PTX. It does not establish actual
+nvcc performance. See [the measurements](docs/bench/RESULTS_nvcc.md),
+[execution size sweep](docs/bench/size_sweep.png) and [compile times](docs/bench/compile_times.png).
+Both plots also have SVG copies in the same folder.
+
+Use Python 3.12 and the organisers' checkout at `../emmy-hackathon-2026`:
+
+```bash
+python -m pip install torch==2.14.1 --index-url https://download.pytorch.org/whl/cpu
+python -m pip install -r bench/requirements.txt
+python bench/compare_nvcc.py
+python bench/compare_nvcc.py --resume --reuse-generated
+```
+
+Compile measurements include fresh processes, warm IR compilation and pure lowering.
+GPU measurements use identical launches and correctness checks, without response caching.
+The 2^24-element pointwise cases exceed the runner's output-return limit and are recorded
+as skips. Measurements include raw samples, versions and IR/source hashes.
+
+## Demo
+
+```bash
+python bench/demo_e2e.py
+python bench/demo_e2e.py --backend local --reuse-generated
+```
+
+This defines a PyTorch MLP with widths 32, 64 and 10, batch size 8, and traces it through
+Emmy using the organisers' generator. Two kernels compiled by `compile.py` run in order,
+sharing the hidden-layer buffer on the RTX 3050 Laptop GPU. Hidden activations and logits
+are compared with PyTorch at rtol=1e-3, atol=1e-4. The script prints errors and kernel timings.
+
+Only the demo's in-memory PTX target is rewritten from sm_89 to sm_86 before driver loading.
+If local loading is unavailable, auto mode reports the cause and uses the remote runner.
+Numerical mismatches are failures. [Recorded demo result](docs/demo_result.json).
+
+## Regenerating the DL probes
+
+```bash
+python tools/gen_variants.py --contains _dl_ --report docs/dl_generation.json
+python tools/gen_variants.py --contains _dl_ --report docs/dl_generation.json --resume
+```
+
+The command returns nonzero for the documented unsupported probes, while continuing through
+all cases. Invalid packages are retained under `.cache/rejected/` with their errors in the
+report. Windows uses a small CLI adapter for Emmy's POSIX-only import and UTF-8 dumps;
+the organisers' tracing and packaging functions are unchanged.

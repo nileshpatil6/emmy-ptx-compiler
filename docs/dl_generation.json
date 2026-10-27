@@ -1,0 +1,581 @@
+[
+  {
+    "id": "p_dl_embedding_8x32",
+    "kernels": 1,
+    "entries": [
+      "k_embedding_pointwise"
+    ],
+    "ok": true
+  },
+  {
+    "id": "p_dl_rope_8x32",
+    "kernels": 2,
+    "entries": [
+      "k_sub_pointwise",
+      "k_add_pointwise"
+    ],
+    "ok": true
+  },
+  {
+    "id": "f_dl_rmsnorm_8x32",
+    "kernels": 1,
+    "entries": [
+      "k_mean_71ecb0"
+    ],
+    "ok": true
+  },
+  {
+    "id": "f_dl_layernorm_8x32",
+    "kernels": 1,
+    "entries": [
+      "k_layer_norm_c84a27"
+    ],
+    "ok": true
+  },
+  {
+    "id": "f_dl_softmax_8x32",
+    "kernels": 1,
+    "entries": [
+      "k_softmax_067be0"
+    ],
+    "ok": true
+  },
+  {
+    "id": "f_dl_logsoftmax_8x32",
+    "ok": false,
+    "stage": "trace",
+    "error": "Traceback (most recent call last):\n  File \"C:\\Users\\Nilesh\\Downloads\\code\\emmy-ptx-compiler\\tools\\emmy_codegen.py\", line 39, in <module>\n    args.func(args)\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\commands\\compile.py\", line 518, in handle_compile\n    graph, _, bundle = load_or_trace(args)\n                       ^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\commands\\compile.py\", line 629, in load_or_trace\n    return graph_from_code(args.code, dynamic_shapes=dynamic_shapes)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\commands\\trace.py\", line 201, in graph_from_code\n    info = trace_inline_code(code, dynamic_shapes=dynamic_shapes)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\commands\\trace.py\", line 252, in trace_inline_code\n    graph, const_targets = trace_module_with_constants(maybe_mod, args, kwargs=kws or None, dynamic_shapes=dynamic_shapes)\n                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\trace\\torch.py\", line 150, in trace_module_with_constants\n    _handle_call_function(g, fx_node, node_map, sym_rename=sym_rename)\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\trace\\torch.py\", line 2182, in _handle_call_function\n    op=ElementwiseOp(op=op_name),\n       ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<string>\", line 8, in __init__\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\ir\\tensor\\ir.py\", line 128, in __post_init__\n    object.__setattr__(self, \"op\", ElementwiseImpl(self.op))\n                                   ^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\ir\\elementwise.py\", line 173, in __init__\n    raise ValueError(f\"unknown elementwise op name: {name!r} (not in numpy or _NAME_TO_FN)\")\nValueError: unknown elementwise op name: 'log_softmax' (not in numpy or _NAME_TO_FN)\n",
+    "code": "exec('class Primitive(nn.Module):\\n def forward(self, input0):\\n  return torch.log_softmax(input0, dim=-1)'); Primitive()(torch.randn(8, 32))"
+  },
+  {
+    "id": "f_dl_cross_entropy_8x32",
+    "ok": false,
+    "stage": "trace",
+    "error": "Traceback (most recent call last):\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\trace\\torch.py\", line 2178, in _handle_call_function\n    input_ids = [broadcast_to(g, inp, shape) for inp in input_ids]\n                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\pipeline\\passes\\frontend\\decomposition\\_broadcast.py\", line 61, in broadcast_to\n    raise ValueError(f\"cannot broadcast shape {inp_shape} to {target_shape}: non-size-1 dim mismatch or rank exceeds target{hint}\")\nValueError: cannot broadcast shape (Dim(8), Dim(32)) to (): non-size-1 dim mismatch or rank exceeds target\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"C:\\Users\\Nilesh\\Downloads\\code\\emmy-ptx-compiler\\tools\\emmy_codegen.py\", line 39, in <module>\n    args.func(args)\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\commands\\compile.py\", line 518, in handle_compile\n    graph, _, bundle = load_or_trace(args)\n                       ^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\commands\\compile.py\", line 629, in load_or_trace\n    return graph_from_code(args.code, dynamic_shapes=dynamic_shapes)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\commands\\trace.py\", line 201, in graph_from_code\n    info = trace_inline_code(code, dynamic_shapes=dynamic_shapes)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\commands\\trace.py\", line 252, in trace_inline_code\n    graph, const_targets = trace_module_with_constants(maybe_mod, args, kwargs=kws or None, dynamic_shapes=dynamic_shapes)\n                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\trace\\torch.py\", line 150, in trace_module_with_constants\n    _handle_call_function(g, fx_node, node_map, sym_rename=sym_rename)\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\trace\\torch.py\", line 2180, in _handle_call_function\n    raise ValueError(f\"cannot map fallback aten.{op_name} as elementwise for output shape {shape}\") from exc\nValueError: cannot map fallback aten.cross_entropy_loss as elementwise for output shape ()\n",
+    "code": "exec('class Primitive(nn.Module):\\n def forward(self, input0, input1):\\n  x = input0\\n  t = input1\\n  return torch.nn.functional.cross_entropy(x, t.abs().long() % 32)'); Primitive()(torch.randn(8, 32), torch.randn(8))"
+  },
+  {
+    "id": "f_dl_cross_entropy_dense_8x32",
+    "kernels": 1,
+    "entries": [
+      "k_softmax_reduce_226263"
+    ],
+    "ok": true
+  },
+  {
+    "id": "m_dl_swiglu_8x32",
+    "kernels": 1,
+    "entries": [
+      "k_matmul_reduce_992702"
+    ],
+    "ok": true
+  },
+  {
+    "id": "m_dl_gelu_mlp_8x32",
+    "kernels": 1,
+    "entries": [
+      "k_matmul_reduce_e3512e"
+    ],
+    "ok": true
+  },
+  {
+    "id": "a_dl_causal_8x32",
+    "kernels": 1,
+    "entries": [
+      "k_matmul_softmax_reduce_58395b"
+    ],
+    "ok": false,
+    "stage": "package validation",
+    "error": "Generator emitted null constant data for ge; runner cannot materialize it"
+  },
+  {
+    "id": "a_dl_scaled_bias_8x32",
+    "kernels": 1,
+    "entries": [
+      "k_matmul_softmax_reduce_b80a90"
+    ],
+    "ok": true
+  },
+  {
+    "id": "a_dl_kv_query_8x32",
+    "kernels": 1,
+    "entries": [
+      "k_softmax_matmul_reduce_973f78"
+    ],
+    "ok": true
+  },
+  {
+    "id": "a_dl_transformer_8x32",
+    "ok": false,
+    "stage": "trace",
+    "error": "C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\cupy\\_environment.py:286: UserWarning: CUDA path could not be detected. Set CUDA_PATH environment variable if CuPy fails to load.\n  warnings.warn(\nTraceback (most recent call last):\n  File \"C:\\Users\\Nilesh\\Downloads\\code\\emmy-ptx-compiler\\tools\\emmy_codegen.py\", line 39, in <module>\n    args.func(args)\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\commands\\compile.py\", line 549, in handle_compile\n    result = Pipeline.build(passes).run(graph, db=db, dump=dump)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\pipeline\\pipeline.py\", line 560, in run\n    return GreedyStrategy(self, backend=backend, db=db, dump=dump).run(graph, ctx)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\pipeline\\search\\strategy\\greedy.py\", line 92, in run\n    terminal, trace = run.resolve(graph.copy(), greedy_decide(blocked=blocked, db=db))\n                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\pipeline\\pipeline.py\", line 869, in resolve\n    self._step(cand, decide=decide, trace=trace)\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\pipeline\\pipeline.py\", line 784, in _step\n    options = cand.try_rewrite(match)\n              ^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\pipeline\\search\\candidate.py\", line 106, in try_rewrite\n    result = rule.rewrite(**_build_rewrite_kwargs(rule, match, self.ctx))\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\pipeline\\passes\\lowering\\kernel\\010_materialize.py\", line 54, in rewrite\n    assert not unbound, f\"materialize: kernel {tile.name!r} reads names it never binds: {sorted(unbound)}\"\n           ^^^^^^^^^^^\nAssertionError: materialize: kernel 'k_layer_norm_matmul_softmax_reduce_67df7e' reads names it never binds: ['a11', 'a11__ar0', 'a11__ar1', 'a11__ar10', 'a11__ar11', 'a11__ar12', 'a11__ar13', 'a11__ar14', 'a11__ar15', 'a11__ar16', 'a11__ar17', 'a11__ar18', 'a11__ar19', 'a11__ar2', 'a11__ar20', 'a11__ar21', 'a11__ar22', 'a11__ar23', 'a11__ar24', 'a11__ar25', 'a11__ar3', 'a11__ar4', 'a11__ar5', 'a11__ar6', 'a11__ar7', 'a11__ar8', 'a11__ar9', 'a18', 'a18__ar0', 'a18__ar1', 'a18__ar10', 'a18__ar11', 'a18__ar12', 'a18__ar13', 'a18__ar14', 'a18__ar15', 'a18__ar16', 'a18__ar17', 'a18__ar18', 'a18__ar19', 'a18__ar2', 'a18__ar20', 'a18__ar21', 'a18__ar22', 'a18__ar23', 'a18__ar24', 'a18__ar25', 'a18__ar3', 'a18__ar4', 'a18__ar5', 'a18__ar6', 'a18__ar7', 'a18__ar8', 'a18__ar9', 'a25', 'a33', 'a33__ar0', 'a33__ar1', 'a33__ar10', 'a33__ar11', 'a33__ar12', 'a33__ar13', 'a33__ar14', 'a33__ar15', 'a33__ar16', 'a33__ar17', 'a33__ar18', 'a33__ar19', 'a33__ar2', 'a33__ar20', 'a33__ar21', 'a33__ar22', 'a33__ar23', 'a33__ar24', 'a33__ar25', 'a33__ar3', 'a33__ar4', 'a33__ar5', 'a33__ar6', 'a33__ar7', 'a33__ar8', 'a33__ar9']\n",
+    "code": "exec('class T(nn.Module):\\n def forward(self, x, q, k, v, o, a, b):\\n  z = torch.nn.functional.layer_norm(x, (32,))\\n  h = x + (torch.softmax((z @ q) @ (z @ k).transpose(-1, -2) / 32**0.5, -1) @ (z @ v)) @ o\\n  return h + torch.relu(torch.nn.functional.layer_norm(h, (32,)) @ a) @ b'); T()(torch.randn(8, 32), torch.randn(32, 32), torch.randn(32, 32), torch.randn(32, 32), torch.randn(32, 32), torch.randn(32, 64), torch.randn(64, 32))"
+  },
+  {
+    "id": "m_dl_conv2d_columns_8x32",
+    "kernels": 1,
+    "entries": [
+      "k_matmul_f0d13b"
+    ],
+    "ok": true
+  },
+  {
+    "id": "m_dl_conv1d_windows_8x32",
+    "kernels": 1,
+    "entries": [
+      "k_matmul_99db11"
+    ],
+    "ok": true
+  },
+  {
+    "id": "m_dl_patch_embedding_8x32",
+    "kernels": 1,
+    "entries": [
+      "k_matmul_035920"
+    ],
+    "ok": true
+  },
+  {
+    "id": "r_dl_avg_pool_windows_8x32",
+    "kernels": 1,
+    "entries": [
+      "k_mean_83a66c"
+    ],
+    "ok": true
+  },
+  {
+    "id": "r_dl_max_pool_windows_8x32",
+    "kernels": 1,
+    "entries": [
+      "k_amax_reduce"
+    ],
+    "ok": true
+  },
+  {
+    "id": "r_dl_avg_pool2d_8x32",
+    "ok": false,
+    "stage": "trace",
+    "error": "Traceback (most recent call last):\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\trace\\torch.py\", line 2178, in _handle_call_function\n    input_ids = [broadcast_to(g, inp, shape) for inp in input_ids]\n                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\pipeline\\passes\\frontend\\decomposition\\_broadcast.py\", line 61, in broadcast_to\n    raise ValueError(f\"cannot broadcast shape {inp_shape} to {target_shape}: non-size-1 dim mismatch or rank exceeds target{hint}\")\nValueError: cannot broadcast shape (Dim(1), Dim(3), Dim(8), Dim(32)) to (1, 3, 4, 16): non-size-1 dim mismatch or rank exceeds target\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"C:\\Users\\Nilesh\\Downloads\\code\\emmy-ptx-compiler\\tools\\emmy_codegen.py\", line 39, in <module>\n    args.func(args)\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\commands\\compile.py\", line 518, in handle_compile\n    graph, _, bundle = load_or_trace(args)\n                       ^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\commands\\compile.py\", line 629, in load_or_trace\n    return graph_from_code(args.code, dynamic_shapes=dynamic_shapes)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\commands\\trace.py\", line 201, in graph_from_code\n    info = trace_inline_code(code, dynamic_shapes=dynamic_shapes)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\commands\\trace.py\", line 252, in trace_inline_code\n    graph, const_targets = trace_module_with_constants(maybe_mod, args, kwargs=kws or None, dynamic_shapes=dynamic_shapes)\n                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\trace\\torch.py\", line 150, in trace_module_with_constants\n    _handle_call_function(g, fx_node, node_map, sym_rename=sym_rename)\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\trace\\torch.py\", line 2180, in _handle_call_function\n    raise ValueError(f\"cannot map fallback aten.{op_name} as elementwise for output shape {shape}\") from exc\nValueError: cannot map fallback aten.avg_pool2d as elementwise for output shape (1, 3, 4, 16)\n",
+    "code": "exec('class Primitive(nn.Module):\\n def forward(self, input0):\\n  return torch.nn.functional.avg_pool2d(input0, 2)'); Primitive()(torch.randn(1, 3, 8, 32))"
+  },
+  {
+    "id": "r_dl_max_pool2d_8x32",
+    "ok": false,
+    "stage": "trace",
+    "error": "Traceback (most recent call last):\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\trace\\torch.py\", line 2178, in _handle_call_function\n    input_ids = [broadcast_to(g, inp, shape) for inp in input_ids]\n                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\pipeline\\passes\\frontend\\decomposition\\_broadcast.py\", line 61, in broadcast_to\n    raise ValueError(f\"cannot broadcast shape {inp_shape} to {target_shape}: non-size-1 dim mismatch or rank exceeds target{hint}\")\nValueError: cannot broadcast shape (Dim(1), Dim(3), Dim(8), Dim(32)) to (1, 3, 4, 16): non-size-1 dim mismatch or rank exceeds target\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"C:\\Users\\Nilesh\\Downloads\\code\\emmy-ptx-compiler\\tools\\emmy_codegen.py\", line 39, in <module>\n    args.func(args)\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\commands\\compile.py\", line 518, in handle_compile\n    graph, _, bundle = load_or_trace(args)\n                       ^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\commands\\compile.py\", line 629, in load_or_trace\n    return graph_from_code(args.code, dynamic_shapes=dynamic_shapes)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\commands\\trace.py\", line 201, in graph_from_code\n    info = trace_inline_code(code, dynamic_shapes=dynamic_shapes)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\commands\\trace.py\", line 252, in trace_inline_code\n    graph, const_targets = trace_module_with_constants(maybe_mod, args, kwargs=kws or None, dynamic_shapes=dynamic_shapes)\n                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\trace\\torch.py\", line 150, in trace_module_with_constants\n    _handle_call_function(g, fx_node, node_map, sym_rename=sym_rename)\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\trace\\torch.py\", line 2180, in _handle_call_function\n    raise ValueError(f\"cannot map fallback aten.{op_name} as elementwise for output shape {shape}\") from exc\nValueError: cannot map fallback aten.max_pool2d as elementwise for output shape (1, 3, 4, 16)\n",
+    "code": "exec('class Primitive(nn.Module):\\n def forward(self, input0):\\n  return torch.nn.functional.max_pool2d(input0, 2)'); Primitive()(torch.randn(1, 3, 8, 32))"
+  },
+  {
+    "id": "p_dl_batchnorm_inference_8x32",
+    "kernels": 1,
+    "entries": [
+      "k_add_1_pointwise"
+    ],
+    "ok": true
+  },
+  {
+    "id": "p_dl_channel_affine_8x32",
+    "kernels": 1,
+    "entries": [
+      "k_add_pointwise"
+    ],
+    "ok": true
+  },
+  {
+    "id": "r_dl_global_avg_pool_8x32",
+    "ok": false,
+    "stage": "trace",
+    "error": "C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\cupy\\_environment.py:286: UserWarning: CUDA path could not be detected. Set CUDA_PATH environment variable if CuPy fails to load.\n  warnings.warn(\nTraceback (most recent call last):\n  File \"C:\\Users\\Nilesh\\Downloads\\code\\emmy-ptx-compiler\\tools\\emmy_codegen.py\", line 39, in <module>\n    args.func(args)\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\commands\\compile.py\", line 549, in handle_compile\n    result = Pipeline.build(passes).run(graph, db=db, dump=dump)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\pipeline\\pipeline.py\", line 560, in run\n    return GreedyStrategy(self, backend=backend, db=db, dump=dump).run(graph, ctx)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\pipeline\\search\\strategy\\greedy.py\", line 92, in run\n    terminal, trace = run.resolve(graph.copy(), greedy_decide(blocked=blocked, db=db))\n                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\pipeline\\pipeline.py\", line 869, in resolve\n    self._step(cand, decide=decide, trace=trace)\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\pipeline\\pipeline.py\", line 784, in _step\n    options = cand.try_rewrite(match)\n              ^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\pipeline\\search\\candidate.py\", line 106, in try_rewrite\n    result = rule.rewrite(**_build_rewrite_kwargs(rule, match, self.ctx))\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\pipeline\\passes\\lowering\\tile\\010_lift.py\", line 32, in rewrite\n    tile = lift_loop_op(loop, name=loop.name)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\pipeline\\passes\\lowering\\tile\\_fromloop.py\", line 633, in lift_loop_op\n    edges, lift = _close((), edges, Body(body), results, tuple(free), ())\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\pipeline\\passes\\lowering\\tile\\_fromloop.py\", line 102, in _close\n    operands = (*operands, *_supply(values, levels))\n                            ^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\pipeline\\passes\\lowering\\tile\\_fromloop.py\", line 86, in _supply\n    raise ValueError(f\"a term reads {sorted(pending)}, which no enclosing level defines\")\nValueError: a term reads ['out_coord_2'], which no enclosing level defines\n",
+    "code": "exec('class Primitive(nn.Module):\\n def forward(self, input0):\\n  return input0.mean(dim=(-1, -2))'); Primitive()(torch.randn(8, 32, 3, 5))"
+  },
+  {
+    "id": "p_dl_mel_log_8x32",
+    "kernels": 1,
+    "entries": [
+      "k_log_pointwise"
+    ],
+    "ok": true
+  },
+  {
+    "id": "r_dl_cumsum_8x32",
+    "kernels": 1,
+    "entries": [
+      "k_cumsum_reduce"
+    ],
+    "ok": true
+  },
+  {
+    "id": "r_dl_argmax_8x32",
+    "ok": false,
+    "stage": "trace",
+    "error": "Traceback (most recent call last):\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\trace\\torch.py\", line 2178, in _handle_call_function\n    input_ids = [broadcast_to(g, inp, shape) for inp in input_ids]\n                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\pipeline\\passes\\frontend\\decomposition\\_broadcast.py\", line 61, in broadcast_to\n    raise ValueError(f\"cannot broadcast shape {inp_shape} to {target_shape}: non-size-1 dim mismatch or rank exceeds target{hint}\")\nValueError: cannot broadcast shape (Dim(8), Dim(32)) to (8,): non-size-1 dim mismatch or rank exceeds target\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"C:\\Users\\Nilesh\\Downloads\\code\\emmy-ptx-compiler\\tools\\emmy_codegen.py\", line 39, in <module>\n    args.func(args)\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\commands\\compile.py\", line 518, in handle_compile\n    graph, _, bundle = load_or_trace(args)\n                       ^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\commands\\compile.py\", line 629, in load_or_trace\n    return graph_from_code(args.code, dynamic_shapes=dynamic_shapes)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\commands\\trace.py\", line 201, in graph_from_code\n    info = trace_inline_code(code, dynamic_shapes=dynamic_shapes)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\commands\\trace.py\", line 252, in trace_inline_code\n    graph, const_targets = trace_module_with_constants(maybe_mod, args, kwargs=kws or None, dynamic_shapes=dynamic_shapes)\n                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\trace\\torch.py\", line 150, in trace_module_with_constants\n    _handle_call_function(g, fx_node, node_map, sym_rename=sym_rename)\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\trace\\torch.py\", line 2180, in _handle_call_function\n    raise ValueError(f\"cannot map fallback aten.{op_name} as elementwise for output shape {shape}\") from exc\nValueError: cannot map fallback aten.argmax as elementwise for output shape (8,)\n",
+    "code": "exec('class Primitive(nn.Module):\\n def forward(self, input0):\\n  return torch.argmax(input0, dim=-1)'); Primitive()(torch.randn(8, 32))"
+  },
+  {
+    "id": "f_dl_residual_norm_8x32",
+    "kernels": 1,
+    "entries": [
+      "k_layer_norm_04d56c"
+    ],
+    "ok": true
+  },
+  {
+    "id": "f_dl_l2normalize_8x32",
+    "kernels": 1,
+    "entries": [
+      "k_mul_1_reduce"
+    ],
+    "ok": true
+  },
+  {
+    "id": "f_dl_cosine_8x32",
+    "kernels": 1,
+    "entries": [
+      "k_mul_4_reduce"
+    ],
+    "ok": true
+  },
+  {
+    "id": "p_dl_clamp_mask_8x32",
+    "kernels": 1,
+    "entries": [
+      "k_where_pointwise"
+    ],
+    "ok": true
+  },
+  {
+    "id": "m_dl_mlp_stack_8x32",
+    "kernels": 1,
+    "entries": [
+      "k_matmul_2"
+    ],
+    "ok": true
+  },
+  {
+    "id": "p_dl_embedding_3x17",
+    "kernels": 1,
+    "entries": [
+      "k_embedding_pointwise"
+    ],
+    "ok": true
+  },
+  {
+    "id": "p_dl_rope_3x17",
+    "kernels": 2,
+    "entries": [
+      "k_sub_pointwise",
+      "k_add_pointwise"
+    ],
+    "ok": true
+  },
+  {
+    "id": "f_dl_rmsnorm_3x17",
+    "kernels": 1,
+    "entries": [
+      "k_mean_7af591"
+    ],
+    "ok": true
+  },
+  {
+    "id": "f_dl_layernorm_3x17",
+    "kernels": 1,
+    "entries": [
+      "k_layer_norm_a6257e"
+    ],
+    "ok": true
+  },
+  {
+    "id": "f_dl_softmax_3x17",
+    "kernels": 1,
+    "entries": [
+      "k_softmax_b27e72"
+    ],
+    "ok": true
+  },
+  {
+    "id": "f_dl_logsoftmax_3x17",
+    "ok": false,
+    "stage": "trace",
+    "error": "Traceback (most recent call last):\n  File \"C:\\Users\\Nilesh\\Downloads\\code\\emmy-ptx-compiler\\tools\\emmy_codegen.py\", line 39, in <module>\n    args.func(args)\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\commands\\compile.py\", line 518, in handle_compile\n    graph, _, bundle = load_or_trace(args)\n                       ^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\commands\\compile.py\", line 629, in load_or_trace\n    return graph_from_code(args.code, dynamic_shapes=dynamic_shapes)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\commands\\trace.py\", line 201, in graph_from_code\n    info = trace_inline_code(code, dynamic_shapes=dynamic_shapes)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\commands\\trace.py\", line 252, in trace_inline_code\n    graph, const_targets = trace_module_with_constants(maybe_mod, args, kwargs=kws or None, dynamic_shapes=dynamic_shapes)\n                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\trace\\torch.py\", line 150, in trace_module_with_constants\n    _handle_call_function(g, fx_node, node_map, sym_rename=sym_rename)\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\trace\\torch.py\", line 2182, in _handle_call_function\n    op=ElementwiseOp(op=op_name),\n       ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<string>\", line 8, in __init__\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\ir\\tensor\\ir.py\", line 128, in __post_init__\n    object.__setattr__(self, \"op\", ElementwiseImpl(self.op))\n                                   ^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\ir\\elementwise.py\", line 173, in __init__\n    raise ValueError(f\"unknown elementwise op name: {name!r} (not in numpy or _NAME_TO_FN)\")\nValueError: unknown elementwise op name: 'log_softmax' (not in numpy or _NAME_TO_FN)\n",
+    "code": "exec('class Primitive(nn.Module):\\n def forward(self, input0):\\n  return torch.log_softmax(input0, dim=-1)'); Primitive()(torch.randn(3, 17))"
+  },
+  {
+    "id": "f_dl_cross_entropy_3x17",
+    "ok": false,
+    "stage": "trace",
+    "error": "Traceback (most recent call last):\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\trace\\torch.py\", line 2178, in _handle_call_function\n    input_ids = [broadcast_to(g, inp, shape) for inp in input_ids]\n                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\pipeline\\passes\\frontend\\decomposition\\_broadcast.py\", line 61, in broadcast_to\n    raise ValueError(f\"cannot broadcast shape {inp_shape} to {target_shape}: non-size-1 dim mismatch or rank exceeds target{hint}\")\nValueError: cannot broadcast shape (Dim(3), Dim(17)) to (): non-size-1 dim mismatch or rank exceeds target\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"C:\\Users\\Nilesh\\Downloads\\code\\emmy-ptx-compiler\\tools\\emmy_codegen.py\", line 39, in <module>\n    args.func(args)\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\commands\\compile.py\", line 518, in handle_compile\n    graph, _, bundle = load_or_trace(args)\n                       ^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\commands\\compile.py\", line 629, in load_or_trace\n    return graph_from_code(args.code, dynamic_shapes=dynamic_shapes)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\commands\\trace.py\", line 201, in graph_from_code\n    info = trace_inline_code(code, dynamic_shapes=dynamic_shapes)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\commands\\trace.py\", line 252, in trace_inline_code\n    graph, const_targets = trace_module_with_constants(maybe_mod, args, kwargs=kws or None, dynamic_shapes=dynamic_shapes)\n                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\trace\\torch.py\", line 150, in trace_module_with_constants\n    _handle_call_function(g, fx_node, node_map, sym_rename=sym_rename)\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\trace\\torch.py\", line 2180, in _handle_call_function\n    raise ValueError(f\"cannot map fallback aten.{op_name} as elementwise for output shape {shape}\") from exc\nValueError: cannot map fallback aten.cross_entropy_loss as elementwise for output shape ()\n",
+    "code": "exec('class Primitive(nn.Module):\\n def forward(self, input0, input1):\\n  x = input0\\n  t = input1\\n  return torch.nn.functional.cross_entropy(x, t.abs().long() % 17)'); Primitive()(torch.randn(3, 17), torch.randn(3))"
+  },
+  {
+    "id": "f_dl_cross_entropy_dense_3x17",
+    "kernels": 1,
+    "entries": [
+      "k_softmax_reduce_cb9ef2"
+    ],
+    "ok": true
+  },
+  {
+    "id": "m_dl_swiglu_3x17",
+    "kernels": 1,
+    "entries": [
+      "k_matmul_reduce_0f4823"
+    ],
+    "ok": true
+  },
+  {
+    "id": "m_dl_gelu_mlp_3x17",
+    "kernels": 1,
+    "entries": [
+      "k_matmul_1"
+    ],
+    "ok": true
+  },
+  {
+    "id": "a_dl_causal_3x17",
+    "kernels": 1,
+    "entries": [
+      "k_matmul_softmax_reduce_1b9b0a"
+    ],
+    "ok": false,
+    "stage": "package validation",
+    "error": "Generator emitted null constant data for ge; runner cannot materialize it"
+  },
+  {
+    "id": "a_dl_scaled_bias_3x17",
+    "kernels": 1,
+    "entries": [
+      "k_matmul_softmax_reduce_c5fbaa"
+    ],
+    "ok": true
+  },
+  {
+    "id": "a_dl_kv_query_3x17",
+    "kernels": 1,
+    "entries": [
+      "k_softmax_matmul_reduce_9da7bd"
+    ],
+    "ok": true
+  },
+  {
+    "id": "a_dl_transformer_3x17",
+    "ok": false,
+    "stage": "trace",
+    "error": "C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\cupy\\_environment.py:286: UserWarning: CUDA path could not be detected. Set CUDA_PATH environment variable if CuPy fails to load.\n  warnings.warn(\nTraceback (most recent call last):\n  File \"C:\\Users\\Nilesh\\Downloads\\code\\emmy-ptx-compiler\\tools\\emmy_codegen.py\", line 39, in <module>\n    args.func(args)\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\commands\\compile.py\", line 549, in handle_compile\n    result = Pipeline.build(passes).run(graph, db=db, dump=dump)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\pipeline\\pipeline.py\", line 560, in run\n    return GreedyStrategy(self, backend=backend, db=db, dump=dump).run(graph, ctx)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\pipeline\\search\\strategy\\greedy.py\", line 92, in run\n    terminal, trace = run.resolve(graph.copy(), greedy_decide(blocked=blocked, db=db))\n                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\pipeline\\pipeline.py\", line 869, in resolve\n    self._step(cand, decide=decide, trace=trace)\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\pipeline\\pipeline.py\", line 784, in _step\n    options = cand.try_rewrite(match)\n              ^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\pipeline\\search\\candidate.py\", line 106, in try_rewrite\n    result = rule.rewrite(**_build_rewrite_kwargs(rule, match, self.ctx))\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\pipeline\\passes\\lowering\\kernel\\010_materialize.py\", line 54, in rewrite\n    assert not unbound, f\"materialize: kernel {tile.name!r} reads names it never binds: {sorted(unbound)}\"\n           ^^^^^^^^^^^\nAssertionError: materialize: kernel 'k_layer_norm_matmul_softmax_reduce_c8b35c' reads names it never binds: ['a11', 'a11__ar0', 'a11__ar1', 'a18', 'a18__ar0', 'a18__ar1', 'a25', 'a33', 'a33__ar0', 'a33__ar1']\n",
+    "code": "exec('class T(nn.Module):\\n def forward(self, x, q, k, v, o, a, b):\\n  z = torch.nn.functional.layer_norm(x, (17,))\\n  h = x + (torch.softmax((z @ q) @ (z @ k).transpose(-1, -2) / 17**0.5, -1) @ (z @ v)) @ o\\n  return h + torch.relu(torch.nn.functional.layer_norm(h, (17,)) @ a) @ b'); T()(torch.randn(3, 17), torch.randn(17, 17), torch.randn(17, 17), torch.randn(17, 17), torch.randn(17, 17), torch.randn(17, 34), torch.randn(34, 17))"
+  },
+  {
+    "id": "m_dl_conv2d_columns_3x17",
+    "kernels": 1,
+    "entries": [
+      "k_matmul_49e3d9"
+    ],
+    "ok": true
+  },
+  {
+    "id": "m_dl_conv1d_windows_3x17",
+    "kernels": 1,
+    "entries": [
+      "k_matmul_7a8ba1"
+    ],
+    "ok": true
+  },
+  {
+    "id": "m_dl_patch_embedding_3x17",
+    "kernels": 1,
+    "entries": [
+      "k_matmul_83595f"
+    ],
+    "ok": true
+  },
+  {
+    "id": "r_dl_avg_pool_windows_3x17",
+    "kernels": 1,
+    "entries": [
+      "k_mean_7eb747"
+    ],
+    "ok": true
+  },
+  {
+    "id": "r_dl_max_pool_windows_3x17",
+    "kernels": 1,
+    "entries": [
+      "k_amax_reduce"
+    ],
+    "ok": true
+  },
+  {
+    "id": "r_dl_avg_pool2d_3x17",
+    "ok": false,
+    "stage": "trace",
+    "error": "Traceback (most recent call last):\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\trace\\torch.py\", line 2178, in _handle_call_function\n    input_ids = [broadcast_to(g, inp, shape) for inp in input_ids]\n                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\pipeline\\passes\\frontend\\decomposition\\_broadcast.py\", line 61, in broadcast_to\n    raise ValueError(f\"cannot broadcast shape {inp_shape} to {target_shape}: non-size-1 dim mismatch or rank exceeds target{hint}\")\nValueError: cannot broadcast shape (Dim(1), Dim(3), Dim(3), Dim(17)) to (1, 3, 1, 8): non-size-1 dim mismatch or rank exceeds target\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"C:\\Users\\Nilesh\\Downloads\\code\\emmy-ptx-compiler\\tools\\emmy_codegen.py\", line 39, in <module>\n    args.func(args)\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\commands\\compile.py\", line 518, in handle_compile\n    graph, _, bundle = load_or_trace(args)\n                       ^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\commands\\compile.py\", line 629, in load_or_trace\n    return graph_from_code(args.code, dynamic_shapes=dynamic_shapes)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\commands\\trace.py\", line 201, in graph_from_code\n    info = trace_inline_code(code, dynamic_shapes=dynamic_shapes)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\commands\\trace.py\", line 252, in trace_inline_code\n    graph, const_targets = trace_module_with_constants(maybe_mod, args, kwargs=kws or None, dynamic_shapes=dynamic_shapes)\n                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\trace\\torch.py\", line 150, in trace_module_with_constants\n    _handle_call_function(g, fx_node, node_map, sym_rename=sym_rename)\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\trace\\torch.py\", line 2180, in _handle_call_function\n    raise ValueError(f\"cannot map fallback aten.{op_name} as elementwise for output shape {shape}\") from exc\nValueError: cannot map fallback aten.avg_pool2d as elementwise for output shape (1, 3, 1, 8)\n",
+    "code": "exec('class Primitive(nn.Module):\\n def forward(self, input0):\\n  return torch.nn.functional.avg_pool2d(input0, 2)'); Primitive()(torch.randn(1, 3, 3, 17))"
+  },
+  {
+    "id": "r_dl_max_pool2d_3x17",
+    "ok": false,
+    "stage": "trace",
+    "error": "Traceback (most recent call last):\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\trace\\torch.py\", line 2178, in _handle_call_function\n    input_ids = [broadcast_to(g, inp, shape) for inp in input_ids]\n                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\pipeline\\passes\\frontend\\decomposition\\_broadcast.py\", line 61, in broadcast_to\n    raise ValueError(f\"cannot broadcast shape {inp_shape} to {target_shape}: non-size-1 dim mismatch or rank exceeds target{hint}\")\nValueError: cannot broadcast shape (Dim(1), Dim(3), Dim(3), Dim(17)) to (1, 3, 1, 8): non-size-1 dim mismatch or rank exceeds target\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"C:\\Users\\Nilesh\\Downloads\\code\\emmy-ptx-compiler\\tools\\emmy_codegen.py\", line 39, in <module>\n    args.func(args)\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\commands\\compile.py\", line 518, in handle_compile\n    graph, _, bundle = load_or_trace(args)\n                       ^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\commands\\compile.py\", line 629, in load_or_trace\n    return graph_from_code(args.code, dynamic_shapes=dynamic_shapes)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\commands\\trace.py\", line 201, in graph_from_code\n    info = trace_inline_code(code, dynamic_shapes=dynamic_shapes)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\commands\\trace.py\", line 252, in trace_inline_code\n    graph, const_targets = trace_module_with_constants(maybe_mod, args, kwargs=kws or None, dynamic_shapes=dynamic_shapes)\n                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\trace\\torch.py\", line 150, in trace_module_with_constants\n    _handle_call_function(g, fx_node, node_map, sym_rename=sym_rename)\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\trace\\torch.py\", line 2180, in _handle_call_function\n    raise ValueError(f\"cannot map fallback aten.{op_name} as elementwise for output shape {shape}\") from exc\nValueError: cannot map fallback aten.max_pool2d as elementwise for output shape (1, 3, 1, 8)\n",
+    "code": "exec('class Primitive(nn.Module):\\n def forward(self, input0):\\n  return torch.nn.functional.max_pool2d(input0, 2)'); Primitive()(torch.randn(1, 3, 3, 17))"
+  },
+  {
+    "id": "p_dl_batchnorm_inference_3x17",
+    "kernels": 1,
+    "entries": [
+      "k_add_1_pointwise"
+    ],
+    "ok": true
+  },
+  {
+    "id": "p_dl_channel_affine_3x17",
+    "kernels": 1,
+    "entries": [
+      "k_add_pointwise"
+    ],
+    "ok": true
+  },
+  {
+    "id": "r_dl_global_avg_pool_3x17",
+    "ok": false,
+    "stage": "trace",
+    "error": "C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\cupy\\_environment.py:286: UserWarning: CUDA path could not be detected. Set CUDA_PATH environment variable if CuPy fails to load.\n  warnings.warn(\nTraceback (most recent call last):\n  File \"C:\\Users\\Nilesh\\Downloads\\code\\emmy-ptx-compiler\\tools\\emmy_codegen.py\", line 39, in <module>\n    args.func(args)\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\commands\\compile.py\", line 549, in handle_compile\n    result = Pipeline.build(passes).run(graph, db=db, dump=dump)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\pipeline\\pipeline.py\", line 560, in run\n    return GreedyStrategy(self, backend=backend, db=db, dump=dump).run(graph, ctx)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\pipeline\\search\\strategy\\greedy.py\", line 92, in run\n    terminal, trace = run.resolve(graph.copy(), greedy_decide(blocked=blocked, db=db))\n                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\pipeline\\pipeline.py\", line 869, in resolve\n    self._step(cand, decide=decide, trace=trace)\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\pipeline\\pipeline.py\", line 784, in _step\n    options = cand.try_rewrite(match)\n              ^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\pipeline\\search\\candidate.py\", line 106, in try_rewrite\n    result = rule.rewrite(**_build_rewrite_kwargs(rule, match, self.ctx))\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\pipeline\\passes\\lowering\\tile\\010_lift.py\", line 32, in rewrite\n    tile = lift_loop_op(loop, name=loop.name)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\pipeline\\passes\\lowering\\tile\\_fromloop.py\", line 633, in lift_loop_op\n    edges, lift = _close((), edges, Body(body), results, tuple(free), ())\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\pipeline\\passes\\lowering\\tile\\_fromloop.py\", line 102, in _close\n    operands = (*operands, *_supply(values, levels))\n                            ^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\pipeline\\passes\\lowering\\tile\\_fromloop.py\", line 86, in _supply\n    raise ValueError(f\"a term reads {sorted(pending)}, which no enclosing level defines\")\nValueError: a term reads ['out_coord_2'], which no enclosing level defines\n",
+    "code": "exec('class Primitive(nn.Module):\\n def forward(self, input0):\\n  return input0.mean(dim=(-1, -2))'); Primitive()(torch.randn(3, 17, 3, 5))"
+  },
+  {
+    "id": "p_dl_mel_log_3x17",
+    "kernels": 1,
+    "entries": [
+      "k_log_pointwise"
+    ],
+    "ok": true
+  },
+  {
+    "id": "r_dl_cumsum_3x17",
+    "kernels": 1,
+    "entries": [
+      "k_cumsum_reduce"
+    ],
+    "ok": true
+  },
+  {
+    "id": "r_dl_argmax_3x17",
+    "ok": false,
+    "stage": "trace",
+    "error": "Traceback (most recent call last):\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\trace\\torch.py\", line 2178, in _handle_call_function\n    input_ids = [broadcast_to(g, inp, shape) for inp in input_ids]\n                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\pipeline\\passes\\frontend\\decomposition\\_broadcast.py\", line 61, in broadcast_to\n    raise ValueError(f\"cannot broadcast shape {inp_shape} to {target_shape}: non-size-1 dim mismatch or rank exceeds target{hint}\")\nValueError: cannot broadcast shape (Dim(3), Dim(17)) to (3,): non-size-1 dim mismatch or rank exceeds target\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"C:\\Users\\Nilesh\\Downloads\\code\\emmy-ptx-compiler\\tools\\emmy_codegen.py\", line 39, in <module>\n    args.func(args)\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\commands\\compile.py\", line 518, in handle_compile\n    graph, _, bundle = load_or_trace(args)\n                       ^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\commands\\compile.py\", line 629, in load_or_trace\n    return graph_from_code(args.code, dynamic_shapes=dynamic_shapes)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\commands\\trace.py\", line 201, in graph_from_code\n    info = trace_inline_code(code, dynamic_shapes=dynamic_shapes)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\commands\\trace.py\", line 252, in trace_inline_code\n    graph, const_targets = trace_module_with_constants(maybe_mod, args, kwargs=kws or None, dynamic_shapes=dynamic_shapes)\n                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\trace\\torch.py\", line 150, in trace_module_with_constants\n    _handle_call_function(g, fx_node, node_map, sym_rename=sym_rename)\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\trace\\torch.py\", line 2180, in _handle_call_function\n    raise ValueError(f\"cannot map fallback aten.{op_name} as elementwise for output shape {shape}\") from exc\nValueError: cannot map fallback aten.argmax as elementwise for output shape (3,)\n",
+    "code": "exec('class Primitive(nn.Module):\\n def forward(self, input0):\\n  return torch.argmax(input0, dim=-1)'); Primitive()(torch.randn(3, 17))"
+  },
+  {
+    "id": "f_dl_residual_norm_3x17",
+    "kernels": 1,
+    "entries": [
+      "k_layer_norm_3357b7"
+    ],
+    "ok": true
+  },
+  {
+    "id": "f_dl_l2normalize_3x17",
+    "kernels": 1,
+    "entries": [
+      "k_mul_1_reduce"
+    ],
+    "ok": true
+  },
+  {
+    "id": "f_dl_cosine_3x17",
+    "kernels": 1,
+    "entries": [
+      "k_mul_4_reduce"
+    ],
+    "ok": true
+  },
+  {
+    "id": "p_dl_clamp_mask_3x17",
+    "kernels": 1,
+    "entries": [
+      "k_where_pointwise"
+    ],
+    "ok": true
+  },
+  {
+    "id": "m_dl_mlp_stack_3x17",
+    "ok": false,
+    "stage": "package validation",
+    "error": "Expecting value: line 1 column 1 (char 0)",
+    "code": "exec('class Primitive(nn.Module):\\n def forward(self, input0, input1, input2, input3):\\n  x = input0\\n  a = input1\\n  b = input2\\n  c = input3\\n  return torch.relu(torch.relu(x @ a) @ b) @ c'); Primitive()(torch.randn(3, 17), torch.randn(17, 34), torch.randn(34, 17), torch.randn(17, 10))"
+  },
+  {
+    "id": "f_dl_logsoftmax_decomposed_8x32",
+    "kernels": 1,
+    "entries": [
+      "k_softmax_af3988"
+    ],
+    "ok": true
+  },
+  {
+    "id": "a_dl_transformer_split_8x32",
+    "ok": false,
+    "stage": "trace",
+    "error": "C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\cupy\\_environment.py:286: UserWarning: CUDA path could not be detected. Set CUDA_PATH environment variable if CuPy fails to load.\n  warnings.warn(\nTraceback (most recent call last):\n  File \"C:\\Users\\Nilesh\\Downloads\\code\\emmy-ptx-compiler\\tools\\emmy_codegen.py\", line 39, in <module>\n    args.func(args)\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\commands\\compile.py\", line 549, in handle_compile\n    result = Pipeline.build(passes).run(graph, db=db, dump=dump)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\pipeline\\pipeline.py\", line 560, in run\n    return GreedyStrategy(self, backend=backend, db=db, dump=dump).run(graph, ctx)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\pipeline\\search\\strategy\\greedy.py\", line 92, in run\n    terminal, trace = run.resolve(graph.copy(), greedy_decide(blocked=blocked, db=db))\n                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\pipeline\\pipeline.py\", line 869, in resolve\n    self._step(cand, decide=decide, trace=trace)\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\pipeline\\pipeline.py\", line 784, in _step\n    options = cand.try_rewrite(match)\n              ^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\pipeline\\search\\candidate.py\", line 106, in try_rewrite\n    result = rule.rewrite(**_build_rewrite_kwargs(rule, match, self.ctx))\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\pipeline\\passes\\lowering\\kernel\\010_materialize.py\", line 54, in rewrite\n    assert not unbound, f\"materialize: kernel {tile.name!r} reads names it never binds: {sorted(unbound)}\"\n           ^^^^^^^^^^^\nAssertionError: materialize: kernel 'k_layer_norm_matmul_softmax_reduce_67df7e' reads names it never binds: ['a11', 'a11__ar0', 'a18', 'a18__ar0', 'a25', 'a33', 'a33__ar0']\n",
+    "code": "exec('class T(nn.Module):\\n def forward(self, x, q, k, v, o, a, b):\\n  z = torch.nn.functional.layer_norm(x, (32,))\\n  h = x + (torch.softmax((z @ q) @ (z @ k).transpose(-1, -2) / 32**0.5, -1) @ (z @ v)) @ o\\n  return h + torch.relu(torch.nn.functional.layer_norm(h, (32,)) @ a) @ b'); T()(torch.randn(8, 32), torch.randn(32, 32), torch.randn(32, 32), torch.randn(32, 32), torch.randn(32, 32), torch.randn(32, 64), torch.randn(64, 32))"
+  },
+  {
+    "id": "f_dl_logsoftmax_decomposed_3x17",
+    "kernels": 1,
+    "entries": [
+      "k_softmax_d4b0bc"
+    ],
+    "ok": true
+  },
+  {
+    "id": "a_dl_transformer_split_3x17",
+    "ok": false,
+    "stage": "trace",
+    "error": "C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\cupy\\_environment.py:286: UserWarning: CUDA path could not be detected. Set CUDA_PATH environment variable if CuPy fails to load.\n  warnings.warn(\nTraceback (most recent call last):\n  File \"C:\\Users\\Nilesh\\Downloads\\code\\emmy-ptx-compiler\\tools\\emmy_codegen.py\", line 39, in <module>\n    args.func(args)\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\commands\\compile.py\", line 549, in handle_compile\n    result = Pipeline.build(passes).run(graph, db=db, dump=dump)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\pipeline\\pipeline.py\", line 560, in run\n    return GreedyStrategy(self, backend=backend, db=db, dump=dump).run(graph, ctx)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\pipeline\\search\\strategy\\greedy.py\", line 92, in run\n    terminal, trace = run.resolve(graph.copy(), greedy_decide(blocked=blocked, db=db))\n                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\pipeline\\pipeline.py\", line 869, in resolve\n    self._step(cand, decide=decide, trace=trace)\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\pipeline\\pipeline.py\", line 784, in _step\n    options = cand.try_rewrite(match)\n              ^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\pipeline\\search\\candidate.py\", line 106, in try_rewrite\n    result = rule.rewrite(**_build_rewrite_kwargs(rule, match, self.ctx))\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Nilesh\\AppData\\Local\\Temp\\claude\\C--Users-Nilesh-Downloads-code-emmy-ptx-compiler\\2c732d06-3d65-49b4-b274-dbf87fdef8ac\\scratchpad\\venv\\Lib\\site-packages\\emmy\\compiler\\pipeline\\passes\\lowering\\kernel\\010_materialize.py\", line 54, in rewrite\n    assert not unbound, f\"materialize: kernel {tile.name!r} reads names it never binds: {sorted(unbound)}\"\n           ^^^^^^^^^^^\nAssertionError: materialize: kernel 'k_layer_norm_matmul_softmax_reduce_c8b35c' reads names it never binds: ['a11', 'a11__ar0', 'a11__ar1', 'a11__ar2', 'a11__ar3', 'a11__ar4', 'a11__ar5', 'a18', 'a18__ar0', 'a18__ar1', 'a18__ar2', 'a18__ar3', 'a18__ar4', 'a18__ar5', 'a25', 'a33', 'a33__ar0', 'a33__ar1', 'a33__ar2', 'a33__ar3', 'a33__ar4', 'a33__ar5']\n",
+    "code": "exec('class T(nn.Module):\\n def forward(self, x, q, k, v, o, a, b):\\n  z = torch.nn.functional.layer_norm(x, (17,))\\n  h = x + (torch.softmax((z @ q) @ (z @ k).transpose(-1, -2) / 17**0.5, -1) @ (z @ v)) @ o\\n  return h + torch.relu(torch.nn.functional.layer_norm(h, (17,)) @ a) @ b'); T()(torch.randn(3, 17), torch.randn(17, 17), torch.randn(17, 17), torch.randn(17, 17), torch.randn(17, 17), torch.randn(17, 34), torch.randn(34, 17))"
+  },
+  {
+    "id": "a_dl_transformer_stages_8x32",
+    "kernels": 8,
+    "entries": [
+      "k_layer_norm_pointwise_961494",
+      "k_layer_norm_pointwise_ddf07e",
+      "k_layer_norm_reduce_8bfc6b__place_eb95c9de7b",
+      "k_layer_norm_reduce_8bfc6b",
+      "k_layer_norm_reduce_0baa0c__place_a43dcda4ee",
+      "k_layer_norm_reduce_0baa0c",
+      "k_layer_norm_matmul_softmax_reduce_8e8501__place_e797e4b1c4",
+      "k_layer_norm_matmul_softmax_reduce_8e8501"
+    ],
+    "ok": true
+  },
+  {
+    "id": "r_dl_global_avg_pool_flatten_8x32",
+    "kernels": 1,
+    "entries": [
+      "k_mean_ac495c"
+    ],
+    "ok": true
+  },
+  {
+    "id": "a_dl_transformer_stages_3x17",
+    "kernels": 8,
+    "entries": [
+      "k_layer_norm_pointwise_490a1a",
+      "k_layer_norm_pointwise_f15035",
+      "k_layer_norm_reduce_be5b83__place_453209384d",
+      "k_layer_norm_reduce_be5b83",
+      "k_layer_norm_reduce_039d5b__place_f24c58b50f",
+      "k_layer_norm_reduce_039d5b",
+      "k_layer_norm_matmul_softmax_reduce_737148__place_126cf480a5",
+      "k_layer_norm_matmul_softmax_reduce_737148"
+    ],
+    "ok": true
+  },
+  {
+    "id": "r_dl_global_avg_pool_flatten_3x17",
+    "kernels": 1,
+    "entries": [
+      "k_mean_e11585"
+    ],
+    "ok": true
+  }
+]

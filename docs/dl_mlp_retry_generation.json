@@ -1,0 +1,10 @@
+[
+  {
+    "id": "m_dl_mlp_stack_3x17",
+    "kernels": 1,
+    "entries": [
+      "k_matmul_reduce_08bad1"
+    ],
+    "ok": true
+  }
+]

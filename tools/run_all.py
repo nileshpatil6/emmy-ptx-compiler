@@ -132,8 +132,9 @@ def main() -> int:
             res = run_problem(p, runner, args.timing)
         except (RunnerError, ValueError, KeyError) as exc:
             # A rejected problem must not hide the outcomes of later problems.
+            label = "runner error" if isinstance(exc, RunnerError) else "launch contract error"
             res = {"id": p.name, "suite": p.parent.name, "ok": False, "us": 0.0, "compile_s": 0.0,
-                   "detail": f"runner error: {exc}"}
+                   "detail": f"{label}: {exc}"}
         results.append(res)
         status = "PASS" if res["ok"] else "FAIL"
         timing = f"{res['us']:9.1f} us" if res["ok"] else ""

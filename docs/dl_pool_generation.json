@@ -1,0 +1,18 @@
+[
+  {
+    "id": "r_dl_global_avg_pool_flatten_8x32",
+    "kernels": 1,
+    "entries": [
+      "k_mean_ac495c"
+    ],
+    "ok": true
+  },
+  {
+    "id": "r_dl_global_avg_pool_flatten_3x17",
+    "kernels": 1,
+    "entries": [
+      "k_mean_e11585"
+    ],
+    "ok": true
+  }
+]

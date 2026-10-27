@@ -1,0 +1,18 @@
+[
+  {
+    "id": "f_dl_logsoftmax_decomposed_8x32",
+    "kernels": 1,
+    "entries": [
+      "k_softmax_af3988"
+    ],
+    "ok": true
+  },
+  {
+    "id": "f_dl_logsoftmax_decomposed_3x17",
+    "kernels": 1,
+    "entries": [
+      "k_softmax_d4b0bc"
+    ],
+    "ok": true
+  }
+]

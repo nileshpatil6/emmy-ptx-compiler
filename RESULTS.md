@@ -1,5 +1,43 @@
 # Results
 
+## DL extension
+
+The baseline was 193/193 GPU problems and 199 pytest checks. The extension probes 76 DL
+expressions and packages 55 new problems. The expanded suite has 248 problems; 246 pass
+and two staged transformer problems time out. Unsupported tracing/packaging attempts
+are separate from these totals. All original 193 problems still pass.
+
+| category | before | after | open | generated | synthetic |
+|---|---:|---:|---:|---:|---:|
+| pointwise | 65/65 | 77/77 | 4/4 | 69/69 | 4/4 |
+| reductions | 44/44 | 52/52 | 4/4 | 46/46 | 2/2 |
+| matmul | 31/31 | 43/43 | 2/2 | 41/41 | - |
+| fused | 34/34 | 50/50 | 3/3 | 47/47 | - |
+| attention | 19/19 | 24/26 | 2/2 | 22/24 | - |
+
+The fresh full GPU run uses `python tools/run_all.py --no-cache --json docs/gpu_results.json
+--markdown docs/gpu_results.md`. These are correctness runs with one launch, not the
+20-launch timing measurements below. See the [full GPU table](docs/gpu_results.md),
+[DL coverage and failures](docs/DL_COVERAGE.md) and [operator wishlist](docs/IR_WISHLIST.md).
+
+The only compiler change accepts a leaf `CastExpr('int', ...)` in an index expression,
+using the existing typed resolver and integer-width conversion. It enables embedding
+gathers without changing the compiler target or using another compiler. Compound and
+non-integer casts still fail explicitly. Launch tooling now sorts intermediate dependencies
+and reports rejected requests without dropping the rest of the suite.
+
+The [Emmy + NVRTC comparison](docs/bench/RESULTS_nvcc.md) contains compile medians, execution
+size sweeps and raw samples. Actual nvcc was not measured. Both implementations use the
+same scheduled IR and launch contract. The 2^24-element pointwise cases are skipped because
+the runner cannot return all output values for validation.
+
+The [MLP demo](docs/demo_result.json) ran locally on the RTX 3050 Laptop GPU in two kernels,
+including a chained hidden-layer buffer. It matched PyTorch with maximum absolute error
+1.52588e-5 and maximum relative error about 3.76e-6 in the recorded run. This is an inference
+correctness demo on synthetic data; no classification accuracy claim is made.
+
+## Earlier measurements: the 193-problem baseline
+
 Measured on the hackathon runner (RTX 5090, sm_120, PTX targeting sm_89) with
 `python tools/run_all.py --timing --markdown ...`: every kernel is compiled by `compile.py`,
 assembled by the runner's `ptxas`, launched with its `meta.json` geometry, and compared with

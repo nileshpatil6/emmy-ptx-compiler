@@ -1,0 +1,32 @@
+[
+  {
+    "id": "a_dl_transformer_stages_8x32",
+    "kernels": 8,
+    "entries": [
+      "k_layer_norm_pointwise_961494",
+      "k_layer_norm_pointwise_ddf07e",
+      "k_layer_norm_reduce_8bfc6b__place_eb95c9de7b",
+      "k_layer_norm_reduce_8bfc6b",
+      "k_layer_norm_reduce_0baa0c__place_a43dcda4ee",
+      "k_layer_norm_reduce_0baa0c",
+      "k_layer_norm_matmul_softmax_reduce_8e8501__place_e797e4b1c4",
+      "k_layer_norm_matmul_softmax_reduce_8e8501"
+    ],
+    "ok": true
+  },
+  {
+    "id": "a_dl_transformer_stages_3x17",
+    "kernels": 8,
+    "entries": [
+      "k_layer_norm_pointwise_490a1a",
+      "k_layer_norm_pointwise_f15035",
+      "k_layer_norm_reduce_be5b83__place_453209384d",
+      "k_layer_norm_reduce_be5b83",
+      "k_layer_norm_reduce_039d5b__place_f24c58b50f",
+      "k_layer_norm_reduce_039d5b",
+      "k_layer_norm_matmul_softmax_reduce_737148__place_126cf480a5",
+      "k_layer_norm_matmul_softmax_reduce_737148"
+    ],
+    "ok": true
+  }
+]
