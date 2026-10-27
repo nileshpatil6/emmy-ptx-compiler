@@ -21,7 +21,7 @@ from __future__ import annotations
 import math
 from collections.abc import Callable
 
-from emmy.compiler.ir.expr import BinaryExpr, Literal, TernaryExpr, Var
+from emmy.compiler.ir.expr import BinaryExpr, CastExpr, Literal, TernaryExpr, Var
 
 from emmyptx.errors import CompileError
 from emmyptx.ptx import PtxBuilder
@@ -267,6 +267,11 @@ class IndexLowerer:
         return self.cached(("int", expr), expr.free_vars(), lambda: self._int_uncached(expr))
 
     def _int_uncached(self, expr) -> str:
+        if isinstance(expr, CastExpr) and expr.dtype == "int" and isinstance(expr.expr, (Var, Literal)):
+            # The resolver already converts integer values (including i64) to
+            # s32. Gather addresses wrap such values in an explicit C int cast.
+            # Do not unwrap compound casts: their intermediate width may matter.
+            return self.int_(expr.expr)
         if isinstance(expr, TernaryExpr):
             p = self.pred(expr.cond)
             t, f = self.int_(expr.if_true), self.int_(expr.if_false)

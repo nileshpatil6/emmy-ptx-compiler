@@ -83,3 +83,32 @@ def test_known_multiple_proves_alignment():
     assert known_multiple(BinaryExpr("%", BinaryExpr("*", x, lit(4)), lit(64))) == 4  # (x*4) % 64
     assert known_multiple(BinaryExpr("+", x, lit(128)), {"x": 64}) == 64  # counter stepping by 64
     assert known_multiple(BinaryExpr("/", x, lit(4))) == 1  # nothing known about a quotient
+
+
+def test_index_integer_cast_uses_typed_resolver():
+    from emmy.compiler.ir.expr import CastExpr
+
+    from emmyptx.dtypes import I64
+    from emmyptx.elementwise import Value
+    from emmyptx.loader import KernelSpec
+    from emmyptx.lower import KernelLowering
+
+    lower = KernelLowering(KernelSpec("test", (), (), {}, frozenset(), None))
+    lower.env["index"] = Value(lower.b.reg("s64"), I64)
+    operand = lower.idx.int_(CastExpr("int", Var("index")))
+    assert operand.startswith("%r")
+    assert any("cvt.s32.s64" in line for line in lower.b.lines)
+    assert lower.idx.int_(CastExpr("int", lit(17))) == "17"
+
+
+def test_index_cast_rejects_unsupported_types_and_compounds():
+    from emmy.compiler.ir.expr import CastExpr
+
+    from emmyptx import CompileError
+    from emmyptx.index import IndexLowerer
+    from emmyptx.ptx import PtxBuilder
+
+    index = IndexLowerer(PtxBuilder(), lambda name: "%r1")
+    for expression in (CastExpr("float", Var("x")), CastExpr("int", BinaryExpr("/", Var("x"), lit(2)))):
+        with pytest.raises(CompileError, match="unsupported index expression"):
+            index.int_(expression)
