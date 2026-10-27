@@ -11,7 +11,7 @@ recording: open a terminal in the repo, `emmyptx/lower.py` in an editor, and run
 **Screen:** README.md, top section.
 
 * "This is emmyptx, a compiler from Emmy's Kernel IR straight to NVIDIA PTX, skipping CUDA
-  C++ and nvcc. It is about 1,900 lines of Python and every PTX instruction comes from our
+  C++ and nvcc. It is about 2,200 lines of Python and every PTX instruction comes from our
   own code; emmy is only used to load the IR."
 * "It passes all 15 open problems in all five categories, and 178 extra problems I generated or hand-built
   to imitate the hidden set."
