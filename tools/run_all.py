@@ -26,6 +26,7 @@ from pathlib import Path
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+from launch_contract import ordered_kernels  # noqa: E402
 from runner import Runner, RunnerError  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -39,7 +40,9 @@ def run_problem(pdir: Path, runner: Runner, timing: bool) -> dict:
     expected = dict(np.load(pdir / "expected.npz")) if (pdir / "expected.npz").exists() else {}
     produced: dict[str, list] = {}
     result = {"id": pdir.name, "suite": pdir.parent.name, "ok": True, "detail": "", "us": 0.0, "compile_s": 0.0}
-    for k in meta["kernels"]:
+    if not expected:
+        return {**result, "ok": False, "detail": "missing expected outputs"}
+    for k in ordered_kernels(meta):
         ir = pdir / f"{k['entry']}.ir.json"
         t0 = time.perf_counter()
         proc = subprocess.run([sys.executable, str(ROOT / "compile.py"), str(ir)], capture_output=True, text=True)
@@ -48,7 +51,7 @@ def run_problem(pdir: Path, runner: Runner, timing: bool) -> dict:
             return {**result, "ok": False, "detail": f"compile.py failed: {proc.stderr.strip()[-300:]}"}
         c = runner.compile(proc.stdout)
         if not c.get("ok"):
-            return {**result, "ok": False, "detail": "ptxas: " + c.get("stderr", "")[:600]}
+            return {**result, "ok": False, "detail": f"{k['entry']}: ptxas: " + c.get("stderr", "")[:600]}
         if k["entry"] not in c.get("entry_points", []):
             return {**result, "ok": False, "detail": f"entry points {c.get('entry_points')}"}
         args = []
@@ -73,18 +76,23 @@ def run_problem(pdir: Path, runner: Runner, timing: bool) -> dict:
             }
         )
         if not r.get("ok"):
-            return {**result, "ok": False, "detail": f"launch failed ({r.get('stage')}): {r.get('stderr', '')[:300]}"}
+            return {**result, "ok": False, "detail": f"{k['entry']}: launch failed ({r.get('stage')}): {r.get('stderr', '')[:300]}"}
         result["us"] += float(r.get("median_us", 0.0))
         result["registers"] = c.get("registers", {}).get(k["entry"])
         for name, out in r["outputs"].items():
+            if out.get("truncated"):
+                return {**result, "ok": False, "detail": f"{k['entry']}: truncated output {name}"}
             produced[name] = out["values"]
             if name in expected:
                 ref = expected[name]
-                got = np.array(out["values"], dtype=np.float32).reshape(ref.shape)
+                got = np.asarray(out["values"]).reshape(ref.shape)
                 if not np.allclose(got, ref, rtol=meta["rtol"], atol=meta["atol"]):
                     err = float(np.nanmax(np.abs(got - ref)))
                     result["ok"] = False
                     result["detail"] += f"{name}: max abs err {err:.3e} (rtol={meta['rtol']} atol={meta['atol']}) "
+    missing = set(expected) - produced.keys()
+    if missing:
+        result.update(ok=False, detail=f"missing outputs: {sorted(missing)}")
     return result
 
 
@@ -122,9 +130,10 @@ def main() -> int:
     for p in problems:
         try:
             res = run_problem(p, runner, args.timing)
-        except RunnerError as exc:
-            print(f"runner error: {exc}")
-            return 2
+        except (RunnerError, ValueError, KeyError) as exc:
+            # A rejected problem must not hide the outcomes of later problems.
+            res = {"id": p.name, "suite": p.parent.name, "ok": False, "us": 0.0, "compile_s": 0.0,
+                   "detail": f"runner error: {exc}"}
         results.append(res)
         status = "PASS" if res["ok"] else "FAIL"
         timing = f"{res['us']:9.1f} us" if res["ok"] else ""

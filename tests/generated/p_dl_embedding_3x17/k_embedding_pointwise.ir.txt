@@ -1,0 +1,8 @@
+    Tile[a0, a1] (N=51)
+        in1 = load input1[a0]
+        f32 v0 = abs(in1)
+        i64 v1 = copy(v0)
+        in0 = load remainder_c1[0]
+        i64 v2 = remainder(v1, in0)
+        in2 = load input0[(int)v2, a1]
+        embedding[a0, a1] = in2

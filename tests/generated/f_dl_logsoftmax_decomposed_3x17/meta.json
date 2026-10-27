@@ -1,0 +1,55 @@
+{
+ "id": "f_dl_logsoftmax_decomposed_3x17",
+ "code": "exec('class Primitive(nn.Module):\\n def forward(self, input0):\\n  return torch.log(torch.softmax(input0, dim=-1))'); Primitive()(torch.randn(3, 17))",
+ "rtol": 0.001,
+ "atol": 0.0001,
+ "graph_inputs": [
+  "input0"
+ ],
+ "graph_outputs": [
+  "log"
+ ],
+ "kernels": [
+  {
+   "node": "log",
+   "entry": "k_softmax_d4b0bc",
+   "arg_order": [
+    "input0",
+    "log"
+   ],
+   "grid": [
+    3,
+    1,
+    1
+   ],
+   "block": [
+    128,
+    1,
+    1
+   ],
+   "smem_bytes": 0,
+   "zero_outputs": [],
+   "args": [
+    {
+     "name": "input0",
+     "dtype": "f32",
+     "shape": [
+      3,
+      17
+     ],
+     "seed": 0
+    },
+    {
+     "name": "log",
+     "dtype": "f32",
+     "shape": [
+      3,
+      17
+     ],
+     "output": true
+    }
+   ],
+   "final": true
+  }
+ ]
+}

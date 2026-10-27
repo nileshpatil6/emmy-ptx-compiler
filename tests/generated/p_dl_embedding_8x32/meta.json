@@ -1,0 +1,76 @@
+{
+ "id": "p_dl_embedding_8x32",
+ "code": "exec('class Primitive(nn.Module):\\n def forward(self, input0, input1):\\n  w = input0\\n  i = input1\\n  return torch.nn.functional.embedding(i.abs().long() % 64, w)'); Primitive()(torch.randn(64, 32), torch.randn(8))",
+ "rtol": 0.001,
+ "atol": 0.0001,
+ "graph_inputs": [
+  "input0",
+  "input1"
+ ],
+ "graph_outputs": [
+  "embedding"
+ ],
+ "kernels": [
+  {
+   "node": "embedding",
+   "entry": "k_embedding_pointwise",
+   "arg_order": [
+    "remainder_c1",
+    "input1",
+    "input0",
+    "embedding"
+   ],
+   "grid": [
+    1,
+    1,
+    1
+   ],
+   "block": [
+    256,
+    1,
+    1
+   ],
+   "smem_bytes": 0,
+   "zero_outputs": [],
+   "args": [
+    {
+     "name": "remainder_c1",
+     "dtype": "i64",
+     "shape": [
+      1
+     ],
+     "data": [
+      64.0
+     ]
+    },
+    {
+     "name": "input1",
+     "dtype": "f32",
+     "shape": [
+      8
+     ],
+     "seed": 1
+    },
+    {
+     "name": "input0",
+     "dtype": "f32",
+     "shape": [
+      64,
+      32
+     ],
+     "seed": 0
+    },
+    {
+     "name": "embedding",
+     "dtype": "f32",
+     "shape": [
+      8,
+      32
+     ],
+     "output": true
+    }
+   ],
+   "final": true
+  }
+ ]
+}

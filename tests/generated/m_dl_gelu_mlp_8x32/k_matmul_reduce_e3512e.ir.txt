@@ -1,0 +1,63 @@
+    Tile[a0, a1, a2_co] (N=4096)
+        in0 = load gelu_half[0]
+        in1 = load gelu_inv_sqrt2[0]
+        in2 = load gelu_one[0]
+        for a2 in a2_co..64:64
+            for a3 in 0..32
+                in3 = load input0[a0, a3]
+                in4 = load input1[a3, a2]
+                f32 v0 = multiply(in3, in4)
+                f32 acc0 <- add(acc0, v0)
+            f32 v1 = multiply(acc0, in1)
+            f32 v2 = erf(v1)
+            f32 v3 = add(in2, v2)
+            f32 v4 = multiply(acc0, in0)
+            f32 v5 = multiply(v3, v4)
+            in5 = load input2[a2, a1]
+            f32 v6 = multiply(in5, v5)
+            f32 acc1 <- add(acc1, v6)
+            for a3 in 0..32
+                in3__r1 = load input0[a0, a3]
+                in4__r1 = load input1[a3, (a2 + 16)]
+                f32 v0__r1 = multiply(in3__r1, in4__r1)
+                f32 acc0__r1 <- add(acc0__r1, v0__r1)
+            f32 v1__r1 = multiply(acc0__r1, in1)
+            f32 v2__r1 = erf(v1__r1)
+            f32 v3__r1 = add(in2, v2__r1)
+            f32 v4__r1 = multiply(acc0__r1, in0)
+            f32 v5__r1 = multiply(v3__r1, v4__r1)
+            in5__r1 = load input2[(a2 + 16), a1]
+            f32 v6__r1 = multiply(in5__r1, v5__r1)
+            f32 acc1__r1 <- add(acc1__r1, v6__r1)
+            for a3 in 0..32
+                in3__r2 = load input0[a0, a3]
+                in4__r2 = load input1[a3, (a2 + 32)]
+                f32 v0__r2 = multiply(in3__r2, in4__r2)
+                f32 acc0__r2 <- add(acc0__r2, v0__r2)
+            f32 v1__r2 = multiply(acc0__r2, in1)
+            f32 v2__r2 = erf(v1__r2)
+            f32 v3__r2 = add(in2, v2__r2)
+            f32 v4__r2 = multiply(acc0__r2, in0)
+            f32 v5__r2 = multiply(v3__r2, v4__r2)
+            in5__r2 = load input2[(a2 + 32), a1]
+            f32 v6__r2 = multiply(in5__r2, v5__r2)
+            f32 acc1__r2 <- add(acc1__r2, v6__r2)
+            for a3 in 0..32
+                in3__r3 = load input0[a0, a3]
+                in4__r3 = load input1[a3, (a2 + 48)]
+                f32 v0__r3 = multiply(in3__r3, in4__r3)
+                f32 acc0__r3 <- add(acc0__r3, v0__r3)
+            f32 v1__r3 = multiply(acc0__r3, in1)
+            f32 v2__r3 = erf(v1__r3)
+            f32 v3__r3 = add(in2, v2__r3)
+            f32 v4__r3 = multiply(acc0__r3, in0)
+            f32 v5__r3 = multiply(v3__r3, v4__r3)
+            in5__r3 = load input2[(a2 + 48), a1]
+            f32 v6__r3 = multiply(in5__r3, v5__r3)
+            f32 acc1__r3 <- add(acc1__r3, v6__r3)
+        f32 acc1 <- add(acc1, acc1__r1)
+        f32 acc1 <- add(acc1, acc1__r2)
+        f32 acc1 <- add(acc1, acc1__r3)
+        WarpShuffle(acc1, length=16)
+        if ((a2_co == 0)):
+            matmul_1[a0, a1] = acc1

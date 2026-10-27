@@ -1,0 +1,138 @@
+{
+  "inputs": [
+    "input0",
+    "input1",
+    "input2",
+    "input3",
+    "input4"
+  ],
+  "outputs": [
+    "add_1"
+  ],
+  "nodes": {
+    "add_c1": {
+      "op": "ConstantOp",
+      "op_fields": {
+        "name": "add_c1",
+        "value": 1e-05,
+        "context_value": null,
+        "load_ops": [],
+        "source_path": null,
+        "source_parts": [],
+        "source_shape": null,
+        "source_dtype": null,
+        "source_graph": null
+      },
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "add_c1",
+          "shape": [
+            1
+          ],
+          "dtype": "f32"
+        }
+      ]
+    },
+    "input0": {
+      "op": "InputOp",
+      "op_fields": {},
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "input0",
+          "shape": [
+            3,
+            17
+          ],
+          "dtype": "f32"
+        }
+      ]
+    },
+    "input1": {
+      "op": "InputOp",
+      "op_fields": {},
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "input1",
+          "shape": [
+            17
+          ],
+          "dtype": "f32"
+        }
+      ]
+    },
+    "input2": {
+      "op": "InputOp",
+      "op_fields": {},
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "input2",
+          "shape": [
+            17
+          ],
+          "dtype": "f32"
+        }
+      ]
+    },
+    "input3": {
+      "op": "InputOp",
+      "op_fields": {},
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "input3",
+          "shape": [
+            17
+          ],
+          "dtype": "f32"
+        }
+      ]
+    },
+    "input4": {
+      "op": "InputOp",
+      "op_fields": {},
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "input4",
+          "shape": [
+            17
+          ],
+          "dtype": "f32"
+        }
+      ]
+    },
+    "add_1": {
+      "op": "KernelOp",
+      "op_fields": {
+        "body": [
+          "Tile(axes=(Axis(name='a0', extent=Dim(3), window=None), Axis(name='a1', extent=Dim(17), window=None)), body=(Load(names=('in1',), input='input0', index=(Var(name='a0'), Var(name='a1')), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Load(names=('in2',), input='input1', index=(Var(name='a1'),), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v0', op=ElementwiseImpl('subtract'), args=('in1', 'in2'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Load(names=('in3',), input='input2', index=(Var(name='a1'),), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v1', op=ElementwiseImpl('abs'), args=('in3',), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Load(names=('in0',), input='add_c1', index=(Literal(value=0, dtype='int'),), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v2', op=ElementwiseImpl('add'), args=('in0', 'v1'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v3', op=ElementwiseImpl('rsqrt'), args=('v2',), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v4', op=ElementwiseImpl('multiply'), args=('v0', 'v3'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Load(names=('in4',), input='input3', index=(Var(name='a1'),), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v5', op=ElementwiseImpl('multiply'), args=('in4', 'v4'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Load(names=('in5',), input='input4', index=(Var(name='a1'),), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v6', op=ElementwiseImpl('add'), args=('in5', 'v5'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Write(output='add_1', index=(Var(name='a0'), Var(name='a1')), values=('v6',), value_dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), atomic=False, swizzle='NONE')), block_threads=None, aux_threads=0, raster_axes=None, raster_group=None, raster_orient='m')"
+        ],
+        "name": "k_add_1_pointwise",
+        "zero_delegated": [],
+        "serial": []
+      },
+      "inputs": [
+        "add_c1",
+        "input2",
+        "input1",
+        "input0",
+        "input3",
+        "input4"
+      ],
+      "outputs": [
+        {
+          "name": "add_1",
+          "shape": [
+            3,
+            17
+          ],
+          "dtype": "f32"
+        }
+      ]
+    }
+  }
+}

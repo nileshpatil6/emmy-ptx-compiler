@@ -1,0 +1,65 @@
+{
+  "inputs": [
+    "input0",
+    "input1"
+  ],
+  "outputs": [
+    "neg"
+  ],
+  "nodes": {
+    "input0": {
+      "op": "InputOp",
+      "op_fields": {},
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "input0",
+          "shape": [
+            8,
+            32
+          ],
+          "dtype": "f32"
+        }
+      ]
+    },
+    "input1": {
+      "op": "InputOp",
+      "op_fields": {},
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "input1",
+          "shape": [
+            8,
+            32
+          ],
+          "dtype": "f32"
+        }
+      ]
+    },
+    "neg": {
+      "op": "KernelOp",
+      "op_fields": {
+        "body": [
+          "Tile(axes=(Axis(name='a0', extent=Dim(8), window=None), Axis(name='a1_co', extent=Dim(128), window=None)), body=(StridedLoop(axis=Axis(name='a1', extent=Dim(32), window=None), start=Var(name='a1_co'), step=Literal(value=128, dtype='int'), body=(Load(names=('in0',), input='input0', index=(Var(name='a0'), Var(name='a1')), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Load(names=('in1',), input='input1', index=(Var(name='a0'), Var(name='a1')), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Accum(name='acc0', value='in0', op=ElementwiseImpl('maximum'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), axes=('a1',), base=None), Accum(name='acc1', value='in1', op=ElementwiseImpl('maximum'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), axes=('a1',), base=None)), unroll=False, end=None, seed=True), WarpShuffle(state=('acc0', 'acc1'), state_b=('acc0__o', 'acc1__o'), combine_states=(Assign(name='acc0', op=ElementwiseImpl('maximum'), args=('acc0', 'acc0__o'), dtype=None), Assign(name='acc1', op=ElementwiseImpl('maximum'), args=('acc1', 'acc1__o'), dtype=None)), length=32, dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Smem(name='acc0_smem', extents=(4,), dtype='float', align=0), Smem(name='acc1_smem', extents=(4,), dtype='float', align=0), Cond(cond=BinaryExpr(op='==', left=Var(name='lane'), right=Literal(value=0, dtype='int')), body=(Write(output='acc0_smem', index=(Var(name='warp'),), values=('acc0',), value_dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), atomic=False, swizzle='NONE'), Write(output='acc1_smem', index=(Var(name='warp'),), values=('acc1',), value_dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), atomic=False, swizzle='NONE')), else_body=()), Sync(barrier_id=0, count=None, warp=False), TreeHalve(bufs=('acc0_smem', 'acc1_smem'), state=('acc0', 'acc1'), state_b=('acc0__o', 'acc1__o'), combine_states=(Assign(name='acc0', op=ElementwiseImpl('maximum'), args=('acc0', 'acc0__o'), dtype=None), Assign(name='acc1', op=ElementwiseImpl('maximum'), args=('acc1', 'acc1__o'), dtype=None)), length=4, tid_var='warp', dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), barrier_id=0, barrier_count=None, inner=None), StridedLoop(axis=Axis(name='a1', extent=Dim(32), window=None), start=Var(name='a1_co'), step=Literal(value=128, dtype='int'), body=(Load(names=('in2',), input='input0', index=(Var(name='a0'), Var(name='a1')), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v0', op=ElementwiseImpl('subtract'), args=('in2', 'acc0'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v1', op=ElementwiseImpl('exp'), args=('v0',), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Load(names=('in3',), input='input1', index=(Var(name='a0'), Var(name='a1')), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v2', op=ElementwiseImpl('subtract'), args=('in3', 'acc1'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v3', op=ElementwiseImpl('exp'), args=('v2',), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Accum(name='acc2', value='v1', op=ElementwiseImpl('add'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), axes=('a1',), base=None), Accum(name='acc3', value='v3', op=ElementwiseImpl('add'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), axes=('a1',), base=None)), unroll=False, end=None, seed=True), WarpShuffle(state=('acc2', 'acc3'), state_b=('acc2__o', 'acc3__o'), combine_states=(Assign(name='acc2', op=ElementwiseImpl('add'), args=('acc2', 'acc2__o'), dtype=None), Assign(name='acc3', op=ElementwiseImpl('add'), args=('acc3', 'acc3__o'), dtype=None)), length=32, dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Smem(name='acc2_smem', extents=(4,), dtype='float', align=0), Smem(name='acc3_smem', extents=(4,), dtype='float', align=0), Cond(cond=BinaryExpr(op='==', left=Var(name='lane'), right=Literal(value=0, dtype='int')), body=(Write(output='acc2_smem', index=(Var(name='warp'),), values=('acc2',), value_dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), atomic=False, swizzle='NONE'), Write(output='acc3_smem', index=(Var(name='warp'),), values=('acc3',), value_dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), atomic=False, swizzle='NONE')), else_body=()), Sync(barrier_id=0, count=None, warp=False), TreeHalve(bufs=('acc2_smem', 'acc3_smem'), state=('acc2', 'acc3'), state_b=('acc2__o', 'acc3__o'), combine_states=(Assign(name='acc2', op=ElementwiseImpl('add'), args=('acc2', 'acc2__o'), dtype=None), Assign(name='acc3', op=ElementwiseImpl('add'), args=('acc3', 'acc3__o'), dtype=None)), length=4, tid_var='warp', dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), barrier_id=0, barrier_count=None, inner=None), Assign(name='v5', op=ElementwiseImpl('reciprocal'), args=('acc3',), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v4', op=ElementwiseImpl('reciprocal'), args=('acc2',), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), StridedLoop(axis=Axis(name='a1', extent=Dim(32), window=None), start=Var(name='a1_co'), step=Literal(value=128, dtype='int'), body=(Load(names=('in5',), input='input1', index=(Var(name='a0'), Var(name='a1')), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v10', op=ElementwiseImpl('subtract'), args=('in5', 'acc1'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v11', op=ElementwiseImpl('exp'), args=('v10',), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v12', op=ElementwiseImpl('multiply'), args=('v11', 'v5'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Load(names=('in4',), input='input0', index=(Var(name='a0'), Var(name='a1')), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v6', op=ElementwiseImpl('subtract'), args=('in4', 'acc0'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v7', op=ElementwiseImpl('exp'), args=('v6',), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v8', op=ElementwiseImpl('multiply'), args=('v4', 'v7'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v9', op=ElementwiseImpl('log'), args=('v8',), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v13', op=ElementwiseImpl('multiply'), args=('v12', 'v9'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Accum(name='acc4', value='v13', op=ElementwiseImpl('add'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), axes=('a1',), base=None)), unroll=False, end=None, seed=True), WarpShuffle(state=('acc4',), state_b=('acc4__o',), combine_states=(Assign(name='acc4', op=ElementwiseImpl('add'), args=('acc4', 'acc4__o'), dtype=None),), length=32, dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Smem(name='acc4_smem', extents=(4,), dtype='float', align=0), Cond(cond=BinaryExpr(op='==', left=Var(name='lane'), right=Literal(value=0, dtype='int')), body=(Write(output='acc4_smem', index=(Var(name='warp'),), values=('acc4',), value_dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), atomic=False, swizzle='NONE'),), else_body=()), Sync(barrier_id=0, count=None, warp=False), TreeHalve(bufs=('acc4_smem',), state=('acc4',), state_b=('acc4__o',), combine_states=(Assign(name='acc4', op=ElementwiseImpl('add'), args=('acc4', 'acc4__o'), dtype=None),), length=4, tid_var='warp', dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), barrier_id=0, barrier_count=None, inner=None), Cond(cond=BinaryExpr(op='==', left=Var(name='a1_co'), right=Literal(value=0, dtype='int')), body=(Assign(name='v14', op=ElementwiseImpl('negative'), args=('acc4',), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Write(output='neg', index=(Var(name='a0'),), values=('v14',), value_dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), atomic=False, swizzle='NONE')), else_body=())), block_threads=128, aux_threads=0, raster_axes=None, raster_group=None, raster_orient='m')"
+        ],
+        "name": "k_softmax_reduce_226263",
+        "zero_delegated": [],
+        "serial": []
+      },
+      "inputs": [
+        "input1",
+        "input0"
+      ],
+      "outputs": [
+        {
+          "name": "neg",
+          "shape": [
+            8
+          ],
+          "dtype": "f32"
+        }
+      ]
+    }
+  }
+}

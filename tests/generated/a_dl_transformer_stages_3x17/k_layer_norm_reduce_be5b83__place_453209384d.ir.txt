@@ -1,0 +1,5 @@
+    Tile[a0] (N=3)
+        for a1 in 0..17
+            in1 = load x[a0, a1]
+            f32 acc0 <- add(acc0, in1)
+        layer_norm_mean_bc__place_453209384d_0[a0] = acc0

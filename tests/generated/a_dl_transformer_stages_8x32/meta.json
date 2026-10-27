@@ -1,0 +1,597 @@
+{
+ "id": "a_dl_transformer_stages_8x32",
+ "code": "exec('class Stages(nn.Module):\\n def forward(self, x, q, k, v, o, a, b):\\n  z = F.layer_norm(x, (32,))\\n  qp = z @ q\\n  kp = z @ k\\n  vp = z @ v\\n  scores = qp @ kp.transpose(-1, -2) / 32**0.5\\n  prob = torch.softmax(scores, -1)\\n  attn = prob @ vp\\n  h = x + attn @ o\\n  n = F.layer_norm(h, (32,))\\n  mlp = torch.relu(n @ a)\\n  out = h + mlp @ b\\n  return z, scores, prob, h, n, mlp, out'); Stages()(torch.randn(8, 32), torch.randn(32, 32), torch.randn(32, 32), torch.randn(32, 32), torch.randn(32, 32), torch.randn(32, 64), torch.randn(64, 32))",
+ "rtol": 0.001,
+ "atol": 0.0001,
+ "graph_inputs": [
+  "x",
+  "q",
+  "k",
+  "v",
+  "o",
+  "a",
+  "b"
+ ],
+ "graph_outputs": [
+  "layer_norm",
+  "div",
+  "softmax",
+  "add",
+  "layer_norm_1",
+  "relu",
+  "add_1"
+ ],
+ "kernels": [
+  {
+   "node": "layer_norm_centered",
+   "entry": "k_layer_norm_pointwise_961494",
+   "arg_order": [
+    "x",
+    "layer_norm_mean_bc",
+    "layer_norm_centered"
+   ],
+   "grid": [
+    1,
+    1,
+    1
+   ],
+   "block": [
+    256,
+    1,
+    1
+   ],
+   "smem_bytes": 0,
+   "zero_outputs": [],
+   "args": [
+    {
+     "name": "x",
+     "dtype": "f32",
+     "shape": [
+      8,
+      32
+     ],
+     "seed": 0
+    },
+    {
+     "name": "layer_norm_mean_bc",
+     "dtype": "f32",
+     "shape": [
+      8,
+      32
+     ],
+     "intermediate": true
+    },
+    {
+     "name": "layer_norm_centered",
+     "dtype": "f32",
+     "shape": [
+      8,
+      32
+     ],
+     "output": true
+    }
+   ],
+   "final": false
+  },
+  {
+   "node": "layer_norm",
+   "entry": "k_layer_norm_pointwise_ddf07e",
+   "arg_order": [
+    "layer_norm_centered",
+    "layer_norm_rsq_bc",
+    "layer_norm"
+   ],
+   "grid": [
+    1,
+    1,
+    1
+   ],
+   "block": [
+    256,
+    1,
+    1
+   ],
+   "smem_bytes": 0,
+   "zero_outputs": [],
+   "args": [
+    {
+     "name": "layer_norm_centered",
+     "dtype": "f32",
+     "shape": [
+      8,
+      32
+     ],
+     "intermediate": true
+    },
+    {
+     "name": "layer_norm_rsq_bc",
+     "dtype": "f32",
+     "shape": [
+      8,
+      32
+     ],
+     "intermediate": true
+    },
+    {
+     "name": "layer_norm",
+     "dtype": "f32",
+     "shape": [
+      8,
+      32
+     ],
+     "output": true
+    }
+   ],
+   "final": true
+  },
+  {
+   "node": "layer_norm_mean_bc__place_eb95c9de7b_0",
+   "entry": "k_layer_norm_reduce_8bfc6b__place_eb95c9de7b",
+   "arg_order": [
+    "x",
+    "layer_norm_mean_bc__place_eb95c9de7b_0"
+   ],
+   "grid": [
+    1,
+    1,
+    1
+   ],
+   "block": [
+    256,
+    1,
+    1
+   ],
+   "smem_bytes": 0,
+   "zero_outputs": [],
+   "args": [
+    {
+     "name": "x",
+     "dtype": "f32",
+     "shape": [
+      8,
+      32
+     ],
+     "seed": 0
+    },
+    {
+     "name": "layer_norm_mean_bc__place_eb95c9de7b_0",
+     "dtype": "f32",
+     "shape": [
+      8
+     ],
+     "output": true
+    }
+   ],
+   "final": false
+  },
+  {
+   "node": "layer_norm_mean_bc",
+   "entry": "k_layer_norm_reduce_8bfc6b",
+   "arg_order": [
+    "layer_norm_mean_bc__place_eb95c9de7b_0",
+    "layer_norm_mean_count",
+    "layer_norm_mean_bc"
+   ],
+   "grid": [
+    1,
+    1,
+    1
+   ],
+   "block": [
+    256,
+    1,
+    1
+   ],
+   "smem_bytes": 0,
+   "zero_outputs": [],
+   "args": [
+    {
+     "name": "layer_norm_mean_bc__place_eb95c9de7b_0",
+     "dtype": "f32",
+     "shape": [
+      8
+     ],
+     "intermediate": true
+    },
+    {
+     "name": "layer_norm_mean_count",
+     "dtype": "f32",
+     "shape": [
+      1
+     ],
+     "data": [
+      32.0
+     ]
+    },
+    {
+     "name": "layer_norm_mean_bc",
+     "dtype": "f32",
+     "shape": [
+      8,
+      32
+     ],
+     "output": true
+    }
+   ],
+   "final": false
+  },
+  {
+   "node": "layer_norm_rsq_bc__place_a43dcda4ee_0",
+   "entry": "k_layer_norm_reduce_0baa0c__place_a43dcda4ee",
+   "arg_order": [
+    "layer_norm_centered",
+    "layer_norm_rsq_bc__place_a43dcda4ee_0"
+   ],
+   "grid": [
+    1,
+    1,
+    1
+   ],
+   "block": [
+    256,
+    1,
+    1
+   ],
+   "smem_bytes": 0,
+   "zero_outputs": [],
+   "args": [
+    {
+     "name": "layer_norm_centered",
+     "dtype": "f32",
+     "shape": [
+      8,
+      32
+     ],
+     "intermediate": true
+    },
+    {
+     "name": "layer_norm_rsq_bc__place_a43dcda4ee_0",
+     "dtype": "f32",
+     "shape": [
+      8
+     ],
+     "output": true
+    }
+   ],
+   "final": false
+  },
+  {
+   "node": "layer_norm_rsq_bc",
+   "entry": "k_layer_norm_reduce_0baa0c",
+   "arg_order": [
+    "layer_norm_rsq_bc__place_a43dcda4ee_0",
+    "layer_norm_var_count",
+    "layer_norm_eps",
+    "layer_norm_rsq_bc"
+   ],
+   "grid": [
+    1,
+    1,
+    1
+   ],
+   "block": [
+    256,
+    1,
+    1
+   ],
+   "smem_bytes": 0,
+   "zero_outputs": [],
+   "args": [
+    {
+     "name": "layer_norm_rsq_bc__place_a43dcda4ee_0",
+     "dtype": "f32",
+     "shape": [
+      8
+     ],
+     "intermediate": true
+    },
+    {
+     "name": "layer_norm_var_count",
+     "dtype": "f32",
+     "shape": [
+      1
+     ],
+     "data": [
+      32.0
+     ]
+    },
+    {
+     "name": "layer_norm_eps",
+     "dtype": "f32",
+     "shape": [
+      1
+     ],
+     "data": [
+      1e-05
+     ]
+    },
+    {
+     "name": "layer_norm_rsq_bc",
+     "dtype": "f32",
+     "shape": [
+      8,
+      32
+     ],
+     "output": true
+    }
+   ],
+   "final": false
+  },
+  {
+   "node": "div__place_e797e4b1c4_0",
+   "entry": "k_layer_norm_matmul_softmax_reduce_8e8501__place_e797e4b1c4",
+   "arg_order": [
+    "layer_norm",
+    "q",
+    "k",
+    "div__place_e797e4b1c4_0"
+   ],
+   "grid": [
+    1,
+    1,
+    1
+   ],
+   "block": [
+    256,
+    1,
+    1
+   ],
+   "smem_bytes": 0,
+   "zero_outputs": [],
+   "args": [
+    {
+     "name": "layer_norm",
+     "dtype": "f32",
+     "shape": [
+      8,
+      32
+     ],
+     "intermediate": true
+    },
+    {
+     "name": "q",
+     "dtype": "f32",
+     "shape": [
+      32,
+      32
+     ],
+     "seed": 1
+    },
+    {
+     "name": "k",
+     "dtype": "f32",
+     "shape": [
+      32,
+      32
+     ],
+     "seed": 2
+    },
+    {
+     "name": "div__place_e797e4b1c4_0",
+     "dtype": "f32",
+     "shape": [
+      8,
+      8
+     ],
+     "output": true
+    }
+   ],
+   "final": false
+  },
+  {
+   "node": "div",
+   "entry": "k_layer_norm_matmul_softmax_reduce_8e8501",
+   "arg_order": [
+    "div__place_e797e4b1c4_0",
+    "layer_norm_1_var_count",
+    "layer_norm_1_mean_count",
+    "layer_norm_1_eps",
+    "div_c1",
+    "x",
+    "o",
+    "layer_norm",
+    "q",
+    "k",
+    "v",
+    "a",
+    "b",
+    "div",
+    "softmax",
+    "add",
+    "layer_norm_1",
+    "relu",
+    "add_1"
+   ],
+   "grid": [
+    1,
+    1,
+    1
+   ],
+   "block": [
+    256,
+    1,
+    1
+   ],
+   "smem_bytes": 0,
+   "zero_outputs": [],
+   "args": [
+    {
+     "name": "div__place_e797e4b1c4_0",
+     "dtype": "f32",
+     "shape": [
+      8,
+      8
+     ],
+     "intermediate": true
+    },
+    {
+     "name": "layer_norm_1_var_count",
+     "dtype": "f32",
+     "shape": [
+      1
+     ],
+     "data": [
+      32.0
+     ]
+    },
+    {
+     "name": "layer_norm_1_mean_count",
+     "dtype": "f32",
+     "shape": [
+      1
+     ],
+     "data": [
+      32.0
+     ]
+    },
+    {
+     "name": "layer_norm_1_eps",
+     "dtype": "f32",
+     "shape": [
+      1
+     ],
+     "data": [
+      1e-05
+     ]
+    },
+    {
+     "name": "div_c1",
+     "dtype": "f32",
+     "shape": [
+      1
+     ],
+     "data": [
+      5.656854249492381
+     ]
+    },
+    {
+     "name": "x",
+     "dtype": "f32",
+     "shape": [
+      8,
+      32
+     ],
+     "seed": 0
+    },
+    {
+     "name": "o",
+     "dtype": "f32",
+     "shape": [
+      32,
+      32
+     ],
+     "seed": 4
+    },
+    {
+     "name": "layer_norm",
+     "dtype": "f32",
+     "shape": [
+      8,
+      32
+     ],
+     "intermediate": true
+    },
+    {
+     "name": "q",
+     "dtype": "f32",
+     "shape": [
+      32,
+      32
+     ],
+     "seed": 1
+    },
+    {
+     "name": "k",
+     "dtype": "f32",
+     "shape": [
+      32,
+      32
+     ],
+     "seed": 2
+    },
+    {
+     "name": "v",
+     "dtype": "f32",
+     "shape": [
+      32,
+      32
+     ],
+     "seed": 3
+    },
+    {
+     "name": "a",
+     "dtype": "f32",
+     "shape": [
+      32,
+      64
+     ],
+     "seed": 5
+    },
+    {
+     "name": "b",
+     "dtype": "f32",
+     "shape": [
+      64,
+      32
+     ],
+     "seed": 6
+    },
+    {
+     "name": "div",
+     "dtype": "f32",
+     "shape": [
+      8,
+      8
+     ],
+     "output": true
+    },
+    {
+     "name": "softmax",
+     "dtype": "f32",
+     "shape": [
+      8,
+      8
+     ],
+     "output": true
+    },
+    {
+     "name": "add",
+     "dtype": "f32",
+     "shape": [
+      8,
+      32
+     ],
+     "output": true
+    },
+    {
+     "name": "layer_norm_1",
+     "dtype": "f32",
+     "shape": [
+      8,
+      32
+     ],
+     "output": true
+    },
+    {
+     "name": "relu",
+     "dtype": "f32",
+     "shape": [
+      8,
+      64
+     ],
+     "output": true
+    },
+    {
+     "name": "add_1",
+     "dtype": "f32",
+     "shape": [
+      8,
+      32
+     ],
+     "output": true
+    }
+   ],
+   "final": true
+  }
+ ]
+}

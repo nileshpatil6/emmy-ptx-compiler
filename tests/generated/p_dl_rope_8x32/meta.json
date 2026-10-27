@@ -1,0 +1,137 @@
+{
+ "id": "p_dl_rope_8x32",
+ "code": "exec('class Primitive(nn.Module):\\n def forward(self, input0, input1, input2):\\n  a = input0\\n  b = input1\\n  t = input2\\n  return (a * torch.cos(t) - b * torch.sin(t), a * torch.sin(t) + b * torch.cos(t))'); Primitive()(torch.randn(8, 32), torch.randn(8, 32), torch.randn(32))",
+ "rtol": 0.001,
+ "atol": 0.0001,
+ "graph_inputs": [
+  "input0",
+  "input1",
+  "input2"
+ ],
+ "graph_outputs": [
+  "sub",
+  "add"
+ ],
+ "kernels": [
+  {
+   "node": "sub",
+   "entry": "k_sub_pointwise",
+   "arg_order": [
+    "input2",
+    "input1",
+    "input0",
+    "sub"
+   ],
+   "grid": [
+    1,
+    1,
+    1
+   ],
+   "block": [
+    256,
+    1,
+    1
+   ],
+   "smem_bytes": 0,
+   "zero_outputs": [],
+   "args": [
+    {
+     "name": "input2",
+     "dtype": "f32",
+     "shape": [
+      32
+     ],
+     "seed": 2
+    },
+    {
+     "name": "input1",
+     "dtype": "f32",
+     "shape": [
+      8,
+      32
+     ],
+     "seed": 1
+    },
+    {
+     "name": "input0",
+     "dtype": "f32",
+     "shape": [
+      8,
+      32
+     ],
+     "seed": 0
+    },
+    {
+     "name": "sub",
+     "dtype": "f32",
+     "shape": [
+      8,
+      32
+     ],
+     "output": true
+    }
+   ],
+   "final": true
+  },
+  {
+   "node": "add",
+   "entry": "k_add_pointwise",
+   "arg_order": [
+    "input2",
+    "input0",
+    "input1",
+    "add"
+   ],
+   "grid": [
+    1,
+    1,
+    1
+   ],
+   "block": [
+    256,
+    1,
+    1
+   ],
+   "smem_bytes": 0,
+   "zero_outputs": [],
+   "args": [
+    {
+     "name": "input2",
+     "dtype": "f32",
+     "shape": [
+      32
+     ],
+     "seed": 2
+    },
+    {
+     "name": "input0",
+     "dtype": "f32",
+     "shape": [
+      8,
+      32
+     ],
+     "seed": 0
+    },
+    {
+     "name": "input1",
+     "dtype": "f32",
+     "shape": [
+      8,
+      32
+     ],
+     "seed": 1
+    },
+    {
+     "name": "add",
+     "dtype": "f32",
+     "shape": [
+      8,
+      32
+     ],
+     "output": true
+    }
+   ],
+   "final": true
+  }
+ ]
+}

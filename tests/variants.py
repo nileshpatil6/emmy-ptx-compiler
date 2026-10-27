@@ -12,7 +12,57 @@ The id's first letter is the category: p pointwise, r reductions, m matmul,
 f fused, a attention-like.
 """
 
+import ast
+
 import numpy as np
+
+
+def _dl_module(code):
+    """Keep all computation inside forward, with constructor-order inputs."""
+    if code.startswith("exec("):
+        return code  # Already an explicit module with a fixed signature.
+    tree = ast.parse(code)
+    inputs = []
+
+    class LiftRandomInputs(ast.NodeTransformer):
+        def visit_Call(self, node):
+            if ast.unparse(node.func) == "torch.randn":
+                name = f"input{len(inputs)}"
+                inputs.append(ast.unparse(node))
+                return ast.Name(id=name, ctx=ast.Load())
+            return self.generic_visit(node)
+
+    tree = LiftRandomInputs().visit(tree)
+    tree.body[-1] = ast.Return(value=tree.body[-1].value)
+    body = ast.unparse(ast.fix_missing_locations(tree))
+    signature = ", ".join(f"input{i}" for i in range(len(inputs)))
+    source = f"class Primitive(nn.Module):\n def forward(self, {signature}):\n" + "\n".join("  " + line for line in body.splitlines())
+    return f"exec({source!r}); Primitive()({', '.join(inputs)})"
+
+
+def _dl_norm(x, weight, bias=0, residual=0):
+    x = x.astype(np.float64) + residual
+    return ((x - x.mean(-1, keepdims=True)) / np.sqrt(x.var(-1, keepdims=True) + 1e-5) * weight + bias).astype(np.float32)
+
+
+def _dl_transformer(x, q, k, v, o, w1, w2):
+    z = _dl_norm(x, 1).astype(np.float64)
+    h = x + softmax((z @ q) @ (z @ k).T / np.sqrt(x.shape[-1])) @ (z @ v) @ o
+    z = _dl_norm(h, 1).astype(np.float64)
+    return out32(h + np.maximum(z @ w1, 0) @ w2)
+
+
+def _dl_transformer_stages(x, q, k, v, o, w1, w2):
+    z = _dl_norm(x, 1)
+    qp, kp, vp = [(z.astype(np.float64) @ w).astype(np.float32) for w in (q, k, v)]
+    scores = (qp.astype(np.float64) @ kp.T / np.sqrt(x.shape[-1])).astype(np.float32)
+    prob = softmax(scores.astype(np.float64)).astype(np.float32)
+    attn = (prob.astype(np.float64) @ vp).astype(np.float32)
+    h = (x + attn.astype(np.float64) @ o).astype(np.float32)
+    n = _dl_norm(h, 1)
+    mlp = np.maximum(n.astype(np.float64) @ w1, 0).astype(np.float32)
+    out = (h + mlp.astype(np.float64) @ w2).astype(np.float32)
+    return [z, scores, prob, h, n, mlp, out]
 
 COOP = "WORK=t128,REDUCE=coop"
 
@@ -768,3 +818,126 @@ OPEN += [
         atol=1e-6,
     ),
 ]
+
+# DL course primitives. Failed tracing attempts remain here for reproduction;
+# only successfully packaged cases have fixtures in tests/generated/.
+DL_VARIANTS = []
+for _rows, _width in [(8, 32), (3, 17)]:
+    _tag = f"{_rows}x{_width}"
+
+    def _case(category, name, code, ref, *, knobs="", rows=_rows, width=_width, tag=_tag):
+        return dict(id=f"{category}_dl_{name}_{tag}", code=_dl_module(code.format(n=rows, d=width, h=2 * width)),
+                    ref=ref, rtol=1e-3, atol=1e-4, knobs=knobs)
+
+    DL_VARIANTS += [
+        _case("p", "embedding", "w = torch.randn(64, {d}); i = torch.randn({n}); torch.nn.functional.embedding(i.abs().long() % 64, w)",
+              lambda w, i: [w[np.abs(i).astype(np.int64) % 64]]),
+        # Both rotated halves are outputs; angle and split halves are explicit inputs.
+        _case("p", "rope", "a = torch.randn({n}, {d}); b = torch.randn({n}, {d}); t = torch.randn({d}); (a * torch.cos(t) - b * torch.sin(t), a * torch.sin(t) + b * torch.cos(t))",
+              lambda a, b, t: out32(a.astype(np.float64) * np.cos(t.astype(np.float64)) - b * np.sin(t.astype(np.float64)),
+                                    a.astype(np.float64) * np.sin(t.astype(np.float64)) + b * np.cos(t.astype(np.float64)))),
+        _case("f", "rmsnorm", "x = torch.randn({n}, {d}); w = torch.randn({d}); x * torch.rsqrt((x*x).mean(-1, keepdim=True) + 1e-5) * w",
+              lambda x, w: out32(x.astype(np.float64) / np.sqrt(np.mean(x.astype(np.float64)**2, -1, keepdims=True) + 1e-5) * w), knobs=COOP),
+        _case("f", "layernorm", "x = torch.randn({n}, {d}); w = torch.randn({d}); b = torch.randn({d}); torch.nn.functional.layer_norm(x, ({d},), w, b)",
+              lambda x, w, b: [_dl_norm(x, w, b)], knobs=COOP),
+        _case("f", "softmax", "torch.softmax(torch.randn({n}, {d}), dim=-1)", lambda x: out32(softmax(x.astype(np.float64))), knobs=COOP),
+        _case("f", "logsoftmax", "torch.log_softmax(torch.randn({n}, {d}), dim=-1)",
+              lambda x: out32(np.log(softmax(x.astype(np.float64)))), knobs=COOP),
+        _case("f", "cross_entropy", "x = torch.randn({n}, {d}); t = torch.randn({n}); torch.nn.functional.cross_entropy(x, t.abs().long() % {d})",
+              lambda x, t: out32(-np.log(softmax(x.astype(np.float64)))[np.arange(x.shape[0]), np.abs(t).astype(np.int64) % x.shape[1]].mean())),
+        _case("f", "cross_entropy_dense", "x = torch.randn({n}, {d}); t = torch.randn({n}, {d}); -(torch.softmax(t, -1) * torch.log(torch.softmax(x, -1))).sum(-1)",
+              lambda x, t: out32(-(softmax(t.astype(np.float64)) * np.log(softmax(x.astype(np.float64)))).sum(-1)), knobs=COOP),
+        _case("m", "swiglu", "x = torch.randn({n}, {d}); a = torch.randn({d}, {h}); b = torch.randn({d}, {h}); c = torch.randn({h}, {d}); (torch.nn.functional.silu(x @ a) * (x @ b)) @ c",
+              lambda x, a, b, c: out32(((x.astype(np.float64) @ a) / (1 + np.exp(-(x.astype(np.float64) @ a))) * (x.astype(np.float64) @ b)) @ c)),
+        _case("m", "gelu_mlp", "x = torch.randn({n}, {d}); a = torch.randn({d}, {h}); b = torch.randn({h}, {d}); torch.nn.functional.gelu(x @ a) @ b",
+              lambda x, a, b: out32((0.5 * (x.astype(np.float64) @ a) * (1 + erf((x.astype(np.float64) @ a) / np.sqrt(2)))) @ b)),
+        _case("a", "causal", "exec('class C(nn.Module):\\n def forward(self, q, k, v):\\n  i = torch.arange({n})\\n  return torch.softmax(torch.where(i[:, None] >= i[None, :], q @ k / {d}**0.5, -1e4), -1) @ v'); C()(torch.randn({n}, {d}), torch.randn({d}, {n}), torch.randn({n}, {d}))",
+              lambda q, k, v: out32(softmax(np.where(np.arange(q.shape[0])[:, None] >= np.arange(q.shape[0])[None, :], q.astype(np.float64) @ k / np.sqrt(q.shape[-1]), -1e4)) @ v)),
+        _case("a", "scaled_bias", "q = torch.randn({n}, {d}); k = torch.randn({d}, {n}); v = torch.randn({n}, {d}); b = torch.randn({n}); torch.softmax(q @ k / {d}**0.5 + b, -1) @ v",
+              lambda q, k, v, b: out32(softmax(q.astype(np.float64) @ k / np.sqrt(q.shape[-1]) + b) @ v)),
+        _case("a", "kv_query", "q = torch.randn(1, {d}); k = torch.randn({d}, {n}); v = torch.randn({n}, {d}); torch.softmax(q @ k / {d}**0.5, -1) @ v",
+              lambda q, k, v: out32(softmax(q.astype(np.float64) @ k / np.sqrt(q.shape[-1])) @ v)),
+        _case("a", "transformer", "exec('class T(nn.Module):\\n def forward(self, x, q, k, v, o, a, b):\\n  z = torch.nn.functional.layer_norm(x, ({d},))\\n  h = x + (torch.softmax((z @ q) @ (z @ k).transpose(-1, -2) / {d}**0.5, -1) @ (z @ v)) @ o\\n  return h + torch.relu(torch.nn.functional.layer_norm(h, ({d},)) @ a) @ b'); T()(torch.randn({n}, {d}), torch.randn({d}, {d}), torch.randn({d}, {d}), torch.randn({d}, {d}), torch.randn({d}, {d}), torch.randn({d}, {h}), torch.randn({h}, {d}))",
+              _dl_transformer),
+        _case("m", "conv2d_columns", "columns = torch.randn({n}, 27); w = torch.randn(27, {d}); columns @ w",
+              lambda x, w: out32(x.astype(np.float64) @ w)),
+        _case("m", "conv1d_windows", "windows = torch.randn({n}, 15); w = torch.randn(15, {d}); windows @ w",
+              lambda x, w: out32(x.astype(np.float64) @ w)),
+        _case("m", "patch_embedding", "patches = torch.randn({n}, 48); w = torch.randn(48, {d}); b = torch.randn({d}); patches @ w + b",
+              lambda x, w, b: out32(x.astype(np.float64) @ w + b)),
+        _case("r", "avg_pool_windows", "torch.randn({n}, {d}, 4).mean(-1)", lambda x: out32(x.astype(np.float64).mean(-1))),
+        _case("r", "max_pool_windows", "torch.randn({n}, {d}, 4).amax(-1)", lambda x: [x.max(-1)]),
+        _case("r", "avg_pool2d", "torch.nn.functional.avg_pool2d(torch.randn(1, 3, {n}, {d}), 2)",
+              lambda x: out32((x[:, :, 0:x.shape[2]//2*2:2, 0:x.shape[3]//2*2:2].astype(np.float64)
+                              + x[:, :, 1:x.shape[2]//2*2:2, 0:x.shape[3]//2*2:2]
+                              + x[:, :, 0:x.shape[2]//2*2:2, 1:x.shape[3]//2*2:2]
+                              + x[:, :, 1:x.shape[2]//2*2:2, 1:x.shape[3]//2*2:2]) / 4)),
+        _case("r", "max_pool2d", "torch.nn.functional.max_pool2d(torch.randn(1, 3, {n}, {d}), 2)",
+              lambda x: [np.maximum.reduce([x[:, :, i:x.shape[2]//2*2:2, j:x.shape[3]//2*2:2] for i in range(2) for j in range(2)])]),
+        _case("p", "batchnorm_inference", "x = torch.randn({n}, {d}); m = torch.randn({d}); v = torch.randn({d}); w = torch.randn({d}); b = torch.randn({d}); (x-m) * torch.rsqrt(v.abs()+1e-5) * w + b",
+              lambda x, m, v, w, b: out32((x.astype(np.float64) - m) / np.sqrt(np.abs(v.astype(np.float64)) + 1e-5) * w + b)),
+        _case("p", "channel_affine", "x = torch.randn({n}, {d}, 3, 3); w = torch.randn(1, {d}, 1, 1); b = torch.randn(1, {d}, 1, 1); x*w+b",
+              lambda x, w, b: [x*w+b]),
+        _case("r", "global_avg_pool", "torch.randn({n}, {d}, 3, 5).mean(dim=(-1, -2))", lambda x: out32(x.astype(np.float64).mean((-1, -2)))),
+        _case("p", "mel_log", "torch.log(torch.randn({n}, {d}).abs() + 1e-5)", lambda x: out32(np.log(np.abs(x.astype(np.float64)) + 1e-5))),
+        _case("r", "cumsum", "torch.cumsum(torch.randn({n}, {d}), dim=-1)", lambda x: out32(np.cumsum(x.astype(np.float64), -1))),
+        _case("r", "argmax", "torch.argmax(torch.randn({n}, {d}), dim=-1)", lambda x: [x.argmax(-1)]),
+        _case("f", "residual_norm", "x = torch.randn({n}, {d}); r = torch.randn({n}, {d}); torch.nn.functional.layer_norm(x+r, ({d},))",
+              lambda x, r: [_dl_norm(x, 1, residual=r)], knobs=COOP),
+        _case("f", "l2normalize", "x = torch.randn({n}, {d}); x * torch.rsqrt((x*x).sum(-1, keepdim=True) + 1e-6)",
+              lambda x: out32(x.astype(np.float64) / np.sqrt(np.sum(x.astype(np.float64)**2, -1, keepdims=True) + 1e-6)), knobs=COOP),
+        _case("f", "cosine", "x = torch.randn({n}, {d}); y = torch.randn({n}, {d}); (x*y).sum(-1) * torch.rsqrt((x*x).sum(-1) * (y*y).sum(-1) + 1e-6)",
+              lambda x, y: out32(np.sum(x.astype(np.float64)*y, -1) / np.sqrt(np.sum(x.astype(np.float64)**2, -1) * np.sum(y.astype(np.float64)**2, -1) + 1e-6)), knobs=COOP),
+        _case("p", "clamp_mask", "x = torch.randn({n}, {d}); torch.where(x > 0, torch.clamp(x, 0.1, 2.0), 0.0)",
+              lambda x: [np.where(x > 0, np.clip(x, 0.1, 2.0), 0).astype(np.float32)]),
+        _case("m", "mlp_stack", "x = torch.randn({n}, {d}); a = torch.randn({d}, {h}); b = torch.randn({h}, {d}); c = torch.randn({d}, 10); torch.relu(torch.relu(x @ a) @ b) @ c",
+              lambda x, a, b, c: out32(np.maximum(np.maximum(x.astype(np.float64) @ a, 0) @ b, 0) @ c)),
+    ]
+
+OPEN += DL_VARIANTS
+
+# Keep native tracing failures above, and test equivalent decompositions or
+# explicit kernel boundaries separately instead of silently replacing them.
+for _spec in list(DL_VARIANTS):
+    if "_transformer_" in _spec["id"]:
+        OPEN.append(dict(_spec, id=_spec["id"].replace("_transformer_", "_transformer_split_"), knobs="PLACE=cut"))
+    if "_logsoftmax_" in _spec["id"]:
+        OPEN.append(dict(_spec, id=_spec["id"].replace("_logsoftmax_", "_logsoftmax_decomposed_"),
+                         code=_spec["code"].replace("torch.log_softmax(input0, dim=-1)", "torch.log(torch.softmax(input0, dim=-1))")))
+
+for _n, _d in [(8, 32), (3, 17)]:
+    _stages = (
+        "class Stages(nn.Module):\n def forward(self, x, q, k, v, o, a, b):\n"
+        f"  z = F.layer_norm(x, ({_d},))\n"
+        "  qp = z @ q\n  kp = z @ k\n  vp = z @ v\n"
+        f"  scores = qp @ kp.transpose(-1, -2) / {_d}**0.5\n"
+        "  prob = torch.softmax(scores, -1)\n  attn = prob @ vp\n  h = x + attn @ o\n"
+        f"  n = F.layer_norm(h, ({_d},))\n"
+        "  mlp = torch.relu(n @ a)\n  out = h + mlp @ b\n"
+        "  return z, scores, prob, h, n, mlp, out"
+    )
+    OPEN.append(dict(id=f"a_dl_transformer_stages_{_n}x{_d}",
+                     code=f"exec({_stages!r}); Stages()(torch.randn({_n}, {_d}), "
+                          + ", ".join([f"torch.randn({_d}, {_d})"] * 4)
+                          + f", torch.randn({_d}, {2*_d}), torch.randn({2*_d}, {_d}))",
+                     ref=_dl_transformer_stages, rtol=1e-3, atol=1e-4, knobs="PLACE=cut"))
+    OPEN.append(dict(id=f"r_dl_global_avg_pool_flatten_{_n}x{_d}",
+                     code=_dl_module(f"torch.randn({_n}, {_d}, 3, 5).reshape({_n}, {_d}, 15).mean(-1)"),
+                     ref=lambda x: out32(x.astype(np.float64).mean((-1, -2))), rtol=1e-3, atol=1e-4))
+    _causal = (
+        "class Causal(nn.Module):\n def forward(self, q, k, v):\n"
+        "  pos = torch.cumsum(q.sum(-1)*0+1, 0)\n"
+        "  mask = (pos[:, None] < pos[None, :]).float() * -1e4\n"
+        f"  return torch.softmax(q @ k / {_d}**0.5 + mask, -1) @ v"
+    )
+    OPEN.append(dict(id=f"a_dl_causal_dynamic_{_n}x{_d}",
+                     code=f"exec({_causal!r}); Causal()(torch.randn({_n}, {_d}), torch.randn({_d}, {_n}), torch.randn({_n}, {_d}))",
+                     ref=lambda q, k, v: out32(softmax(np.where(np.arange(q.shape[0])[:, None] >= np.arange(q.shape[0])[None, :],
+                                                              q.astype(np.float64) @ k / np.sqrt(q.shape[-1]), -1e4)) @ v),
+                     rtol=1e-3, atol=1e-4))
+    OPEN.append(dict(id=f"f_dl_cross_entropy_gather_{_n}x{_d}",
+                     code=_dl_module(f"x=torch.randn({_n}, {_d}); t=torch.randn({_n}); "
+                                     f"-torch.log(torch.softmax(x, -1)).gather(1, (t.abs().long() % {_d}).unsqueeze(1)).mean()"),
+                     ref=lambda x, t: out32(-np.log(softmax(x.astype(np.float64)))[np.arange(x.shape[0]),
+                                                                                 np.abs(t).astype(np.int64) % x.shape[1]].mean()),
+                     rtol=1e-3, atol=1e-4))

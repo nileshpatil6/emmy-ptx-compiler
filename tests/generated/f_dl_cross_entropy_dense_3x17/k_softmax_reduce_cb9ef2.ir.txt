@@ -1,0 +1,54 @@
+    Tile[a0, a1_co] (N=384)
+        for a1 in a1_co..17:128
+            in0 = load input0[a0, a1]
+            in1 = load input1[a0, a1]
+            f32 acc0 <- maximum(acc0, in0)
+            f32 acc1 <- maximum(acc1, in1)
+        WarpShuffle(acc0, acc1, length=32)
+        Smem float acc0_smem[4]
+        Smem float acc1_smem[4]
+        if ((lane == 0)):
+            acc0_smem[warp] = acc0
+            acc1_smem[warp] = acc1
+        Sync
+        TreeHalve(acc0, acc1, length=4, tid=warp)
+        for a1 in a1_co..17:128
+            in2 = load input0[a0, a1]
+            f32 v0 = subtract(in2, acc0)
+            f32 v1 = exp(v0)
+            in3 = load input1[a0, a1]
+            f32 v2 = subtract(in3, acc1)
+            f32 v3 = exp(v2)
+            f32 acc2 <- add(acc2, v1)
+            f32 acc3 <- add(acc3, v3)
+        WarpShuffle(acc2, acc3, length=32)
+        Smem float acc2_smem[4]
+        Smem float acc3_smem[4]
+        if ((lane == 0)):
+            acc2_smem[warp] = acc2
+            acc3_smem[warp] = acc3
+        Sync
+        TreeHalve(acc2, acc3, length=4, tid=warp)
+        f32 v5 = reciprocal(acc3)
+        f32 v4 = reciprocal(acc2)
+        for a1 in a1_co..17:128
+            in5 = load input1[a0, a1]
+            f32 v10 = subtract(in5, acc1)
+            f32 v11 = exp(v10)
+            f32 v12 = multiply(v11, v5)
+            in4 = load input0[a0, a1]
+            f32 v6 = subtract(in4, acc0)
+            f32 v7 = exp(v6)
+            f32 v8 = multiply(v4, v7)
+            f32 v9 = log(v8)
+            f32 v13 = multiply(v12, v9)
+            f32 acc4 <- add(acc4, v13)
+        WarpShuffle(acc4, length=32)
+        Smem float acc4_smem[4]
+        if ((lane == 0)):
+            acc4_smem[warp] = acc4
+        Sync
+        TreeHalve(acc4, length=4, tid=warp)
+        if ((a1_co == 0)):
+            f32 v14 = negative(acc4)
+            neg[a0] = v14

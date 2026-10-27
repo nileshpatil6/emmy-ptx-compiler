@@ -1,0 +1,98 @@
+{
+ "id": "a_dl_scaled_bias_3x17",
+ "code": "exec('class Primitive(nn.Module):\\n def forward(self, input0, input1, input2, input3):\\n  q = input0\\n  k = input1\\n  v = input2\\n  b = input3\\n  return torch.softmax(q @ k / 17 ** 0.5 + b, -1) @ v'); Primitive()(torch.randn(3, 17), torch.randn(17, 3), torch.randn(3, 17), torch.randn(3))",
+ "rtol": 0.001,
+ "atol": 0.0001,
+ "graph_inputs": [
+  "input0",
+  "input1",
+  "input2",
+  "input3"
+ ],
+ "graph_outputs": [
+  "matmul_1"
+ ],
+ "kernels": [
+  {
+   "node": "matmul_1",
+   "entry": "k_matmul_softmax_reduce_c5fbaa",
+   "arg_order": [
+    "div_c1",
+    "input1",
+    "input0",
+    "input3",
+    "input2",
+    "matmul_1"
+   ],
+   "grid": [
+    51,
+    1,
+    1
+   ],
+   "block": [
+    64,
+    1,
+    1
+   ],
+   "smem_bytes": 0,
+   "zero_outputs": [],
+   "args": [
+    {
+     "name": "div_c1",
+     "dtype": "f32",
+     "shape": [
+      1
+     ],
+     "data": [
+      4.123105625617661
+     ]
+    },
+    {
+     "name": "input1",
+     "dtype": "f32",
+     "shape": [
+      17,
+      3
+     ],
+     "seed": 1
+    },
+    {
+     "name": "input0",
+     "dtype": "f32",
+     "shape": [
+      3,
+      17
+     ],
+     "seed": 0
+    },
+    {
+     "name": "input3",
+     "dtype": "f32",
+     "shape": [
+      3
+     ],
+     "seed": 3
+    },
+    {
+     "name": "input2",
+     "dtype": "f32",
+     "shape": [
+      3,
+      17
+     ],
+     "seed": 2
+    },
+    {
+     "name": "matmul_1",
+     "dtype": "f32",
+     "shape": [
+      3,
+      17
+     ],
+     "output": true
+    }
+   ],
+   "final": true
+  }
+ ]
+}

@@ -1,0 +1,106 @@
+{
+ "id": "p_dl_batchnorm_inference_3x17",
+ "code": "exec('class Primitive(nn.Module):\\n def forward(self, input0, input1, input2, input3, input4):\\n  x = input0\\n  m = input1\\n  v = input2\\n  w = input3\\n  b = input4\\n  return (x - m) * torch.rsqrt(v.abs() + 1e-05) * w + b'); Primitive()(torch.randn(3, 17), torch.randn(17), torch.randn(17), torch.randn(17), torch.randn(17))",
+ "rtol": 0.001,
+ "atol": 0.0001,
+ "graph_inputs": [
+  "input0",
+  "input1",
+  "input2",
+  "input3",
+  "input4"
+ ],
+ "graph_outputs": [
+  "add_1"
+ ],
+ "kernels": [
+  {
+   "node": "add_1",
+   "entry": "k_add_1_pointwise",
+   "arg_order": [
+    "add_c1",
+    "input2",
+    "input1",
+    "input0",
+    "input3",
+    "input4",
+    "add_1"
+   ],
+   "grid": [
+    1,
+    1,
+    1
+   ],
+   "block": [
+    256,
+    1,
+    1
+   ],
+   "smem_bytes": 0,
+   "zero_outputs": [],
+   "args": [
+    {
+     "name": "add_c1",
+     "dtype": "f32",
+     "shape": [
+      1
+     ],
+     "data": [
+      1e-05
+     ]
+    },
+    {
+     "name": "input2",
+     "dtype": "f32",
+     "shape": [
+      17
+     ],
+     "seed": 2
+    },
+    {
+     "name": "input1",
+     "dtype": "f32",
+     "shape": [
+      17
+     ],
+     "seed": 1
+    },
+    {
+     "name": "input0",
+     "dtype": "f32",
+     "shape": [
+      3,
+      17
+     ],
+     "seed": 0
+    },
+    {
+     "name": "input3",
+     "dtype": "f32",
+     "shape": [
+      17
+     ],
+     "seed": 3
+    },
+    {
+     "name": "input4",
+     "dtype": "f32",
+     "shape": [
+      17
+     ],
+     "seed": 4
+    },
+    {
+     "name": "add_1",
+     "dtype": "f32",
+     "shape": [
+      3,
+      17
+     ],
+     "output": true
+    }
+   ],
+   "final": true
+  }
+ ]
+}

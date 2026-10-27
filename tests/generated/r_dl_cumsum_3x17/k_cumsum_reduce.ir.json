@@ -1,0 +1,49 @@
+{
+  "inputs": [
+    "input0"
+  ],
+  "outputs": [
+    "cumsum"
+  ],
+  "nodes": {
+    "input0": {
+      "op": "InputOp",
+      "op_fields": {},
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "input0",
+          "shape": [
+            3,
+            17
+          ],
+          "dtype": "f32"
+        }
+      ]
+    },
+    "cumsum": {
+      "op": "KernelOp",
+      "op_fields": {
+        "body": [
+          "Tile(axes=(Axis(name='a0', extent=Dim(3), window=None),), body=(Loop(axis=Axis(name='a1', extent=Dim(17), window=None), body=(Load(names=('in0',), input='input0', index=(Var(name='a0'), Var(name='a1')), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Accum(name='acc0', value='in0', op=ElementwiseImpl('add'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), axes=('a1',), base=None), Assign(name='acc0__obs', op=ElementwiseImpl('copy'), args=('acc0',), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Write(output='cumsum', index=(Var(name='a0'), Var(name='a1')), values=('acc0__obs',), value_dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), atomic=False, swizzle='NONE')), unroll=False, seed=True),), block_threads=None, aux_threads=0, raster_axes=None, raster_group=None, raster_orient='m')"
+        ],
+        "name": "k_cumsum_reduce",
+        "zero_delegated": [],
+        "serial": []
+      },
+      "inputs": [
+        "input0"
+      ],
+      "outputs": [
+        {
+          "name": "cumsum",
+          "shape": [
+            3,
+            17
+          ],
+          "dtype": "f32"
+        }
+      ]
+    }
+  }
+}

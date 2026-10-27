@@ -1,0 +1,56 @@
+{
+ "id": "r_dl_max_pool_windows_3x17",
+ "code": "exec('class Primitive(nn.Module):\\n def forward(self, input0):\\n  return input0.amax(-1)'); Primitive()(torch.randn(3, 17, 4))",
+ "rtol": 0.001,
+ "atol": 0.0001,
+ "graph_inputs": [
+  "input0"
+ ],
+ "graph_outputs": [
+  "amax"
+ ],
+ "kernels": [
+  {
+   "node": "amax",
+   "entry": "k_amax_reduce",
+   "arg_order": [
+    "input0",
+    "amax"
+   ],
+   "grid": [
+    51,
+    1,
+    1
+   ],
+   "block": [
+    128,
+    1,
+    1
+   ],
+   "smem_bytes": 0,
+   "zero_outputs": [],
+   "args": [
+    {
+     "name": "input0",
+     "dtype": "f32",
+     "shape": [
+      3,
+      17,
+      4
+     ],
+     "seed": 0
+    },
+    {
+     "name": "amax",
+     "dtype": "f32",
+     "shape": [
+      3,
+      17
+     ],
+     "output": true
+    }
+   ],
+   "final": true
+  }
+ ]
+}

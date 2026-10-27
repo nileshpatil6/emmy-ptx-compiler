@@ -1,0 +1,99 @@
+{
+ "id": "p_dl_clamp_mask_8x32",
+ "code": "exec('class Primitive(nn.Module):\\n def forward(self, input0):\\n  x = input0\\n  return torch.where(x > 0, torch.clamp(x, 0.1, 2.0), 0.0)'); Primitive()(torch.randn(8, 32))",
+ "rtol": 0.001,
+ "atol": 0.0001,
+ "graph_inputs": [
+  "input0"
+ ],
+ "graph_outputs": [
+  "where"
+ ],
+ "kernels": [
+  {
+   "node": "where",
+   "entry": "k_where_pointwise",
+   "arg_order": [
+    "clamp_bound0",
+    "where_c2",
+    "clamp_bound1",
+    "gt_c1",
+    "input0",
+    "where"
+   ],
+   "grid": [
+    1,
+    1,
+    1
+   ],
+   "block": [
+    256,
+    1,
+    1
+   ],
+   "smem_bytes": 0,
+   "zero_outputs": [],
+   "args": [
+    {
+     "name": "clamp_bound0",
+     "dtype": "f32",
+     "shape": [
+      1
+     ],
+     "data": [
+      0.1
+     ]
+    },
+    {
+     "name": "where_c2",
+     "dtype": "f32",
+     "shape": [
+      1
+     ],
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "clamp_bound1",
+     "dtype": "f32",
+     "shape": [
+      1
+     ],
+     "data": [
+      2.0
+     ]
+    },
+    {
+     "name": "gt_c1",
+     "dtype": "f32",
+     "shape": [
+      1
+     ],
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "input0",
+     "dtype": "f32",
+     "shape": [
+      8,
+      32
+     ],
+     "seed": 0
+    },
+    {
+     "name": "where",
+     "dtype": "f32",
+     "shape": [
+      8,
+      32
+     ],
+     "output": true
+    }
+   ],
+   "final": true
+  }
+ ]
+}

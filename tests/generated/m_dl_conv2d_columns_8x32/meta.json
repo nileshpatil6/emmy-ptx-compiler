@@ -1,0 +1,66 @@
+{
+ "id": "m_dl_conv2d_columns_8x32",
+ "code": "exec('class Primitive(nn.Module):\\n def forward(self, input0, input1):\\n  columns = input0\\n  w = input1\\n  return columns @ w'); Primitive()(torch.randn(8, 27), torch.randn(27, 32))",
+ "rtol": 0.001,
+ "atol": 0.0001,
+ "graph_inputs": [
+  "input0",
+  "input1"
+ ],
+ "graph_outputs": [
+  "matmul"
+ ],
+ "kernels": [
+  {
+   "node": "matmul",
+   "entry": "k_matmul_f0d13b",
+   "arg_order": [
+    "input1",
+    "input0",
+    "matmul"
+   ],
+   "grid": [
+    256,
+    1,
+    1
+   ],
+   "block": [
+    64,
+    1,
+    1
+   ],
+   "smem_bytes": 0,
+   "zero_outputs": [],
+   "args": [
+    {
+     "name": "input1",
+     "dtype": "f32",
+     "shape": [
+      27,
+      32
+     ],
+     "seed": 1
+    },
+    {
+     "name": "input0",
+     "dtype": "f32",
+     "shape": [
+      8,
+      27
+     ],
+     "seed": 0
+    },
+    {
+     "name": "matmul",
+     "dtype": "f32",
+     "shape": [
+      8,
+      32
+     ],
+     "output": true
+    }
+   ],
+   "final": true
+  }
+ ]
+}

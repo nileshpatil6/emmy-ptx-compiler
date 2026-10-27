@@ -1,0 +1,14 @@
+    Tile[a0, a39] (N=9)
+        for a40 in 0..17
+            for a41 in 0..17
+                in56 = load layer_norm[a39, a41]
+                in55 = load k[a41, a40]
+                f32 v101 = multiply(in55, in56)
+                f32 acc43 <- add(acc43, v101)
+                in57 = load layer_norm[a0, a41]
+                in58 = load q[a41, a40]
+                f32 v102 = multiply(in57, in58)
+                f32 acc44 <- add(acc44, v102)
+            f32 v103 = multiply(acc43, acc44)
+            f32 acc45 <- add(acc45, v103)
+        div__place_126cf480a5_0[a0, a39] = acc45

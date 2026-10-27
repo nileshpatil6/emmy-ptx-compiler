@@ -1,0 +1,7 @@
+    Tile[a0] (N=8)
+        in0 = load layer_norm_mean_count[0]
+        f32 v0 = reciprocal(in0)
+        acc0__wseb95c9de7b = load layer_norm_mean_bc__place_eb95c9de7b_0[a0]
+        f32 v1__wseb95c9de7b = multiply(acc0__wseb95c9de7b, v0)
+        for a2 in 0..32
+            layer_norm_mean_bc[a0, a2] = v1__wseb95c9de7b

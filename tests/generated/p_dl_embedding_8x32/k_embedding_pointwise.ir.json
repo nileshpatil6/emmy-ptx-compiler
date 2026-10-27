@@ -1,0 +1,90 @@
+{
+  "inputs": [
+    "input0",
+    "input1"
+  ],
+  "outputs": [
+    "embedding"
+  ],
+  "nodes": {
+    "input0": {
+      "op": "InputOp",
+      "op_fields": {},
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "input0",
+          "shape": [
+            64,
+            32
+          ],
+          "dtype": "f32"
+        }
+      ]
+    },
+    "input1": {
+      "op": "InputOp",
+      "op_fields": {},
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "input1",
+          "shape": [
+            8
+          ],
+          "dtype": "f32"
+        }
+      ]
+    },
+    "remainder_c1": {
+      "op": "ConstantOp",
+      "op_fields": {
+        "name": "remainder_c1",
+        "value": 64.0,
+        "context_value": null,
+        "load_ops": [],
+        "source_path": null,
+        "source_parts": [],
+        "source_shape": null,
+        "source_dtype": null,
+        "source_graph": null
+      },
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "remainder_c1",
+          "shape": [
+            1
+          ],
+          "dtype": "i64"
+        }
+      ]
+    },
+    "embedding": {
+      "op": "KernelOp",
+      "op_fields": {
+        "body": [
+          "Tile(axes=(Axis(name='a0', extent=Dim(8), window=None), Axis(name='a1', extent=Dim(8), window=None)), body=(Load(names=('in1__u0',), input='input1', index=(Var(name='a0'),), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v0__u0', op=ElementwiseImpl('abs'), args=('in1__u0',), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v1__u0', op=ElementwiseImpl('copy'), args=('v0__u0',), dtype=DataType(name='i64', np=dtype('int64'), nbytes=8)), Load(names=('in0__u0',), input='remainder_c1', index=(Literal(value=0, dtype='int'),), dtype=DataType(name='i64', np=dtype('int64'), nbytes=8)), Assign(name='v2__u0', op=ElementwiseImpl('remainder'), args=('v1__u0', 'in0__u0'), dtype=DataType(name='i64', np=dtype('int64'), nbytes=8)), Load(names=('in1__u1',), input='input1', index=(Var(name='a0'),), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v0__u1', op=ElementwiseImpl('abs'), args=('in1__u1',), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v1__u1', op=ElementwiseImpl('copy'), args=('v0__u1',), dtype=DataType(name='i64', np=dtype('int64'), nbytes=8)), Load(names=('in0__u1',), input='remainder_c1', index=(Literal(value=0, dtype='int'),), dtype=DataType(name='i64', np=dtype('int64'), nbytes=8)), Assign(name='v2__u1', op=ElementwiseImpl('remainder'), args=('v1__u1', 'in0__u1'), dtype=DataType(name='i64', np=dtype('int64'), nbytes=8)), Load(names=('in1__u2',), input='input1', index=(Var(name='a0'),), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v0__u2', op=ElementwiseImpl('abs'), args=('in1__u2',), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v1__u2', op=ElementwiseImpl('copy'), args=('v0__u2',), dtype=DataType(name='i64', np=dtype('int64'), nbytes=8)), Load(names=('in0__u2',), input='remainder_c1', index=(Literal(value=0, dtype='int'),), dtype=DataType(name='i64', np=dtype('int64'), nbytes=8)), Assign(name='v2__u2', op=ElementwiseImpl('remainder'), args=('v1__u2', 'in0__u2'), dtype=DataType(name='i64', np=dtype('int64'), nbytes=8)), Load(names=('in1__u3',), input='input1', index=(Var(name='a0'),), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v0__u3', op=ElementwiseImpl('abs'), args=('in1__u3',), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v1__u3', op=ElementwiseImpl('copy'), args=('v0__u3',), dtype=DataType(name='i64', np=dtype('int64'), nbytes=8)), Load(names=('in0__u3',), input='remainder_c1', index=(Literal(value=0, dtype='int'),), dtype=DataType(name='i64', np=dtype('int64'), nbytes=8)), Assign(name='v2__u3', op=ElementwiseImpl('remainder'), args=('v1__u3', 'in0__u3'), dtype=DataType(name='i64', np=dtype('int64'), nbytes=8)), Load(names=('in2__u0',), input='input0', index=(CastExpr(dtype='int', expr=Var(name='v2__u0')), BinaryExpr(op='+', left=BinaryExpr(op='*', left=Var(name='a1'), right=Literal(value=4, dtype='int')), right=Literal(value=0, dtype='int'))), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Load(names=('in2__u1',), input='input0', index=(CastExpr(dtype='int', expr=Var(name='v2__u1')), BinaryExpr(op='+', left=BinaryExpr(op='*', left=Var(name='a1'), right=Literal(value=4, dtype='int')), right=Literal(value=1, dtype='int'))), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Load(names=('in2__u2',), input='input0', index=(CastExpr(dtype='int', expr=Var(name='v2__u2')), BinaryExpr(op='+', left=BinaryExpr(op='*', left=Var(name='a1'), right=Literal(value=4, dtype='int')), right=Literal(value=2, dtype='int'))), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Load(names=('in2__u3',), input='input0', index=(CastExpr(dtype='int', expr=Var(name='v2__u3')), BinaryExpr(op='+', left=BinaryExpr(op='*', left=Var(name='a1'), right=Literal(value=4, dtype='int')), right=Literal(value=3, dtype='int'))), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Write(output='embedding', index=(Var(name='a0'), BinaryExpr(op='+', left=BinaryExpr(op='*', left=Var(name='a1'), right=Literal(value=4, dtype='int')), right=Literal(value=0, dtype='int'))), values=('in2__u0', 'in2__u1', 'in2__u2', 'in2__u3'), value_dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), atomic=False, swizzle='NONE')), block_threads=None, aux_threads=0, raster_axes=None, raster_group=None, raster_orient='m')"
+        ],
+        "name": "k_embedding_pointwise",
+        "zero_delegated": [],
+        "serial": []
+      },
+      "inputs": [
+        "remainder_c1",
+        "input1",
+        "input0"
+      ],
+      "outputs": [
+        {
+          "name": "embedding",
+          "shape": [
+            8,
+            32
+          ],
+          "dtype": "f32"
+        }
+      ]
+    }
+  }
+}

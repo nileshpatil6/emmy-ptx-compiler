@@ -1,0 +1,66 @@
+{
+  "inputs": [
+    "layer_norm_centered",
+    "layer_norm_rsq_bc"
+  ],
+  "outputs": [
+    "layer_norm"
+  ],
+  "nodes": {
+    "layer_norm_centered": {
+      "op": "InputOp",
+      "op_fields": {},
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "layer_norm_centered",
+          "shape": [
+            8,
+            32
+          ],
+          "dtype": "f32"
+        }
+      ]
+    },
+    "layer_norm_rsq_bc": {
+      "op": "InputOp",
+      "op_fields": {},
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "layer_norm_rsq_bc",
+          "shape": [
+            8,
+            32
+          ],
+          "dtype": "f32"
+        }
+      ]
+    },
+    "layer_norm": {
+      "op": "KernelOp",
+      "op_fields": {
+        "body": [
+          "Tile(axes=(Axis(name='a0', extent=Dim(256), window=None),), body=(Load(names=('in0',), input='layer_norm_centered', index=(BinaryExpr(op='//', left=Var(name='a0'), right=Literal(value=32, dtype='int')), BinaryExpr(op='%', left=Var(name='a0'), right=Literal(value=32, dtype='int'))), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Load(names=('in1',), input='layer_norm_rsq_bc', index=(BinaryExpr(op='//', left=Var(name='a0'), right=Literal(value=32, dtype='int')), BinaryExpr(op='%', left=Var(name='a0'), right=Literal(value=32, dtype='int'))), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v0', op=ElementwiseImpl('multiply'), args=('in0', 'in1'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Write(output='layer_norm', index=(BinaryExpr(op='//', left=Var(name='a0'), right=Literal(value=32, dtype='int')), BinaryExpr(op='%', left=Var(name='a0'), right=Literal(value=32, dtype='int'))), values=('v0',), value_dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), atomic=False, swizzle='NONE')), block_threads=None, aux_threads=0, raster_axes=None, raster_group=None, raster_orient='m')"
+        ],
+        "name": "k_layer_norm_pointwise_ddf07e",
+        "zero_delegated": [],
+        "serial": []
+      },
+      "inputs": [
+        "layer_norm_centered",
+        "layer_norm_rsq_bc"
+      ],
+      "outputs": [
+        {
+          "name": "layer_norm",
+          "shape": [
+            8,
+            32
+          ],
+          "dtype": "f32"
+        }
+      ]
+    }
+  }
+}

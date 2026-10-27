@@ -1,0 +1,91 @@
+    Tile[a0, a1, a2_co] (N=6528)
+        in0 = load silu_one[0]
+        for a2 in a2_co..34:512
+            for a3 in 0..17
+                in1 = load input0[a0, a3]
+                in2 = load input1[a3, a2]
+                f32 v0 = multiply(in1, in2)
+                in3 = load input2[a3, a2]
+                f32 v1 = multiply(in1, in3)
+                f32 acc0 <- add(acc0, v0)
+                f32 acc1 <- add(acc1, v1)
+            f32 v2 = negative(acc0)
+            f32 v3 = exp(v2)
+            f32 v4 = add(in0, v3)
+            f32 v5 = reciprocal(v4)
+            f32 v6 = multiply(acc0, v5)
+            f32 v7 = multiply(acc1, v6)
+            in4 = load input3[a2, a1]
+            f32 v8 = multiply(in4, v7)
+            f32 acc2 <- add(acc2, v8)
+            for a3 in 0..17
+                in1__r1 = load input0[a0, a3]
+                in2__r1 = load input1[a3, ((a2 + 128) % 34)]
+                f32 v0__r1 = multiply(in1__r1, in2__r1)
+                in3__r1 = load input2[a3, ((a2 + 128) % 34)]
+                f32 v1__r1 = multiply(in1__r1, in3__r1)
+                f32 acc0__r1 <- add(acc0__r1, v0__r1)
+                f32 acc1__r1 <- add(acc1__r1, v1__r1)
+            f32 v2__r1 = negative(acc0__r1)
+            f32 v3__r1 = exp(v2__r1)
+            f32 v4__r1 = add(in0, v3__r1)
+            f32 v5__r1 = reciprocal(v4__r1)
+            f32 v6__r1 = multiply(acc0__r1, v5__r1)
+            f32 v7__r1 = multiply(acc1__r1, v6__r1)
+            in4__r1 = load input3[((a2 + 128) % 34), a1]
+            f32 v8__r1 = multiply(in4__r1, v7__r1)
+            Init(f32 v8__r1__id = 0.0)
+            v8__r1__m = v8__r1 when (((a2 + 128) < 34))
+                        v8__r1__id when (1)
+            f32 acc2__r1 <- add(acc2__r1, v8__r1__m)
+            for a3 in 0..17
+                in1__r2 = load input0[a0, a3]
+                in2__r2 = load input1[a3, ((a2 + 256) % 34)]
+                f32 v0__r2 = multiply(in1__r2, in2__r2)
+                in3__r2 = load input2[a3, ((a2 + 256) % 34)]
+                f32 v1__r2 = multiply(in1__r2, in3__r2)
+                f32 acc0__r2 <- add(acc0__r2, v0__r2)
+                f32 acc1__r2 <- add(acc1__r2, v1__r2)
+            f32 v2__r2 = negative(acc0__r2)
+            f32 v3__r2 = exp(v2__r2)
+            f32 v4__r2 = add(in0, v3__r2)
+            f32 v5__r2 = reciprocal(v4__r2)
+            f32 v6__r2 = multiply(acc0__r2, v5__r2)
+            f32 v7__r2 = multiply(acc1__r2, v6__r2)
+            in4__r2 = load input3[((a2 + 256) % 34), a1]
+            f32 v8__r2 = multiply(in4__r2, v7__r2)
+            Init(f32 v8__r2__id = 0.0)
+            v8__r2__m = v8__r2 when (((a2 + 256) < 34))
+                        v8__r2__id when (1)
+            f32 acc2__r2 <- add(acc2__r2, v8__r2__m)
+            for a3 in 0..17
+                in1__r3 = load input0[a0, a3]
+                in2__r3 = load input1[a3, ((a2 + 384) % 34)]
+                f32 v0__r3 = multiply(in1__r3, in2__r3)
+                in3__r3 = load input2[a3, ((a2 + 384) % 34)]
+                f32 v1__r3 = multiply(in1__r3, in3__r3)
+                f32 acc0__r3 <- add(acc0__r3, v0__r3)
+                f32 acc1__r3 <- add(acc1__r3, v1__r3)
+            f32 v2__r3 = negative(acc0__r3)
+            f32 v3__r3 = exp(v2__r3)
+            f32 v4__r3 = add(in0, v3__r3)
+            f32 v5__r3 = reciprocal(v4__r3)
+            f32 v6__r3 = multiply(acc0__r3, v5__r3)
+            f32 v7__r3 = multiply(acc1__r3, v6__r3)
+            in4__r3 = load input3[((a2 + 384) % 34), a1]
+            f32 v8__r3 = multiply(in4__r3, v7__r3)
+            Init(f32 v8__r3__id = 0.0)
+            v8__r3__m = v8__r3 when (((a2 + 384) < 34))
+                        v8__r3__id when (1)
+            f32 acc2__r3 <- add(acc2__r3, v8__r3__m)
+        f32 acc2 <- add(acc2, acc2__r1)
+        f32 acc2 <- add(acc2, acc2__r2)
+        f32 acc2 <- add(acc2, acc2__r3)
+        WarpShuffle(acc2, length=32)
+        Smem float acc2_smem[4]
+        if ((lane == 0)):
+            acc2_smem[warp] = acc2
+        Sync
+        TreeHalve(acc2, length=4, tid=warp)
+        if ((a2_co == 0)):
+            matmul_2[a0, a1] = acc2

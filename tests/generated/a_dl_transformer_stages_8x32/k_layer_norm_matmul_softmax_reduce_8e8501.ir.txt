@@ -1,0 +1,239 @@
+    Tile[a0] (N=8)
+        in0 = load div_c1[0]
+        f32 v2 = reciprocal(in0)
+        for a14 in 0..32
+            for a20 in 0..32
+                for a27 in 0..32
+                    for a37 in 0..32
+                        for a1 in 0..8
+                            for a2 in 0..32
+                                for a3 in 0..32
+                                    in5 = load layer_norm[a1, a3]
+                                    in4 = load k[a3, a2]
+                                    f32 v11 = multiply(in4, in5)
+                                    f32 acc0 <- add(acc0, v11)
+                                    in6 = load layer_norm[a0, a3]
+                                    in7 = load q[a3, a2]
+                                    f32 v12 = multiply(in6, in7)
+                                    f32 acc1 <- add(acc1, v12)
+                                f32 v13 = multiply(acc0, acc1)
+                                f32 acc2 <- add(acc2, v13)
+                            for a16 in 0..32
+                                in20 = load layer_norm[a1, a16]
+                                in21 = load v[a16, a14]
+                                f32 v38 = multiply(in20, in21)
+                                f32 acc15 <- add(acc15, v38)
+                            for a22 in 0..32
+                                in28 = load layer_norm[a1, a22]
+                                in29 = load v[a22, a20]
+                                f32 v55 = multiply(in28, in29)
+                                f32 acc22 <- add(acc22, v55)
+                            for a29 in 0..32
+                                in35 = load layer_norm[a1, a29]
+                                in36 = load v[a29, a27]
+                                f32 v65 = multiply(in35, in36)
+                                f32 acc28 <- add(acc28, v65)
+                            for a39 in 0..32
+                                in50 = load layer_norm[a1, a39]
+                                in51 = load v[a39, a37]
+                                f32 v94 = multiply(in50, in51)
+                                f32 acc39 <- add(acc39, v94)
+                            f32 v14 = multiply(acc2, v2)
+                            f32 one = 1.0
+                            f32 v14__gn = maximum(acc3, v14)
+                            f32 v14__dg = subtract(acc3, v14__gn)
+                            f32 v14__alpha = exp(v14__dg)
+                            f32 v14__dg_o = subtract(v14, v14__gn)
+                            f32 v14__beta = exp(v14__dg_o)
+                            f32 v14__acc7_sa = multiply(acc7, v14__alpha)
+                            f32 v14__acc7_sb = multiply(one, v14__beta)
+                            f32 acc7 <- add(v14__acc7_sa, v14__acc7_sb)
+                            f32 v14__acc19__sum_sa = multiply(acc19__sum, v14__alpha)
+                            f32 v14__acc19__sum_sb = multiply(acc15, v14__beta)
+                            f32 acc19__sum <- add(v14__acc19__sum_sa, v14__acc19__sum_sb)
+                            f32 v14__acc26__sum_sa = multiply(acc26__sum, v14__alpha)
+                            f32 v14__acc26__sum_sb = multiply(acc22, v14__beta)
+                            f32 acc26__sum <- add(v14__acc26__sum_sa, v14__acc26__sum_sb)
+                            f32 v14__acc32__sum_sa = multiply(acc32__sum, v14__alpha)
+                            f32 v14__acc32__sum_sb = multiply(acc28, v14__beta)
+                            f32 acc32__sum <- add(v14__acc32__sum_sa, v14__acc32__sum_sb)
+                            f32 v14__acc43__sum_sa = multiply(acc43__sum, v14__alpha)
+                            f32 v14__acc43__sum_sb = multiply(acc39, v14__beta)
+                            f32 acc43__sum <- add(v14__acc43__sum_sa, v14__acc43__sum_sb)
+                            f32 acc3 <- maximum(acc3, v14)
+                        f32 v21 = reciprocal(acc7)
+                        in0 = load div_c1[0]
+                        f32 v5 = reciprocal(in0)
+                        for a7 in 0..32
+                            for a8 in 0..32
+                                for a9 in 0..8
+                                    for a11 in 0..32
+                                        for a12 in 0..32
+                                            in15 = load layer_norm[a9, a12]
+                                            in14 = load k[a12, a11]
+                                            f32 v23 = multiply(in14, in15)
+                                            f32 acc9 <- add(acc9, v23)
+                                            in16 = load layer_norm[a0, a12]
+                                            in17 = load q[a12, a11]
+                                            f32 v24 = multiply(in16, in17)
+                                            f32 acc10 <- add(acc10, v24)
+                                        f32 v25 = multiply(acc10, acc9)
+                                        f32 acc11 <- add(acc11, v25)
+                                    f32 v26 = multiply(acc11, v5)
+                                    f32 v27 = subtract(v26, acc3)
+                                    f32 v28 = exp(v27)
+                                    f32 v29 = multiply(v21, v28)
+                                    for a10 in 0..32
+                                        in12 = load layer_norm[a9, a10]
+                                        in13 = load v[a10, a8]
+                                        f32 v22 = multiply(in12, in13)
+                                        f32 acc8 <- add(acc8, v22)
+                                    f32 v30 = multiply(acc8, v29)
+                                    f32 acc12 <- add(acc12, v30)
+                                in18 = load o[a8, a7]
+                                f32 v31 = multiply(acc12, in18)
+                                f32 acc13 <- add(acc13, v31)
+                            in19 = load x[a0, a7]
+                            f32 v32 = add(acc13, in19)
+                            f32 acc14 <- add(acc14, v32)
+                        f32 v37 = reciprocal(acc7)
+                        in2 = load layer_norm_1_mean_count[0]
+                        f32 v9 = reciprocal(in2)
+                        f32 v33 = multiply(acc14, v9)
+                        for a7 in 0..32
+                            f32 acc19 = multiply(acc19__sum, v37)
+                            in26 = load o[a14, a7]
+                            for a14 in 0..32
+                                f32 v47 = multiply(acc19, in26)
+                                f32 acc20 <- add(acc20, v47)
+                            in27 = load x[a0, a7]
+                            f32 v48 = add(acc20, in27)
+                            f32 v49 = subtract(v48, v33)
+                            f32 v50 = multiply(v49, v49)
+                            f32 acc21 <- add(acc21, v50)
+                        in3 = load layer_norm_1_var_count[0]
+                        f32 v10 = reciprocal(in3)
+                        f32 v51 = multiply(acc21, v10)
+                        in1 = load layer_norm_1_eps[0]
+                        f32 v52 = add(in1, v51)
+                        f32 v54 = rsqrt(v52)
+                        f32 v53 = reciprocal(acc7)
+                        f32 v36 = reciprocal(acc7)
+                        f32 v1 = reciprocal(in0)
+                        f32 v4 = reciprocal(in0)
+                        f32 v35 = reciprocal(acc7)
+                        for a19 in 0..32
+                            for a20 in 0..32
+                                for a1 in 0..8
+                                    for a2 in 0..32
+                                        for a3 in 0..32
+                                            in5 = load layer_norm[a1, a3]
+                                            in4 = load k[a3, a2]
+                                            f32 v11 = multiply(in4, in5)
+                                            f32 acc0 <- add(acc0, v11)
+                                            in6 = load layer_norm[a0, a3]
+                                            in7 = load q[a3, a2]
+                                            f32 v12 = multiply(in6, in7)
+                                            f32 acc1 <- add(acc1, v12)
+                                        f32 v13 = multiply(acc0, acc1)
+                                        f32 acc2 <- add(acc2, v13)
+                                    for a16 in 0..32
+                                        in20 = load layer_norm[a1, a16]
+                                        in21 = load v[a16, a14]
+                                        f32 v38 = multiply(in20, in21)
+                                        f32 acc15 <- add(acc15, v38)
+                                    for a22 in 0..32
+                                        in28 = load layer_norm[a1, a22]
+                                        in29 = load v[a22, a20]
+                                        f32 v55 = multiply(in28, in29)
+                                        f32 acc22 <- add(acc22, v55)
+                                    for a29 in 0..32
+                                        in35 = load layer_norm[a1, a29]
+                                        in36 = load v[a29, a27]
+                                        f32 v65 = multiply(in35, in36)
+                                        f32 acc28 <- add(acc28, v65)
+                                    for a39 in 0..32
+                                        in50 = load layer_norm[a1, a39]
+                                        in51 = load v[a39, a37]
+                                        f32 v94 = multiply(in50, in51)
+                                        f32 acc39 <- add(acc39, v94)
+                                    f32 v14 = multiply(acc2, v2)
+                                    f32 one = 1.0
+                                    f32 v14__gn = maximum(acc3, v14)
+                                    f32 v14__dg = subtract(acc3, v14__gn)
+                                    f32 v14__alpha = exp(v14__dg)
+                                    f32 v14__dg_o = subtract(v14, v14__gn)
+                                    f32 v14__beta = exp(v14__dg_o)
+                                    f32 v14__acc7_sa = multiply(acc7, v14__alpha)
+                                    f32 v14__acc7_sb = multiply(one, v14__beta)
+                                    f32 acc7 <- add(v14__acc7_sa, v14__acc7_sb)
+                                    f32 v14__acc19__sum_sa = multiply(acc19__sum, v14__alpha)
+                                    f32 v14__acc19__sum_sb = multiply(acc15, v14__beta)
+                                    f32 acc19__sum <- add(v14__acc19__sum_sa, v14__acc19__sum_sb)
+                                    f32 v14__acc26__sum_sa = multiply(acc26__sum, v14__alpha)
+                                    f32 v14__acc26__sum_sb = multiply(acc22, v14__beta)
+                                    f32 acc26__sum <- add(v14__acc26__sum_sa, v14__acc26__sum_sb)
+                                    f32 v14__acc32__sum_sa = multiply(acc32__sum, v14__alpha)
+                                    f32 v14__acc32__sum_sb = multiply(acc28, v14__beta)
+                                    f32 acc32__sum <- add(v14__acc32__sum_sa, v14__acc32__sum_sb)
+                                    f32 v14__acc43__sum_sa = multiply(acc43__sum, v14__alpha)
+                                    f32 v14__acc43__sum_sb = multiply(acc39, v14__beta)
+                                    f32 acc43__sum <- add(v14__acc43__sum_sa, v14__acc43__sum_sb)
+                                    f32 acc3 <- maximum(acc3, v14)
+                                f32 v34 = reciprocal(acc7)
+                                f32 acc26 = multiply(acc26__sum, v34)
+                                in34 = load o[a20, a19]
+                                f32 v64 = multiply(acc26, in34)
+                                f32 acc27 <- add(acc27, v64)
+                            for a25 in 0..64
+                                f32 acc32 = multiply(acc32__sum, v53)
+                                for a26 in 0..32
+                                    in41 = load o[a27, a26]
+                                    for a27 in 0..32
+                                        f32 v74 = multiply(acc32, in41)
+                                        f32 acc33 <- add(acc33, v74)
+                                    in43 = load x[a0, a26]
+                                    f32 v75 = add(acc33, in43)
+                                    f32 v76 = subtract(v75, v33)
+                                    f32 v77 = multiply(v54, v76)
+                                    in42 = load a[a26, a25]
+                                    f32 v78 = multiply(in42, v77)
+                                    f32 acc34 <- add(acc34, v78)
+                                f32 v79 = relu(acc34)
+                                in44 = load b[a25, a19]
+                                f32 v80 = multiply(in44, v79)
+                                f32 acc35 <- add(acc35, v80)
+                            in45 = load x[a0, a19]
+                            f32 v81 = add(acc27, in45)
+                            f32 v82 = add(acc35, v81)
+                            f32 v83 = add(acc27, in45)
+                            f32 v84 = subtract(v81, v33)
+                            f32 v85 = multiply(v54, v84)
+                            add[a0, a19] = v83
+                            add_1[a0, a19] = v82
+                            layer_norm_1[a0, a19] = v85
+                        for a35 in 0..64
+                            for a36 in 0..32
+                                f32 acc43 = multiply(acc43__sum, v35)
+                                in56 = load o[a37, a36]
+                                for a37 in 0..32
+                                    f32 v103 = multiply(acc43, in56)
+                                    f32 acc44 <- add(acc44, v103)
+                                in58 = load x[a0, a36]
+                                f32 v104 = add(acc44, in58)
+                                f32 v105 = subtract(v104, v33)
+                                f32 v106 = multiply(v105, v54)
+                                in57 = load a[a36, a35]
+                                f32 v107 = multiply(in57, v106)
+                                f32 acc45 <- add(acc45, v107)
+                            f32 v108 = relu(acc45)
+                            relu[a0, a35] = v108
+                        for a32 in 0..8
+                            acc38__wse797e4b1c4 = load div__place_e797e4b1c4_0[a0, a32]
+                            f32 v89__wse797e4b1c4 = multiply(acc38__wse797e4b1c4, v4)
+                            f32 v90__wse797e4b1c4 = multiply(acc38__wse797e4b1c4, v1)
+                            f32 v91__wse797e4b1c4 = subtract(v90__wse797e4b1c4, acc3)
+                            f32 v92__wse797e4b1c4 = exp(v91__wse797e4b1c4)
+                            f32 v93__wse797e4b1c4 = multiply(v36, v92__wse797e4b1c4)
+                            div[a0, a32] = v89__wse797e4b1c4
+                            softmax[a0, a32] = v93__wse797e4b1c4

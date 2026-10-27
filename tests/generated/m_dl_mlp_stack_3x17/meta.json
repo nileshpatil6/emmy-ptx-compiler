@@ -1,0 +1,88 @@
+{
+ "id": "m_dl_mlp_stack_3x17",
+ "code": "exec('class Primitive(nn.Module):\\n def forward(self, input0, input1, input2, input3):\\n  x = input0\\n  a = input1\\n  b = input2\\n  c = input3\\n  return torch.relu(torch.relu(x @ a) @ b) @ c'); Primitive()(torch.randn(3, 17), torch.randn(17, 34), torch.randn(34, 17), torch.randn(17, 10))",
+ "rtol": 0.001,
+ "atol": 0.0001,
+ "graph_inputs": [
+  "input0",
+  "input1",
+  "input2",
+  "input3"
+ ],
+ "graph_outputs": [
+  "matmul_2"
+ ],
+ "kernels": [
+  {
+   "node": "matmul_2",
+   "entry": "k_matmul_reduce_08bad1",
+   "arg_order": [
+    "input1",
+    "input0",
+    "input2",
+    "input3",
+    "matmul_2"
+   ],
+   "grid": [
+    30,
+    1,
+    1
+   ],
+   "block": [
+    64,
+    1,
+    1
+   ],
+   "smem_bytes": 0,
+   "zero_outputs": [],
+   "args": [
+    {
+     "name": "input1",
+     "dtype": "f32",
+     "shape": [
+      17,
+      34
+     ],
+     "seed": 1
+    },
+    {
+     "name": "input0",
+     "dtype": "f32",
+     "shape": [
+      3,
+      17
+     ],
+     "seed": 0
+    },
+    {
+     "name": "input2",
+     "dtype": "f32",
+     "shape": [
+      34,
+      17
+     ],
+     "seed": 2
+    },
+    {
+     "name": "input3",
+     "dtype": "f32",
+     "shape": [
+      17,
+      10
+     ],
+     "seed": 3
+    },
+    {
+     "name": "matmul_2",
+     "dtype": "f32",
+     "shape": [
+      3,
+      10
+     ],
+     "output": true
+    }
+   ],
+   "final": true
+  }
+ ]
+}

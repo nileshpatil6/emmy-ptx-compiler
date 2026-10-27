@@ -1,0 +1,85 @@
+{
+ "id": "p_dl_channel_affine_3x17",
+ "code": "exec('class Primitive(nn.Module):\\n def forward(self, input0, input1, input2):\\n  x = input0\\n  w = input1\\n  b = input2\\n  return x * w + b'); Primitive()(torch.randn(3, 17, 3, 3), torch.randn(1, 17, 1, 1), torch.randn(1, 17, 1, 1))",
+ "rtol": 0.001,
+ "atol": 0.0001,
+ "graph_inputs": [
+  "input0",
+  "input1",
+  "input2"
+ ],
+ "graph_outputs": [
+  "add"
+ ],
+ "kernels": [
+  {
+   "node": "add",
+   "entry": "k_add_pointwise",
+   "arg_order": [
+    "input1",
+    "input2",
+    "input0",
+    "add"
+   ],
+   "grid": [
+    1,
+    1,
+    1
+   ],
+   "block": [
+    256,
+    1,
+    1
+   ],
+   "smem_bytes": 0,
+   "zero_outputs": [],
+   "args": [
+    {
+     "name": "input1",
+     "dtype": "f32",
+     "shape": [
+      1,
+      17,
+      1,
+      1
+     ],
+     "seed": 1
+    },
+    {
+     "name": "input2",
+     "dtype": "f32",
+     "shape": [
+      1,
+      17,
+      1,
+      1
+     ],
+     "seed": 2
+    },
+    {
+     "name": "input0",
+     "dtype": "f32",
+     "shape": [
+      3,
+      17,
+      3,
+      3
+     ],
+     "seed": 0
+    },
+    {
+     "name": "add",
+     "dtype": "f32",
+     "shape": [
+      3,
+      17,
+      3,
+      3
+     ],
+     "output": true
+    }
+   ],
+   "final": true
+  }
+ ]
+}

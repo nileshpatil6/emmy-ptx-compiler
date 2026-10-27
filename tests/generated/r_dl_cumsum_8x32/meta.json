@@ -1,0 +1,55 @@
+{
+ "id": "r_dl_cumsum_8x32",
+ "code": "exec('class Primitive(nn.Module):\\n def forward(self, input0):\\n  return torch.cumsum(input0, dim=-1)'); Primitive()(torch.randn(8, 32))",
+ "rtol": 0.001,
+ "atol": 0.0001,
+ "graph_inputs": [
+  "input0"
+ ],
+ "graph_outputs": [
+  "cumsum"
+ ],
+ "kernels": [
+  {
+   "node": "cumsum",
+   "entry": "k_cumsum_reduce",
+   "arg_order": [
+    "input0",
+    "cumsum"
+   ],
+   "grid": [
+    1,
+    1,
+    1
+   ],
+   "block": [
+    256,
+    1,
+    1
+   ],
+   "smem_bytes": 0,
+   "zero_outputs": [],
+   "args": [
+    {
+     "name": "input0",
+     "dtype": "f32",
+     "shape": [
+      8,
+      32
+     ],
+     "seed": 0
+    },
+    {
+     "name": "cumsum",
+     "dtype": "f32",
+     "shape": [
+      8,
+      32
+     ],
+     "output": true
+    }
+   ],
+   "final": true
+  }
+ ]
+}

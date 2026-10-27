@@ -1,0 +1,110 @@
+{
+ "id": "m_dl_gelu_mlp_8x32",
+ "code": "exec('class Primitive(nn.Module):\\n def forward(self, input0, input1, input2):\\n  x = input0\\n  a = input1\\n  b = input2\\n  return torch.nn.functional.gelu(x @ a) @ b'); Primitive()(torch.randn(8, 32), torch.randn(32, 64), torch.randn(64, 32))",
+ "rtol": 0.001,
+ "atol": 0.0001,
+ "graph_inputs": [
+  "input0",
+  "input1",
+  "input2"
+ ],
+ "graph_outputs": [
+  "matmul_1"
+ ],
+ "kernels": [
+  {
+   "node": "matmul_1",
+   "entry": "k_matmul_reduce_e3512e",
+   "arg_order": [
+    "gelu_inv_sqrt2",
+    "gelu_half",
+    "gelu_one",
+    "input1",
+    "input0",
+    "input2",
+    "matmul_1"
+   ],
+   "grid": [
+    256,
+    1,
+    1
+   ],
+   "block": [
+    16,
+    1,
+    1
+   ],
+   "smem_bytes": 0,
+   "zero_outputs": [],
+   "args": [
+    {
+     "name": "gelu_inv_sqrt2",
+     "dtype": "f32",
+     "shape": [
+      1
+     ],
+     "data": [
+      0.7071067811865475
+     ]
+    },
+    {
+     "name": "gelu_half",
+     "dtype": "f32",
+     "shape": [
+      1
+     ],
+     "data": [
+      0.5
+     ]
+    },
+    {
+     "name": "gelu_one",
+     "dtype": "f32",
+     "shape": [
+      1
+     ],
+     "data": [
+      1.0
+     ]
+    },
+    {
+     "name": "input1",
+     "dtype": "f32",
+     "shape": [
+      32,
+      64
+     ],
+     "seed": 1
+    },
+    {
+     "name": "input0",
+     "dtype": "f32",
+     "shape": [
+      8,
+      32
+     ],
+     "seed": 0
+    },
+    {
+     "name": "input2",
+     "dtype": "f32",
+     "shape": [
+      64,
+      32
+     ],
+     "seed": 2
+    },
+    {
+     "name": "matmul_1",
+     "dtype": "f32",
+     "shape": [
+      8,
+      32
+     ],
+     "output": true
+    }
+   ],
+   "final": true
+  }
+ ]
+}

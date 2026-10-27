@@ -1,0 +1,10 @@
+    Tile[a0, a1] (N=51)
+        in2 = load input2[a1]
+        f32 v0 = cos(in2)
+        in0 = load input0[a0, a1]
+        f32 v1 = multiply(in0, v0)
+        f32 v2 = sin(in2)
+        in1 = load input1[a0, a1]
+        f32 v3 = multiply(in1, v2)
+        f32 v4 = subtract(v1, v3)
+        sub[a0, a1] = v4

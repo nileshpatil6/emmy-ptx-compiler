@@ -1,0 +1,5 @@
+    Tile[a0] (N=51)
+        in0 = load layer_norm_mean_bc[(a0 // 17), (a0 % 17)]
+        in1 = load x[(a0 // 17), (a0 % 17)]
+        f32 v0 = subtract(in1, in0)
+        layer_norm_centered[(a0 // 17), (a0 % 17)] = v0

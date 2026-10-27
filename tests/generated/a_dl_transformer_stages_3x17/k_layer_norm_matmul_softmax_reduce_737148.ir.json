@@ -1,0 +1,330 @@
+{
+  "inputs": [
+    "a",
+    "b",
+    "k",
+    "o",
+    "q",
+    "v",
+    "x",
+    "layer_norm",
+    "div__place_126cf480a5_0"
+  ],
+  "outputs": [
+    "div",
+    "softmax",
+    "add",
+    "layer_norm_1",
+    "relu",
+    "add_1"
+  ],
+  "nodes": {
+    "a": {
+      "op": "InputOp",
+      "op_fields": {},
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "a",
+          "shape": [
+            17,
+            34
+          ],
+          "dtype": "f32"
+        }
+      ]
+    },
+    "b": {
+      "op": "InputOp",
+      "op_fields": {},
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "b",
+          "shape": [
+            34,
+            17
+          ],
+          "dtype": "f32"
+        }
+      ]
+    },
+    "div_c1": {
+      "op": "ConstantOp",
+      "op_fields": {
+        "name": "div_c1",
+        "value": 4.123105625617661,
+        "context_value": null,
+        "load_ops": [],
+        "source_path": null,
+        "source_parts": [],
+        "source_shape": null,
+        "source_dtype": null,
+        "source_graph": null
+      },
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "div_c1",
+          "shape": [
+            1
+          ],
+          "dtype": "f32"
+        }
+      ]
+    },
+    "k": {
+      "op": "InputOp",
+      "op_fields": {},
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "k",
+          "shape": [
+            17,
+            17
+          ],
+          "dtype": "f32"
+        }
+      ]
+    },
+    "layer_norm_1_eps": {
+      "op": "ConstantOp",
+      "op_fields": {
+        "name": "layer_norm_1_eps",
+        "value": 1e-05,
+        "context_value": null,
+        "load_ops": [],
+        "source_path": null,
+        "source_parts": [],
+        "source_shape": null,
+        "source_dtype": null,
+        "source_graph": null
+      },
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "layer_norm_1_eps",
+          "shape": [
+            1
+          ],
+          "dtype": "f32"
+        }
+      ]
+    },
+    "layer_norm_1_mean_count": {
+      "op": "ConstantOp",
+      "op_fields": {
+        "name": "layer_norm_1_mean_count",
+        "value": 17.0,
+        "context_value": null,
+        "load_ops": [],
+        "source_path": null,
+        "source_parts": [],
+        "source_shape": null,
+        "source_dtype": null,
+        "source_graph": null
+      },
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "layer_norm_1_mean_count",
+          "shape": [
+            1
+          ],
+          "dtype": "f32"
+        }
+      ]
+    },
+    "layer_norm_1_var_count": {
+      "op": "ConstantOp",
+      "op_fields": {
+        "name": "layer_norm_1_var_count",
+        "value": 17.0,
+        "context_value": null,
+        "load_ops": [],
+        "source_path": null,
+        "source_parts": [],
+        "source_shape": null,
+        "source_dtype": null,
+        "source_graph": null
+      },
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "layer_norm_1_var_count",
+          "shape": [
+            1
+          ],
+          "dtype": "f32"
+        }
+      ]
+    },
+    "o": {
+      "op": "InputOp",
+      "op_fields": {},
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "o",
+          "shape": [
+            17,
+            17
+          ],
+          "dtype": "f32"
+        }
+      ]
+    },
+    "q": {
+      "op": "InputOp",
+      "op_fields": {},
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "q",
+          "shape": [
+            17,
+            17
+          ],
+          "dtype": "f32"
+        }
+      ]
+    },
+    "v": {
+      "op": "InputOp",
+      "op_fields": {},
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "v",
+          "shape": [
+            17,
+            17
+          ],
+          "dtype": "f32"
+        }
+      ]
+    },
+    "x": {
+      "op": "InputOp",
+      "op_fields": {},
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "x",
+          "shape": [
+            3,
+            17
+          ],
+          "dtype": "f32"
+        }
+      ]
+    },
+    "layer_norm": {
+      "op": "InputOp",
+      "op_fields": {},
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "layer_norm",
+          "shape": [
+            3,
+            17
+          ],
+          "dtype": "f32"
+        }
+      ]
+    },
+    "div__place_126cf480a5_0": {
+      "op": "InputOp",
+      "op_fields": {},
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "div__place_126cf480a5_0",
+          "shape": [
+            3,
+            3
+          ],
+          "dtype": "f32"
+        }
+      ]
+    },
+    "div": {
+      "op": "KernelOp",
+      "op_fields": {
+        "body": [
+          "Tile(axes=(Axis(name='a0', extent=Dim(3), window=None),), body=(Load(names=('in0',), input='div_c1', index=(Literal(value=0, dtype='int'),), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v2', op=ElementwiseImpl('reciprocal'), args=('in0',), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Loop(axis=Axis(name='a14', extent=Dim(17), window=None), body=(Loop(axis=Axis(name='a20', extent=Dim(17), window=None), body=(Loop(axis=Axis(name='a27', extent=Dim(17), window=None), body=(Loop(axis=Axis(name='a34', extent=Dim(17), window=None), body=(Loop(axis=Axis(name='a1', extent=Dim(3), window=None), body=(Loop(axis=Axis(name='a2', extent=Dim(17), window=None), body=(Loop(axis=Axis(name='a3', extent=Dim(17), window=None), body=(Load(names=('in5',), input='layer_norm', index=(Var(name='a1'), Var(name='a3')), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Load(names=('in4',), input='k', index=(Var(name='a3'), Var(name='a2')), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v11', op=ElementwiseImpl('multiply'), args=('in4', 'in5'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Accum(name='acc0', value='v11', op=ElementwiseImpl('add'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), axes=('a3',), base=None), Load(names=('in6',), input='layer_norm', index=(Var(name='a0'), Var(name='a3')), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Load(names=('in7',), input='q', index=(Var(name='a3'), Var(name='a2')), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v12', op=ElementwiseImpl('multiply'), args=('in6', 'in7'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Accum(name='acc1', value='v12', op=ElementwiseImpl('add'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), axes=('a3',), base=None)), unroll=False, seed=True), Assign(name='v13', op=ElementwiseImpl('multiply'), args=('acc0', 'acc1'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Accum(name='acc2', value='v13', op=ElementwiseImpl('add'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), axes=('a2',), base=None)), unroll=False, seed=True), Loop(axis=Axis(name='a16', extent=Dim(17), window=None), body=(Load(names=('in20',), input='layer_norm', index=(Var(name='a1'), Var(name='a16')), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Load(names=('in21',), input='v', index=(Var(name='a16'), Var(name='a14')), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v38', op=ElementwiseImpl('multiply'), args=('in20', 'in21'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Accum(name='acc15', value='v38', op=ElementwiseImpl('add'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), axes=('a16',), base=None)), unroll=False, seed=True), Loop(axis=Axis(name='a22', extent=Dim(17), window=None), body=(Load(names=('in28',), input='layer_norm', index=(Var(name='a1'), Var(name='a22')), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Load(names=('in29',), input='v', index=(Var(name='a22'), Var(name='a20')), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v55', op=ElementwiseImpl('multiply'), args=('in28', 'in29'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Accum(name='acc22', value='v55', op=ElementwiseImpl('add'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), axes=('a22',), base=None)), unroll=False, seed=True), Loop(axis=Axis(name='a29', extent=Dim(17), window=None), body=(Load(names=('in35',), input='layer_norm', index=(Var(name='a1'), Var(name='a29')), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Load(names=('in36',), input='v', index=(Var(name='a29'), Var(name='a27')), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v65', op=ElementwiseImpl('multiply'), args=('in35', 'in36'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Accum(name='acc28', value='v65', op=ElementwiseImpl('add'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), axes=('a29',), base=None)), unroll=False, seed=True), Loop(axis=Axis(name='a36', extent=Dim(17), window=None), body=(Load(names=('in46',), input='layer_norm', index=(Var(name='a1'), Var(name='a36')), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Load(names=('in47',), input='v', index=(Var(name='a36'), Var(name='a34')), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v86', op=ElementwiseImpl('multiply'), args=('in46', 'in47'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Accum(name='acc36', value='v86', op=ElementwiseImpl('add'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), axes=('a36',), base=None)), unroll=False, seed=True), Assign(name='v14', op=ElementwiseImpl('multiply'), args=('acc2', 'v2'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Let(name='one', value=Literal(value=1.0, dtype='float'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v14__gn', op=ElementwiseImpl('maximum'), args=('acc3', 'v14'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v14__dg', op=ElementwiseImpl('subtract'), args=('acc3', 'v14__gn'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v14__alpha', op=ElementwiseImpl('exp'), args=('v14__dg',), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v14__dg_o', op=ElementwiseImpl('subtract'), args=('v14', 'v14__gn'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v14__beta', op=ElementwiseImpl('exp'), args=('v14__dg_o',), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v14__acc7_sa', op=ElementwiseImpl('multiply'), args=('acc7', 'v14__alpha'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v14__acc7_sb', op=ElementwiseImpl('multiply'), args=('one', 'v14__beta'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Accum(name='acc7', value='v14__acc7_sb', op=ElementwiseImpl('add'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), axes=('a1',), base='v14__acc7_sa'), Assign(name='v14__acc19__sum_sa', op=ElementwiseImpl('multiply'), args=('acc19__sum', 'v14__alpha'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v14__acc19__sum_sb', op=ElementwiseImpl('multiply'), args=('acc15', 'v14__beta'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Accum(name='acc19__sum', value='v14__acc19__sum_sb', op=ElementwiseImpl('add'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), axes=('a1',), base='v14__acc19__sum_sa'), Assign(name='v14__acc26__sum_sa', op=ElementwiseImpl('multiply'), args=('acc26__sum', 'v14__alpha'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v14__acc26__sum_sb', op=ElementwiseImpl('multiply'), args=('acc22', 'v14__beta'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Accum(name='acc26__sum', value='v14__acc26__sum_sb', op=ElementwiseImpl('add'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), axes=('a1',), base='v14__acc26__sum_sa'), Assign(name='v14__acc32__sum_sa', op=ElementwiseImpl('multiply'), args=('acc32__sum', 'v14__alpha'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v14__acc32__sum_sb', op=ElementwiseImpl('multiply'), args=('acc28', 'v14__beta'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Accum(name='acc32__sum', value='v14__acc32__sum_sb', op=ElementwiseImpl('add'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), axes=('a1',), base='v14__acc32__sum_sa'), Assign(name='v14__acc40__sum_sa', op=ElementwiseImpl('multiply'), args=('acc40__sum', 'v14__alpha'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v14__acc40__sum_sb', op=ElementwiseImpl('multiply'), args=('acc36', 'v14__beta'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Accum(name='acc40__sum', value='v14__acc40__sum_sb', op=ElementwiseImpl('add'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), axes=('a1',), base='v14__acc40__sum_sa'), Accum(name='acc3', value='v14', op=ElementwiseImpl('maximum'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), axes=('a1',), base=None)), unroll=False, seed=True), Assign(name='v21', op=ElementwiseImpl('reciprocal'), args=('acc7',), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Load(names=('in0',), input='div_c1', index=(Literal(value=0, dtype='int'),), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v5', op=ElementwiseImpl('reciprocal'), args=('in0',), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Loop(axis=Axis(name='a7', extent=Dim(17), window=None), body=(Loop(axis=Axis(name='a8', extent=Dim(17), window=None), body=(Loop(axis=Axis(name='a9', extent=Dim(3), window=None), body=(Loop(axis=Axis(name='a11', extent=Dim(17), window=None), body=(Loop(axis=Axis(name='a12', extent=Dim(17), window=None), body=(Load(names=('in15',), input='layer_norm', index=(Var(name='a9'), Var(name='a12')), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Load(names=('in14',), input='k', index=(Var(name='a12'), Var(name='a11')), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v23', op=ElementwiseImpl('multiply'), args=('in14', 'in15'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Accum(name='acc9', value='v23', op=ElementwiseImpl('add'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), axes=('a12',), base=None), Load(names=('in16',), input='layer_norm', index=(Var(name='a0'), Var(name='a12')), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Load(names=('in17',), input='q', index=(Var(name='a12'), Var(name='a11')), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v24', op=ElementwiseImpl('multiply'), args=('in16', 'in17'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Accum(name='acc10', value='v24', op=ElementwiseImpl('add'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), axes=('a12',), base=None)), unroll=False, seed=True), Assign(name='v25', op=ElementwiseImpl('multiply'), args=('acc10', 'acc9'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Accum(name='acc11', value='v25', op=ElementwiseImpl('add'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), axes=('a11',), base=None)), unroll=False, seed=True), Assign(name='v26', op=ElementwiseImpl('multiply'), args=('acc11', 'v5'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v27', op=ElementwiseImpl('subtract'), args=('v26', 'acc3'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v28', op=ElementwiseImpl('exp'), args=('v27',), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v29', op=ElementwiseImpl('multiply'), args=('v21', 'v28'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Loop(axis=Axis(name='a10', extent=Dim(17), window=None), body=(Load(names=('in12',), input='layer_norm', index=(Var(name='a9'), Var(name='a10')), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Load(names=('in13',), input='v', index=(Var(name='a10'), Var(name='a8')), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v22', op=ElementwiseImpl('multiply'), args=('in12', 'in13'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Accum(name='acc8', value='v22', op=ElementwiseImpl('add'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), axes=('a10',), base=None)), unroll=False, seed=True), Assign(name='v30', op=ElementwiseImpl('multiply'), args=('acc8', 'v29'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Accum(name='acc12', value='v30', op=ElementwiseImpl('add'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), axes=('a9',), base=None)), unroll=False, seed=True), Load(names=('in18',), input='o', index=(Var(name='a8'), Var(name='a7')), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v31', op=ElementwiseImpl('multiply'), args=('acc12', 'in18'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Accum(name='acc13', value='v31', op=ElementwiseImpl('add'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), axes=('a8',), base=None)), unroll=False, seed=True), Load(names=('in19',), input='x', index=(Var(name='a0'), Var(name='a7')), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v32', op=ElementwiseImpl('add'), args=('acc13', 'in19'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Accum(name='acc14', value='v32', op=ElementwiseImpl('add'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), axes=('a7',), base=None)), unroll=False, seed=True), Assign(name='v37', op=ElementwiseImpl('reciprocal'), args=('acc7',), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Load(names=('in2',), input='layer_norm_1_mean_count', index=(Literal(value=0, dtype='int'),), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v9', op=ElementwiseImpl('reciprocal'), args=('in2',), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v33', op=ElementwiseImpl('multiply'), args=('acc14', 'v9'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Loop(axis=Axis(name='a7', extent=Dim(17), window=None), body=(Assign(name='acc19', op=ElementwiseImpl('multiply'), args=('acc19__sum', 'v37'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Load(names=('in26',), input='o', index=(Var(name='a14'), Var(name='a7')), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Loop(axis=Axis(name='a14', extent=Dim(17), window=None), body=(Assign(name='v47', op=ElementwiseImpl('multiply'), args=('acc19', 'in26'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Accum(name='acc20', value='v47', op=ElementwiseImpl('add'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), axes=('a14',), base=None)), unroll=False, seed=True), Load(names=('in27',), input='x', index=(Var(name='a0'), Var(name='a7')), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v48', op=ElementwiseImpl('add'), args=('acc20', 'in27'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v49', op=ElementwiseImpl('subtract'), args=('v48', 'v33'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v50', op=ElementwiseImpl('multiply'), args=('v49', 'v49'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Accum(name='acc21', value='v50', op=ElementwiseImpl('add'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), axes=('a7',), base=None)), unroll=False, seed=True), Load(names=('in3',), input='layer_norm_1_var_count', index=(Literal(value=0, dtype='int'),), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v10', op=ElementwiseImpl('reciprocal'), args=('in3',), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v51', op=ElementwiseImpl('multiply'), args=('acc21', 'v10'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Load(names=('in1',), input='layer_norm_1_eps', index=(Literal(value=0, dtype='int'),), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v52', op=ElementwiseImpl('add'), args=('in1', 'v51'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v54', op=ElementwiseImpl('rsqrt'), args=('v52',), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v53', op=ElementwiseImpl('reciprocal'), args=('acc7',), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v35', op=ElementwiseImpl('reciprocal'), args=('acc7',), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v36', op=ElementwiseImpl('reciprocal'), args=('acc7',), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v1', op=ElementwiseImpl('reciprocal'), args=('in0',), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v4', op=ElementwiseImpl('reciprocal'), args=('in0',), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Loop(axis=Axis(name='a19', extent=Dim(17), window=None), body=(Loop(axis=Axis(name='a20', extent=Dim(17), window=None), body=(Loop(axis=Axis(name='a1', extent=Dim(3), window=None), body=(Loop(axis=Axis(name='a2', extent=Dim(17), window=None), body=(Loop(axis=Axis(name='a3', extent=Dim(17), window=None), body=(Load(names=('in5',), input='layer_norm', index=(Var(name='a1'), Var(name='a3')), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Load(names=('in4',), input='k', index=(Var(name='a3'), Var(name='a2')), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v11', op=ElementwiseImpl('multiply'), args=('in4', 'in5'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Accum(name='acc0', value='v11', op=ElementwiseImpl('add'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), axes=('a3',), base=None), Load(names=('in6',), input='layer_norm', index=(Var(name='a0'), Var(name='a3')), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Load(names=('in7',), input='q', index=(Var(name='a3'), Var(name='a2')), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v12', op=ElementwiseImpl('multiply'), args=('in6', 'in7'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Accum(name='acc1', value='v12', op=ElementwiseImpl('add'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), axes=('a3',), base=None)), unroll=False, seed=True), Assign(name='v13', op=ElementwiseImpl('multiply'), args=('acc0', 'acc1'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Accum(name='acc2', value='v13', op=ElementwiseImpl('add'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), axes=('a2',), base=None)), unroll=False, seed=True), Loop(axis=Axis(name='a16', extent=Dim(17), window=None), body=(Load(names=('in20',), input='layer_norm', index=(Var(name='a1'), Var(name='a16')), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Load(names=('in21',), input='v', index=(Var(name='a16'), Var(name='a14')), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v38', op=ElementwiseImpl('multiply'), args=('in20', 'in21'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Accum(name='acc15', value='v38', op=ElementwiseImpl('add'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), axes=('a16',), base=None)), unroll=False, seed=True), Loop(axis=Axis(name='a22', extent=Dim(17), window=None), body=(Load(names=('in28',), input='layer_norm', index=(Var(name='a1'), Var(name='a22')), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Load(names=('in29',), input='v', index=(Var(name='a22'), Var(name='a20')), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v55', op=ElementwiseImpl('multiply'), args=('in28', 'in29'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Accum(name='acc22', value='v55', op=ElementwiseImpl('add'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), axes=('a22',), base=None)), unroll=False, seed=True), Loop(axis=Axis(name='a29', extent=Dim(17), window=None), body=(Load(names=('in35',), input='layer_norm', index=(Var(name='a1'), Var(name='a29')), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Load(names=('in36',), input='v', index=(Var(name='a29'), Var(name='a27')), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v65', op=ElementwiseImpl('multiply'), args=('in35', 'in36'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Accum(name='acc28', value='v65', op=ElementwiseImpl('add'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), axes=('a29',), base=None)), unroll=False, seed=True), Loop(axis=Axis(name='a36', extent=Dim(17), window=None), body=(Load(names=('in46',), input='layer_norm', index=(Var(name='a1'), Var(name='a36')), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Load(names=('in47',), input='v', index=(Var(name='a36'), Var(name='a34')), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v86', op=ElementwiseImpl('multiply'), args=('in46', 'in47'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Accum(name='acc36', value='v86', op=ElementwiseImpl('add'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), axes=('a36',), base=None)), unroll=False, seed=True), Assign(name='v14', op=ElementwiseImpl('multiply'), args=('acc2', 'v2'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Let(name='one', value=Literal(value=1.0, dtype='float'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v14__gn', op=ElementwiseImpl('maximum'), args=('acc3', 'v14'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v14__dg', op=ElementwiseImpl('subtract'), args=('acc3', 'v14__gn'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v14__alpha', op=ElementwiseImpl('exp'), args=('v14__dg',), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v14__dg_o', op=ElementwiseImpl('subtract'), args=('v14', 'v14__gn'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v14__beta', op=ElementwiseImpl('exp'), args=('v14__dg_o',), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v14__acc7_sa', op=ElementwiseImpl('multiply'), args=('acc7', 'v14__alpha'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v14__acc7_sb', op=ElementwiseImpl('multiply'), args=('one', 'v14__beta'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Accum(name='acc7', value='v14__acc7_sb', op=ElementwiseImpl('add'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), axes=('a1',), base='v14__acc7_sa'), Assign(name='v14__acc19__sum_sa', op=ElementwiseImpl('multiply'), args=('acc19__sum', 'v14__alpha'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v14__acc19__sum_sb', op=ElementwiseImpl('multiply'), args=('acc15', 'v14__beta'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Accum(name='acc19__sum', value='v14__acc19__sum_sb', op=ElementwiseImpl('add'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), axes=('a1',), base='v14__acc19__sum_sa'), Assign(name='v14__acc26__sum_sa', op=ElementwiseImpl('multiply'), args=('acc26__sum', 'v14__alpha'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v14__acc26__sum_sb', op=ElementwiseImpl('multiply'), args=('acc22', 'v14__beta'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Accum(name='acc26__sum', value='v14__acc26__sum_sb', op=ElementwiseImpl('add'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), axes=('a1',), base='v14__acc26__sum_sa'), Assign(name='v14__acc32__sum_sa', op=ElementwiseImpl('multiply'), args=('acc32__sum', 'v14__alpha'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v14__acc32__sum_sb', op=ElementwiseImpl('multiply'), args=('acc28', 'v14__beta'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Accum(name='acc32__sum', value='v14__acc32__sum_sb', op=ElementwiseImpl('add'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), axes=('a1',), base='v14__acc32__sum_sa'), Assign(name='v14__acc40__sum_sa', op=ElementwiseImpl('multiply'), args=('acc40__sum', 'v14__alpha'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v14__acc40__sum_sb', op=ElementwiseImpl('multiply'), args=('acc36', 'v14__beta'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Accum(name='acc40__sum', value='v14__acc40__sum_sb', op=ElementwiseImpl('add'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), axes=('a1',), base='v14__acc40__sum_sa'), Accum(name='acc3', value='v14', op=ElementwiseImpl('maximum'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), axes=('a1',), base=None)), unroll=False, seed=True), Assign(name='v34', op=ElementwiseImpl('reciprocal'), args=('acc7',), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='acc26', op=ElementwiseImpl('multiply'), args=('acc26__sum', 'v34'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Load(names=('in34',), input='o', index=(Var(name='a20'), Var(name='a19')), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v64', op=ElementwiseImpl('multiply'), args=('acc26', 'in34'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Accum(name='acc27', value='v64', op=ElementwiseImpl('add'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), axes=('a20',), base=None)), unroll=False, seed=True), Loop(axis=Axis(name='a25', extent=Dim(34), window=None), body=(Assign(name='acc32', op=ElementwiseImpl('multiply'), args=('acc32__sum', 'v53'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Loop(axis=Axis(name='a26', extent=Dim(17), window=None), body=(Load(names=('in41',), input='o', index=(Var(name='a27'), Var(name='a26')), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Loop(axis=Axis(name='a27', extent=Dim(17), window=None), body=(Assign(name='v74', op=ElementwiseImpl('multiply'), args=('acc32', 'in41'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Accum(name='acc33', value='v74', op=ElementwiseImpl('add'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), axes=('a27',), base=None)), unroll=False, seed=True), Load(names=('in43',), input='x', index=(Var(name='a0'), Var(name='a26')), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v75', op=ElementwiseImpl('add'), args=('acc33', 'in43'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v76', op=ElementwiseImpl('subtract'), args=('v75', 'v33'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v77', op=ElementwiseImpl('multiply'), args=('v54', 'v76'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Load(names=('in42',), input='a', index=(Var(name='a26'), Var(name='a25')), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v78', op=ElementwiseImpl('multiply'), args=('in42', 'v77'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Accum(name='acc34', value='v78', op=ElementwiseImpl('add'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), axes=('a26',), base=None)), unroll=False, seed=True), Assign(name='v79', op=ElementwiseImpl('relu'), args=('acc34',), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Load(names=('in44',), input='b', index=(Var(name='a25'), Var(name='a19')), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v80', op=ElementwiseImpl('multiply'), args=('in44', 'v79'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Accum(name='acc35', value='v80', op=ElementwiseImpl('add'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), axes=('a25',), base=None)), unroll=False, seed=True), Load(names=('in45',), input='x', index=(Var(name='a0'), Var(name='a19')), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v81', op=ElementwiseImpl('add'), args=('acc27', 'in45'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v82', op=ElementwiseImpl('add'), args=('acc35', 'v81'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v83', op=ElementwiseImpl('add'), args=('acc27', 'in45'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v84', op=ElementwiseImpl('subtract'), args=('v81', 'v33'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v85', op=ElementwiseImpl('multiply'), args=('v54', 'v84'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Write(output='add', index=(Var(name='a0'), Var(name='a19')), values=('v83',), value_dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), atomic=False, swizzle='NONE'), Write(output='add_1', index=(Var(name='a0'), Var(name='a19')), values=('v82',), value_dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), atomic=False, swizzle='NONE'), Write(output='layer_norm_1', index=(Var(name='a0'), Var(name='a19')), values=('v85',), value_dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), atomic=False, swizzle='NONE')), unroll=False, seed=True), Loop(axis=Axis(name='a32', extent=Dim(34), window=None), body=(Loop(axis=Axis(name='a33', extent=Dim(17), window=None), body=(Assign(name='acc40', op=ElementwiseImpl('multiply'), args=('acc40__sum', 'v35'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Load(names=('in52',), input='o', index=(Var(name='a34'), Var(name='a33')), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Loop(axis=Axis(name='a34', extent=Dim(17), window=None), body=(Assign(name='v95', op=ElementwiseImpl('multiply'), args=('acc40', 'in52'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Accum(name='acc41', value='v95', op=ElementwiseImpl('add'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), axes=('a34',), base=None)), unroll=False, seed=True), Load(names=('in54',), input='x', index=(Var(name='a0'), Var(name='a33')), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v96', op=ElementwiseImpl('add'), args=('acc41', 'in54'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v97', op=ElementwiseImpl('subtract'), args=('v96', 'v33'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v98', op=ElementwiseImpl('multiply'), args=('v54', 'v97'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Load(names=('in53',), input='a', index=(Var(name='a33'), Var(name='a32')), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v99', op=ElementwiseImpl('multiply'), args=('in53', 'v98'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Accum(name='acc42', value='v99', op=ElementwiseImpl('add'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), axes=('a33',), base=None)), unroll=False, seed=True), Assign(name='v100', op=ElementwiseImpl('relu'), args=('acc42',), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Write(output='relu', index=(Var(name='a0'), Var(name='a32')), values=('v100',), value_dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), atomic=False, swizzle='NONE')), unroll=False, seed=True), Loop(axis=Axis(name='a39', extent=Dim(3), window=None), body=(Load(names=('acc45__ws126cf480a5',), input='div__place_126cf480a5_0', index=(Var(name='a0'), Var(name='a39')), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v104__ws126cf480a5', op=ElementwiseImpl('multiply'), args=('acc45__ws126cf480a5', 'v4'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v105__ws126cf480a5', op=ElementwiseImpl('multiply'), args=('acc45__ws126cf480a5', 'v1'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v106__ws126cf480a5', op=ElementwiseImpl('subtract'), args=('v105__ws126cf480a5', 'acc3'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v107__ws126cf480a5', op=ElementwiseImpl('exp'), args=('v106__ws126cf480a5',), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v108__ws126cf480a5', op=ElementwiseImpl('multiply'), args=('v107__ws126cf480a5', 'v36'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Write(output='div', index=(Var(name='a0'), Var(name='a39')), values=('v104__ws126cf480a5',), value_dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), atomic=False, swizzle='NONE'), Write(output='softmax', index=(Var(name='a0'), Var(name='a39')), values=('v108__ws126cf480a5',), value_dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), atomic=False, swizzle='NONE')), unroll=False, seed=True)), unroll=False, seed=True),), unroll=False, seed=True),), unroll=False, seed=True),), unroll=False, seed=True)), block_threads=None, aux_threads=0, raster_axes=None, raster_group=None, raster_orient='m')"
+        ],
+        "name": "k_layer_norm_matmul_softmax_reduce_737148",
+        "zero_delegated": [],
+        "serial": []
+      },
+      "inputs": [
+        "div__place_126cf480a5_0",
+        "layer_norm_1_var_count",
+        "layer_norm_1_mean_count",
+        "layer_norm_1_eps",
+        "div_c1",
+        "x",
+        "o",
+        "layer_norm",
+        "q",
+        "k",
+        "v",
+        "a",
+        "b"
+      ],
+      "outputs": [
+        {
+          "name": "div",
+          "shape": [
+            3,
+            3
+          ],
+          "dtype": "f32"
+        },
+        {
+          "name": "softmax",
+          "shape": [
+            3,
+            3
+          ],
+          "dtype": "f32"
+        },
+        {
+          "name": "add",
+          "shape": [
+            3,
+            17
+          ],
+          "dtype": "f32"
+        },
+        {
+          "name": "layer_norm_1",
+          "shape": [
+            3,
+            17
+          ],
+          "dtype": "f32"
+        },
+        {
+          "name": "relu",
+          "shape": [
+            3,
+            34
+          ],
+          "dtype": "f32"
+        },
+        {
+          "name": "add_1",
+          "shape": [
+            3,
+            17
+          ],
+          "dtype": "f32"
+        }
+      ]
+    }
+  }
+}

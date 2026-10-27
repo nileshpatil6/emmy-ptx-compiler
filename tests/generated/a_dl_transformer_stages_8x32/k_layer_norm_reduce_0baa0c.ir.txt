@@ -1,0 +1,10 @@
+    Tile[a0] (N=8)
+        in1 = load layer_norm_var_count[0]
+        f32 v0 = reciprocal(in1)
+        acc0__wsa43dcda4ee = load layer_norm_rsq_bc__place_a43dcda4ee_0[a0]
+        f32 v2__wsa43dcda4ee = multiply(acc0__wsa43dcda4ee, v0)
+        in0 = load layer_norm_eps[0]
+        f32 v3__wsa43dcda4ee = add(in0, v2__wsa43dcda4ee)
+        f32 v4__wsa43dcda4ee = rsqrt(v3__wsa43dcda4ee)
+        for a2 in 0..32
+            layer_norm_rsq_bc[a0, a2] = v4__wsa43dcda4ee

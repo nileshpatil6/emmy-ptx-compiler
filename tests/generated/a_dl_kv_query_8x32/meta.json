@@ -1,0 +1,88 @@
+{
+ "id": "a_dl_kv_query_8x32",
+ "code": "exec('class Primitive(nn.Module):\\n def forward(self, input0, input1, input2):\\n  q = input0\\n  k = input1\\n  v = input2\\n  return torch.softmax(q @ k / 32 ** 0.5, -1) @ v'); Primitive()(torch.randn(1, 32), torch.randn(32, 8), torch.randn(8, 32))",
+ "rtol": 0.001,
+ "atol": 0.0001,
+ "graph_inputs": [
+  "input0",
+  "input1",
+  "input2"
+ ],
+ "graph_outputs": [
+  "matmul_1"
+ ],
+ "kernels": [
+  {
+   "node": "matmul_1",
+   "entry": "k_softmax_matmul_reduce_973f78",
+   "arg_order": [
+    "div_c1",
+    "input1",
+    "input0",
+    "input2",
+    "matmul_1"
+   ],
+   "grid": [
+    32,
+    1,
+    1
+   ],
+   "block": [
+    64,
+    1,
+    1
+   ],
+   "smem_bytes": 0,
+   "zero_outputs": [],
+   "args": [
+    {
+     "name": "div_c1",
+     "dtype": "f32",
+     "shape": [
+      1
+     ],
+     "data": [
+      5.656854249492381
+     ]
+    },
+    {
+     "name": "input1",
+     "dtype": "f32",
+     "shape": [
+      32,
+      8
+     ],
+     "seed": 1
+    },
+    {
+     "name": "input0",
+     "dtype": "f32",
+     "shape": [
+      1,
+      32
+     ],
+     "seed": 0
+    },
+    {
+     "name": "input2",
+     "dtype": "f32",
+     "shape": [
+      8,
+      32
+     ],
+     "seed": 2
+    },
+    {
+     "name": "matmul_1",
+     "dtype": "f32",
+     "shape": [
+      1,
+      32
+     ],
+     "output": true
+    }
+   ],
+   "final": true
+  }
+ ]
+}

@@ -1,0 +1,68 @@
+{
+ "id": "r_dl_global_avg_pool_flatten_8x32",
+ "code": "exec('class Primitive(nn.Module):\\n def forward(self, input0):\\n  return input0.reshape(8, 32, 15).mean(-1)'); Primitive()(torch.randn(8, 32, 3, 5))",
+ "rtol": 0.001,
+ "atol": 0.0001,
+ "graph_inputs": [
+  "input0"
+ ],
+ "graph_outputs": [
+  "mean"
+ ],
+ "kernels": [
+  {
+   "node": "mean",
+   "entry": "k_mean_ac495c",
+   "arg_order": [
+    "mean_keepdim_count",
+    "input0",
+    "mean"
+   ],
+   "grid": [
+    256,
+    1,
+    1
+   ],
+   "block": [
+    128,
+    1,
+    1
+   ],
+   "smem_bytes": 0,
+   "zero_outputs": [],
+   "args": [
+    {
+     "name": "mean_keepdim_count",
+     "dtype": "f32",
+     "shape": [
+      1
+     ],
+     "data": [
+      15.0
+     ]
+    },
+    {
+     "name": "input0",
+     "dtype": "f32",
+     "shape": [
+      8,
+      32,
+      3,
+      5
+     ],
+     "seed": 0
+    },
+    {
+     "name": "mean",
+     "dtype": "f32",
+     "shape": [
+      8,
+      32
+     ],
+     "output": true
+    }
+   ],
+   "final": true
+  }
+ ]
+}

@@ -1,0 +1,59 @@
+    Tile[a0_b, a1_b, a0_u, a1_u] (N=44)
+        in0__ar0 = load silu_one[0]
+        in0__ar1 = load silu_one[0]
+        for a2 in 0..64
+            for a3 in 0..32
+                in1__ar0 = load input0[(((a0_b * 2) + (a0_u * 2)) + 0), a3]
+                in2__ar0 = load input1[a3, a2]
+                f32 v0__ar0 = multiply(in1__ar0, in2__ar0)
+                in3__ar0 = load input2[a3, a2]
+                f32 v1__ar0 = multiply(in1__ar0, in3__ar0)
+                f32 acc0__ar0 <- add(acc0__ar0, v0__ar0)
+                f32 acc1__ar0 <- add(acc1__ar0, v1__ar0)
+            f32 v2__ar0 = negative(acc0__ar0)
+            f32 v3__ar0 = exp(v2__ar0)
+            f32 v4__ar0 = add(in0__ar0, v3__ar0)
+            f32 v5__ar0 = reciprocal(v4__ar0)
+            f32 v6__ar0 = multiply(acc0__ar0, v5__ar0)
+            f32 v7__ar0 = multiply(acc1__ar0, v6__ar0)
+            for a3 in 0..32
+                in1__ar1 = load input0[(((a0_b * 2) + (a0_u * 2)) + 1), a3]
+                in2__ar1 = load input1[a3, a2]
+                f32 v0__ar1 = multiply(in1__ar1, in2__ar1)
+                in3__ar1 = load input2[a3, a2]
+                f32 v1__ar1 = multiply(in1__ar1, in3__ar1)
+                f32 acc0__ar1 <- add(acc0__ar1, v0__ar1)
+                f32 acc1__ar1 <- add(acc1__ar1, v1__ar1)
+            f32 v2__ar1 = negative(acc0__ar1)
+            f32 v3__ar1 = exp(v2__ar1)
+            f32 v4__ar1 = add(in0__ar1, v3__ar1)
+            f32 v5__ar1 = reciprocal(v4__ar1)
+            f32 v6__ar1 = multiply(acc0__ar1, v5__ar1)
+            f32 v7__ar1 = multiply(acc1__ar1, v6__ar1)
+            in4__bc0 = load input3[a2, ((((a1_b * 3) + (a1_u * 3)) + 0) % 32)]
+            f32 v8__c0_0 = multiply(in4__bc0, v7__ar0)
+            f32 acc2__c0_0 <- add(acc2__c0_0, v8__c0_0)
+            in4__bc1 = load input3[a2, ((((a1_b * 3) + (a1_u * 3)) + 1) % 32)]
+            f32 v8__c0_1 = multiply(in4__bc1, v7__ar0)
+            f32 acc2__c0_1 <- add(acc2__c0_1, v8__c0_1)
+            in4__bc2 = load input3[a2, ((((a1_b * 3) + (a1_u * 3)) + 2) % 32)]
+            f32 v8__c0_2 = multiply(in4__bc2, v7__ar0)
+            f32 acc2__c0_2 <- add(acc2__c0_2, v8__c0_2)
+            f32 v8__c1_0 = multiply(in4__bc0, v7__ar1)
+            f32 acc2__c1_0 <- add(acc2__c1_0, v8__c1_0)
+            f32 v8__c1_1 = multiply(in4__bc1, v7__ar1)
+            f32 acc2__c1_1 <- add(acc2__c1_1, v8__c1_1)
+            f32 v8__c1_2 = multiply(in4__bc2, v7__ar1)
+            f32 acc2__c1_2 <- add(acc2__c1_2, v8__c1_2)
+        if (((((a1_b * 3) + (a1_u * 3)) + 0) < 32)):
+            matmul_2[(((a0_b * 2) + (a0_u * 2)) + 0), ((((a1_b * 3) + (a1_u * 3)) + 0) % 32)] = acc2__c0_0
+        if (((((a1_b * 3) + (a1_u * 3)) + 1) < 32)):
+            matmul_2[(((a0_b * 2) + (a0_u * 2)) + 0), ((((a1_b * 3) + (a1_u * 3)) + 1) % 32)] = acc2__c0_1
+        if (((((a1_b * 3) + (a1_u * 3)) + 2) < 32)):
+            matmul_2[(((a0_b * 2) + (a0_u * 2)) + 0), ((((a1_b * 3) + (a1_u * 3)) + 2) % 32)] = acc2__c0_2
+        if (((((a1_b * 3) + (a1_u * 3)) + 0) < 32)):
+            matmul_2[(((a0_b * 2) + (a0_u * 2)) + 1), ((((a1_b * 3) + (a1_u * 3)) + 0) % 32)] = acc2__c1_0
+        if (((((a1_b * 3) + (a1_u * 3)) + 1) < 32)):
+            matmul_2[(((a0_b * 2) + (a0_u * 2)) + 1), ((((a1_b * 3) + (a1_u * 3)) + 1) % 32)] = acc2__c1_1
+        if (((((a1_b * 3) + (a1_u * 3)) + 2) < 32)):
+            matmul_2[(((a0_b * 2) + (a0_u * 2)) + 1), ((((a1_b * 3) + (a1_u * 3)) + 2) % 32)] = acc2__c1_2

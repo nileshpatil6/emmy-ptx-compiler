@@ -1,0 +1,12 @@
+    Tile[a0, a1_co] (N=6528)
+        for a1 in a1_co..4:128
+            in0 = load input0[(a0 // 17), (a0 % 17), a1]
+            f32 acc0 <- maximum(acc0, in0)
+        WarpShuffle(acc0, length=32)
+        Smem float acc0_smem[4]
+        if ((lane == 0)):
+            acc0_smem[warp] = acc0
+        Sync
+        TreeHalve(acc0, length=4, tid=warp)
+        if ((a1_co == 0)):
+            amax[(a0 // 17), (a0 % 17)] = acc0

@@ -1,0 +1,76 @@
+{
+ "id": "f_dl_cosine_8x32",
+ "code": "exec('class Primitive(nn.Module):\\n def forward(self, input0, input1):\\n  x = input0\\n  y = input1\\n  return (x * y).sum(-1) * torch.rsqrt((x * x).sum(-1) * (y * y).sum(-1) + 1e-06)'); Primitive()(torch.randn(8, 32), torch.randn(8, 32))",
+ "rtol": 0.001,
+ "atol": 0.0001,
+ "graph_inputs": [
+  "input0",
+  "input1"
+ ],
+ "graph_outputs": [
+  "mul_4"
+ ],
+ "kernels": [
+  {
+   "node": "mul_4",
+   "entry": "k_mul_4_reduce",
+   "arg_order": [
+    "add_c1",
+    "input1",
+    "input0",
+    "mul_4"
+   ],
+   "grid": [
+    8,
+    1,
+    1
+   ],
+   "block": [
+    128,
+    1,
+    1
+   ],
+   "smem_bytes": 0,
+   "zero_outputs": [],
+   "args": [
+    {
+     "name": "add_c1",
+     "dtype": "f32",
+     "shape": [
+      1
+     ],
+     "data": [
+      1e-06
+     ]
+    },
+    {
+     "name": "input1",
+     "dtype": "f32",
+     "shape": [
+      8,
+      32
+     ],
+     "seed": 1
+    },
+    {
+     "name": "input0",
+     "dtype": "f32",
+     "shape": [
+      8,
+      32
+     ],
+     "seed": 0
+    },
+    {
+     "name": "mul_4",
+     "dtype": "f32",
+     "shape": [
+      8
+     ],
+     "output": true
+    }
+   ],
+   "final": true
+  }
+ ]
+}

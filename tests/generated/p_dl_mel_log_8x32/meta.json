@@ -1,0 +1,66 @@
+{
+ "id": "p_dl_mel_log_8x32",
+ "code": "exec('class Primitive(nn.Module):\\n def forward(self, input0):\\n  return torch.log(input0.abs() + 1e-05)'); Primitive()(torch.randn(8, 32))",
+ "rtol": 0.001,
+ "atol": 0.0001,
+ "graph_inputs": [
+  "input0"
+ ],
+ "graph_outputs": [
+  "log"
+ ],
+ "kernels": [
+  {
+   "node": "log",
+   "entry": "k_log_pointwise",
+   "arg_order": [
+    "add_c1",
+    "input0",
+    "log"
+   ],
+   "grid": [
+    1,
+    1,
+    1
+   ],
+   "block": [
+    256,
+    1,
+    1
+   ],
+   "smem_bytes": 0,
+   "zero_outputs": [],
+   "args": [
+    {
+     "name": "add_c1",
+     "dtype": "f32",
+     "shape": [
+      1
+     ],
+     "data": [
+      1e-05
+     ]
+    },
+    {
+     "name": "input0",
+     "dtype": "f32",
+     "shape": [
+      8,
+      32
+     ],
+     "seed": 0
+    },
+    {
+     "name": "log",
+     "dtype": "f32",
+     "shape": [
+      8,
+      32
+     ],
+     "output": true
+    }
+   ],
+   "final": true
+  }
+ ]
+}

@@ -1,0 +1,98 @@
+{
+  "inputs": [
+    "layer_norm_rsq_bc__place_a43dcda4ee_0"
+  ],
+  "outputs": [
+    "layer_norm_rsq_bc"
+  ],
+  "nodes": {
+    "layer_norm_eps": {
+      "op": "ConstantOp",
+      "op_fields": {
+        "name": "layer_norm_eps",
+        "value": 1e-05,
+        "context_value": null,
+        "load_ops": [],
+        "source_path": null,
+        "source_parts": [],
+        "source_shape": null,
+        "source_dtype": null,
+        "source_graph": null
+      },
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "layer_norm_eps",
+          "shape": [
+            1
+          ],
+          "dtype": "f32"
+        }
+      ]
+    },
+    "layer_norm_var_count": {
+      "op": "ConstantOp",
+      "op_fields": {
+        "name": "layer_norm_var_count",
+        "value": 32.0,
+        "context_value": null,
+        "load_ops": [],
+        "source_path": null,
+        "source_parts": [],
+        "source_shape": null,
+        "source_dtype": null,
+        "source_graph": null
+      },
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "layer_norm_var_count",
+          "shape": [
+            1
+          ],
+          "dtype": "f32"
+        }
+      ]
+    },
+    "layer_norm_rsq_bc__place_a43dcda4ee_0": {
+      "op": "InputOp",
+      "op_fields": {},
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "layer_norm_rsq_bc__place_a43dcda4ee_0",
+          "shape": [
+            8
+          ],
+          "dtype": "f32"
+        }
+      ]
+    },
+    "layer_norm_rsq_bc": {
+      "op": "KernelOp",
+      "op_fields": {
+        "body": [
+          "Tile(axes=(Axis(name='a0', extent=Dim(8), window=None),), body=(Load(names=('in1',), input='layer_norm_var_count', index=(Literal(value=0, dtype='int'),), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v0', op=ElementwiseImpl('reciprocal'), args=('in1',), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Load(names=('acc0__wsa43dcda4ee',), input='layer_norm_rsq_bc__place_a43dcda4ee_0', index=(Var(name='a0'),), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v2__wsa43dcda4ee', op=ElementwiseImpl('multiply'), args=('acc0__wsa43dcda4ee', 'v0'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Load(names=('in0',), input='layer_norm_eps', index=(Literal(value=0, dtype='int'),), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v3__wsa43dcda4ee', op=ElementwiseImpl('add'), args=('in0', 'v2__wsa43dcda4ee'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v4__wsa43dcda4ee', op=ElementwiseImpl('rsqrt'), args=('v3__wsa43dcda4ee',), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Loop(axis=Axis(name='a2', extent=Dim(32), window=None), body=(Write(output='layer_norm_rsq_bc', index=(Var(name='a0'), Var(name='a2')), values=('v4__wsa43dcda4ee',), value_dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), atomic=False, swizzle='NONE'),), unroll=False, seed=True)), block_threads=None, aux_threads=0, raster_axes=None, raster_group=None, raster_orient='m')"
+        ],
+        "name": "k_layer_norm_reduce_0baa0c",
+        "zero_delegated": [],
+        "serial": []
+      },
+      "inputs": [
+        "layer_norm_rsq_bc__place_a43dcda4ee_0",
+        "layer_norm_var_count",
+        "layer_norm_eps"
+      ],
+      "outputs": [
+        {
+          "name": "layer_norm_rsq_bc",
+          "shape": [
+            8,
+            32
+          ],
+          "dtype": "f32"
+        }
+      ]
+    }
+  }
+}

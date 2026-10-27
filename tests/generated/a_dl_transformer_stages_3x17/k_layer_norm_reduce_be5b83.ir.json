@@ -1,0 +1,73 @@
+{
+  "inputs": [
+    "layer_norm_mean_bc__place_453209384d_0"
+  ],
+  "outputs": [
+    "layer_norm_mean_bc"
+  ],
+  "nodes": {
+    "layer_norm_mean_count": {
+      "op": "ConstantOp",
+      "op_fields": {
+        "name": "layer_norm_mean_count",
+        "value": 17.0,
+        "context_value": null,
+        "load_ops": [],
+        "source_path": null,
+        "source_parts": [],
+        "source_shape": null,
+        "source_dtype": null,
+        "source_graph": null
+      },
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "layer_norm_mean_count",
+          "shape": [
+            1
+          ],
+          "dtype": "f32"
+        }
+      ]
+    },
+    "layer_norm_mean_bc__place_453209384d_0": {
+      "op": "InputOp",
+      "op_fields": {},
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "layer_norm_mean_bc__place_453209384d_0",
+          "shape": [
+            3
+          ],
+          "dtype": "f32"
+        }
+      ]
+    },
+    "layer_norm_mean_bc": {
+      "op": "KernelOp",
+      "op_fields": {
+        "body": [
+          "Tile(axes=(Axis(name='a0', extent=Dim(3), window=None),), body=(Load(names=('in0',), input='layer_norm_mean_count', index=(Literal(value=0, dtype='int'),), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v0', op=ElementwiseImpl('reciprocal'), args=('in0',), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Load(names=('acc0__ws453209384d',), input='layer_norm_mean_bc__place_453209384d_0', index=(Var(name='a0'),), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Assign(name='v1__ws453209384d', op=ElementwiseImpl('multiply'), args=('acc0__ws453209384d', 'v0'), dtype=DataType(name='f32', np=dtype('float32'), nbytes=4)), Loop(axis=Axis(name='a2', extent=Dim(17), window=None), body=(Write(output='layer_norm_mean_bc', index=(Var(name='a0'), Var(name='a2')), values=('v1__ws453209384d',), value_dtype=DataType(name='f32', np=dtype('float32'), nbytes=4), atomic=False, swizzle='NONE'),), unroll=False, seed=True)), block_threads=None, aux_threads=0, raster_axes=None, raster_group=None, raster_orient='m')"
+        ],
+        "name": "k_layer_norm_reduce_be5b83",
+        "zero_delegated": [],
+        "serial": []
+      },
+      "inputs": [
+        "layer_norm_mean_bc__place_453209384d_0",
+        "layer_norm_mean_count"
+      ],
+      "outputs": [
+        {
+          "name": "layer_norm_mean_bc",
+          "shape": [
+            3,
+            17
+          ],
+          "dtype": "f32"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,5 @@
+    Tile[a0] (N=256)
+        in0 = load layer_norm_centered[(a0 // 32), (a0 % 32)]
+        in1 = load layer_norm_rsq_bc[(a0 // 32), (a0 % 32)]
+        f32 v0 = multiply(in0, in1)
+        layer_norm[(a0 // 32), (a0 % 32)] = v0

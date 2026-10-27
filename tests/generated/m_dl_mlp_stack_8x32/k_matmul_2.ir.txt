@@ -1,0 +1,73 @@
+    Tile[_a2_ks, a0, a1, a2_co] (N=2560)
+        for a2 in a2_co..16:64
+            for a3 in 0..64
+                for a4 in 0..32
+                    in0 = load input0[a0, a4]
+                    in1 = load input1[a4, a3]
+                    f32 v0 = multiply(in0, in1)
+                    f32 acc0 <- add(acc0, v0)
+                f32 v1 = relu(acc0)
+                in2 = load input2[a3, ((_a2_ks * 16) + a2)]
+                f32 v2 = multiply(in2, v1)
+                f32 acc1 <- add(acc1, v2)
+            f32 v3 = relu(acc1)
+            in3 = load input3[((_a2_ks * 16) + a2), a1]
+            f32 v4 = multiply(in3, v3)
+            f32 acc2 <- add(acc2, v4)
+            for a3 in 0..64
+                for a4 in 0..32
+                    in0__r1 = load input0[a0, a4]
+                    in1__r1 = load input1[a4, a3]
+                    f32 v0__r1 = multiply(in0__r1, in1__r1)
+                    f32 acc0__r1 <- add(acc0__r1, v0__r1)
+                f32 v1__r1 = relu(acc0__r1)
+                in2__r1 = load input2[a3, ((_a2_ks * 16) + ((a2 + 16) % 16))]
+                f32 v2__r1 = multiply(in2__r1, v1__r1)
+                f32 acc1__r1 <- add(acc1__r1, v2__r1)
+            f32 v3__r1 = relu(acc1__r1)
+            in3__r1 = load input3[((_a2_ks * 16) + ((a2 + 16) % 16)), a1]
+            f32 v4__r1 = multiply(in3__r1, v3__r1)
+            Init(f32 v4__r1__id = 0.0)
+            v4__r1__m = v4__r1 when (((a2 + 16) < 16))
+                        v4__r1__id when (1)
+            f32 acc2__r1 <- add(acc2__r1, v4__r1__m)
+            for a3 in 0..64
+                for a4 in 0..32
+                    in0__r2 = load input0[a0, a4]
+                    in1__r2 = load input1[a4, a3]
+                    f32 v0__r2 = multiply(in0__r2, in1__r2)
+                    f32 acc0__r2 <- add(acc0__r2, v0__r2)
+                f32 v1__r2 = relu(acc0__r2)
+                in2__r2 = load input2[a3, ((_a2_ks * 16) + ((a2 + 32) % 16))]
+                f32 v2__r2 = multiply(in2__r2, v1__r2)
+                f32 acc1__r2 <- add(acc1__r2, v2__r2)
+            f32 v3__r2 = relu(acc1__r2)
+            in3__r2 = load input3[((_a2_ks * 16) + ((a2 + 32) % 16)), a1]
+            f32 v4__r2 = multiply(in3__r2, v3__r2)
+            Init(f32 v4__r2__id = 0.0)
+            v4__r2__m = v4__r2 when (((a2 + 32) < 16))
+                        v4__r2__id when (1)
+            f32 acc2__r2 <- add(acc2__r2, v4__r2__m)
+            for a3 in 0..64
+                for a4 in 0..32
+                    in0__r3 = load input0[a0, a4]
+                    in1__r3 = load input1[a4, a3]
+                    f32 v0__r3 = multiply(in0__r3, in1__r3)
+                    f32 acc0__r3 <- add(acc0__r3, v0__r3)
+                f32 v1__r3 = relu(acc0__r3)
+                in2__r3 = load input2[a3, ((_a2_ks * 16) + ((a2 + 48) % 16))]
+                f32 v2__r3 = multiply(in2__r3, v1__r3)
+                f32 acc1__r3 <- add(acc1__r3, v2__r3)
+            f32 v3__r3 = relu(acc1__r3)
+            in3__r3 = load input3[((_a2_ks * 16) + ((a2 + 48) % 16)), a1]
+            f32 v4__r3 = multiply(in3__r3, v3__r3)
+            Init(f32 v4__r3__id = 0.0)
+            v4__r3__m = v4__r3 when (((a2 + 48) < 16))
+                        v4__r3__id when (1)
+            f32 acc2__r3 <- add(acc2__r3, v4__r3__m)
+        f32 acc2 <- add(acc2, acc2__r1)
+        f32 acc2 <- add(acc2, acc2__r2)
+        f32 acc2 <- add(acc2, acc2__r3)
+        WarpShuffle(acc2, length=16)
+        if ((a2_co == 0)):
+            matmul_2[a0, a1] += acc2  (atomic)
