@@ -9,6 +9,7 @@ import pytest
 from bench.common import check_outputs, execute_remote, input_array, launch_args
 from bench.compare_nvcc import measured
 from bench.demo_e2e import laptop_ptx
+from bench.demo_transformer import map_stage_inputs
 from bench.nvrtc_backend import render_cuda
 from tools.launch_contract import ordered_kernels
 
@@ -17,6 +18,25 @@ def test_inputs_match_organiser_dtype_and_seed():
     arg = dict(name="x", dtype="i64", shape=[7], seed=2)
     assert np.array_equal(input_array(arg), np.random.default_rng(2).standard_normal(7).astype(np.int64))
     assert np.array_equal(input_array(dict(dtype="f32", shape=[3], data=[2])), [2, 2, 2])
+
+
+def test_stage_input_mapping_checks_names_order_shape_and_dtype():
+    meta = dict(graph_inputs=["q", "k"], kernels=[dict(args=[
+        dict(name="k", shape=[2, 2], dtype="f32"), dict(name="q", shape=[2, 2], dtype="f32")])])
+    q = np.arange(4, dtype=np.float32).reshape(2, 2)
+    k = np.ones((2, 2), dtype=np.float32).T
+    bound = map_stage_inputs(meta, ("q", "k"), [q, k])
+    assert np.array_equal(bound["q"], q)
+    assert np.array_equal(bound["k"], k)
+    assert bound["k"].flags.c_contiguous
+    with pytest.raises(ValueError, match="input order"):
+        map_stage_inputs(meta, ("k", "q"), [k, q])
+    with pytest.raises(ValueError, match="shape"):
+        map_stage_inputs(meta, ("q", "k"), [q[:, :1], k])
+    with pytest.raises(ValueError, match="dtype"):
+        map_stage_inputs(meta, ("q", "k"), [q.astype(np.float64), k])
+    with pytest.raises(ValueError, match="input arrays"):
+        map_stage_inputs(meta, ("q", "k"), [q])
 
 
 def test_launch_order_and_intermediate_values():

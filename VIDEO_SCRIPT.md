@@ -4,6 +4,9 @@ Use Python 3.12. Open README, the light-theme benchmark plots and a terminal.
 Use recorded JSON for the large suite, and run the small demo live. Describe
 cached suite output as cached.
 
+Run the transformer demo once without `--reuse-generated` before recording to prepare
+its stage IRs.
+
 ## 0:00 to 0:25: What the compiler does
 
 Screen: README and compile.py.
@@ -66,14 +69,16 @@ skips. Do not claim a cause for speed differences without profiling.
 Screen: terminal.
 
 ```bash
-python bench/demo_e2e.py --backend local --reuse-generated
+python bench/demo_transformer.py --backend local --reuse-generated
 ```
 
-"This PyTorch MLP has widths 32, 64 and 10. Emmy traces it to Kernel IR, our
-compiler produces PTX, and two kernels share the hidden-layer buffer on this
-RTX 3050."
+"This is a full pre-norm transformer block: LayerNorm, causal attention with
+Q/K/V projections, a residual, another LayerNorm, a SwiGLU MLP and a final
+residual. Small stage models are traced separately to avoid Emmy's bad fusion.
+Our compiled kernels run on this RTX 3050, with host arrays between stages."
 
-Point at the kernel lines, logits, errors and PASS. Only the demo's loaded
+Point at the stage lines, whole-block PyTorch errors and PASS. The additive
+causal mask is an input tensor. Only the demo's loaded
 PTX target changes to sm_86; the submission still emits sm_89. Compile and
 kernel times are separate, not total model latency.
 
