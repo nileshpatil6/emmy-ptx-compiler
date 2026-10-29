@@ -224,8 +224,8 @@ python bench/demo_transformer.py --backend remote
 python bench/demo_transformer.py --backend local --reuse-generated
 ```
 
-Both GPUs pass: maximum absolute errors are 1.79e-7 on the RTX 3050 and 2.38e-7 on the
-RTX 5090. Results and exact console output are saved in [demo_transformer_result.json](docs/demo_transformer_result.json).
+Both GPUs pass, with maximum absolute errors around 2e-7. Results and exact console output
+are saved in [demo_transformer_result.json](docs/demo_transformer_result.json).
 No compiler changes or external CUDA compiler are used by this demo. The original MLP
 demo is also available:
 
